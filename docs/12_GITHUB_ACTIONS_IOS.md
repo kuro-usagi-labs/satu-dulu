@@ -213,10 +213,6 @@ Ad-hoc uses method appropriate to the Xcode version/toolchain and a provisioning
 
 ## Repository URL
 
-Use placeholder until user provides:
-
 ```text
-https://github.com/<GITHUB_USERNAME>/<REPOSITORY_NAME>
+https://github.com/kuro-usagi-labs/satu-dulu
 ```
-
-No documentation depends on a concrete URL.

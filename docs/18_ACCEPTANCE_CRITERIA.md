@@ -1,67 +1,69 @@
 # Acceptance Criteria
 
+Status diperbarui 17 Juli 2026 berdasarkan test otomatis dan inspeksi source. Item yang memerlukan artefak GitHub atau perangkat fisik tetap terbuka sampai ada bukti eksekusi.
+
 ## Today
 
-- [ ] Focus project visible immediately.
-- [ ] Sprint day visible.
-- [ ] Exactly one required outcome emphasized.
-- [ ] No more than three actions shown.
-- [ ] Ship CTA reachable without opening another tab.
-- [ ] Low energy mode available.
-- [ ] Lost Track reachable in one tap.
+- [x] Focus project visible immediately.
+- [x] Sprint day visible.
+- [x] Exactly one required outcome emphasized.
+- [x] No more than three actions shown.
+- [x] Ship CTA reachable without opening another tab.
+- [x] Low energy mode available.
+- [x] Lost Track reachable in one tap.
 
 ## Project status
 
-- [ ] Database never ends with two focus projects.
-- [ ] User understands what happens to previous focus.
-- [ ] Parking Lot items remain accessible but not pushed daily.
+- [x] Database never ends with two focus projects.
+- [x] User understands what happens to previous focus.
+- [x] Parking Lot items remain accessible but not pushed daily.
 
 ## Ship
 
-- [ ] Can record full or partial ship.
-- [ ] Persists after restart.
-- [ ] Duplicate ship is prevented or edited intentionally.
-- [ ] Success animation respects Reduce Motion.
+- [x] Can record full or partial ship.
+- [x] Persists after restart.
+- [x] Duplicate ship is prevented or edited intentionally.
+- [x] Success animation respects Reduce Motion.
 
 ## Lost Track
 
-- [ ] Shows project goal and why chosen.
-- [ ] Shows today's outcome.
-- [ ] Shows smallest action.
-- [ ] Opens primary guide when available.
-- [ ] Works with missing guide.
+- [x] Shows project goal and why chosen.
+- [x] Shows today's outcome.
+- [x] Shows smallest action.
+- [x] Opens primary guide when available.
+- [x] Works with missing guide.
 
 ## PDF import
 
-- [ ] Only accepted PDF proceeds.
-- [ ] Source cancel returns safely.
-- [ ] File copied to app storage.
-- [ ] Metadata created only after valid copy.
-- [ ] Imported PDF survives source removal and app restart.
-- [ ] Rename changes display title only.
+- [x] Only accepted PDF proceeds.
+- [x] Source cancel returns safely.
+- [x] File copied to app storage.
+- [x] Metadata created only after valid copy.
+- [x] Imported PDF survives source removal and app restart.
+- [x] Rename changes display title only.
 
 ## PDF reader
 
-- [ ] Opens offline.
-- [ ] Supports zoom and scrolling.
-- [ ] Shows page position.
-- [ ] Saves last page.
-- [ ] Resumes after restart.
-- [ ] Corrupt PDF shows recoverable error.
+- [x] Opens offline.
+- [x] Supports zoom and scrolling.
+- [x] Shows page position.
+- [x] Saves last page.
+- [x] Resumes after restart.
+- [x] Corrupt PDF shows recoverable error.
 
 ## Design
 
-- [ ] White minimalist theme used consistently.
-- [ ] No random colors outside token system.
-- [ ] Main card radius and spacing consistent.
-- [ ] Tap targets at least 44x44.
-- [ ] Long text does not overflow.
-- [ ] Motion is smooth and functional.
+- [x] White minimalist theme used consistently.
+- [x] No random colors outside token system.
+- [x] Main card radius and spacing consistent.
+- [x] Tap targets at least 44x44.
+- [ ] Long text does not overflow (physical-device Dynamic Type QA pending).
+- [x] Motion is smooth and functional in automated/widget inspection; device QA pending.
 
 ## CI
 
-- [ ] PR runs format check, analyze, tests.
-- [ ] iOS build uses macOS runner.
+- [x] PR runs format check, analyze, tests.
+- [x] iOS build uses macOS runner.
 - [ ] unsigned IPA workflow creates artifact.
-- [ ] signed workflow does not expose secrets.
-- [ ] release build failure is actionable.
+- [x] signed workflow does not expose secrets.
+- [x] release build failure is actionable through named workflow steps.

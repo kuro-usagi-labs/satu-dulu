@@ -1,6 +1,6 @@
-# Repository Placeholders
+# Repository Configuration
 
-Ganti nilai berikut setelah repository dan Apple configuration tersedia.
+Nilai repository dan identitas aplikasi sudah diputuskan. Hanya material signing Apple yang tetap dikelola di luar repository.
 
 ## GitHub
 
@@ -38,23 +38,23 @@ KEYCHAIN_PASSWORD
 EXPORT_OPTIONS_PLIST_BASE64
 ```
 
-## Decisions still open
+## Decisions
 
-- minimum iOS version confirmation;
-- app icon;
-- primary accent color confirmation;
-- exact reminder default hours;
+- minimum iOS version: iOS 16+;
+- app icon: cobalt focus mark di atas off-white;
+- primary accent: `#4468F2`;
+- reminder defaults: tersimpan lokal dan dapat diubah pengguna;
 - signed build type: development or ad-hoc;
 - whether App Store distribution is planned;
-- whether P1 widget is included before first private release.
+- widget tidak termasuk MVP.
 
 ## Repository integration checklist
 
 - [x] User provides GitHub URL.
-- [ ] Replace placeholders.
-- [ ] Add docs pack to root.
+- [x] Replace repository, package, and bundle placeholders.
+- [x] Add docs pack to root.
 - [ ] Add branch protection.
-- [ ] Configure Actions permissions.
+- [x] Configure least-privilege permissions in workflow files.
 - [ ] Create `ios-build` environment.
 - [ ] Add signing secrets only if signed IPA needed.
-- [ ] Run bootstrap prompt.
+- [x] Run bootstrap and implement the MVP roadmap.

@@ -8,3 +8,7 @@
 - Daily evidence metrics, contextual project comparison, and weekly review decisions.
 - Optional local reminders with permission education and Indonesian time zones.
 - Flutter web preview for visual QA on Windows.
+- Final iOS/web app icon set and branded off-white launch screen.
+- App privacy manifest declaring no tracking or off-device data collection.
+- Drift schema v1 baseline and migration validation tests.
+- GitHub Actions workflows for tested unsigned and protected signed IPA builds.

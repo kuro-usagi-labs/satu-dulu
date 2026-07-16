@@ -12,7 +12,7 @@ Alasan produk:
 
 Nilai ini dapat diubah sebelum implementation freeze.
 
-## Bundle and signing placeholders
+## Bundle and signing
 
 ```text
 Bundle ID: com.kurogi.satudulu
@@ -66,16 +66,16 @@ MVP tidak memerlukan background processing kompleks. Local notifications dijadwa
 
 ## App icon and launch screen
 
-Gunakan placeholder pada bootstrap. Sebelum RC:
+Release candidate menggunakan:
 
-- app icon lengkap seluruh required sizes;
-- launch screen putih/off-white;
-- centered minimal logo;
-- no marketing copy panjang.
+- app icon lengkap untuk seluruh ukuran iPhone, iPad, dan App Store;
+- background launch screen off-white `#F6F7F9`;
+- centered minimal mark tanpa copy marketing;
+- generator deterministik di `tool/generate_app_icons.ps1`.
 
 ## Privacy manifest and package review
 
-Sebelum release, audit seluruh plugin iOS untuk privacy manifest dan required reason API declarations yang relevan.
+Target Runner menyertakan `PrivacyInfo.xcprivacy` yang menyatakan aplikasi tidak melakukan tracking atau pengumpulan data keluar perangkat. Plugin iOS tetap wajib membawa deklarasi required-reason API masing-masing; audit plugin diulang setiap dependency berubah.
 
 ## Device testing
 

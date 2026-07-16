@@ -1,6 +1,6 @@
 # MVP implementation audit
 
-Tanggal audit lokal: 16 Juli 2026.
+Tanggal audit lokal: 17 Juli 2026.
 
 ## Implemented and automated
 
@@ -21,15 +21,19 @@ Tanggal audit lokal: 16 Juli 2026.
 | Windows preview | Flutter web release, Drift worker, and SQLite WASM over local HTTP |
 | CI and IPA definitions | PR CI, unsigned macOS workflow, protected manual signed workflow |
 | Identity | Bundle ID `com.kurogi.satudulu`; repository remote configured |
+| Database migration | Drift schema v1 baseline plus migration/data-preservation verification |
+| Release assets | 19 opaque iOS icons, web icons, branded launch screen, and deterministic generator |
+| Privacy | Runner privacy manifest declares no tracking or off-device collection |
 
 ## Local validation completed
 
 - `dart format .`
 - `flutter analyze` — no issues
-- `flutter test --concurrency=1` — 22 tests passed
+- `flutter test --concurrency=1` — 24 tests passed
 - `flutter build web --release` — succeeded, including WASM dry run
 - Local HTTP checks for HTML, app bundle, Drift worker, and SQLite WASM — HTTP 200
 - Workflow YAML parse and signing-material scan — passed
+- App icon dimension/alpha and plist/storyboard XML validation — passed
 
 ## Requires macOS or physical-device validation
 

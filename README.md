@@ -1,4 +1,4 @@
-# Satu Dulu — Codex Development Pack
+# Satu Dulu
 
 Dokumentasi ini adalah blueprint pengembangan aplikasi iOS **Satu Dulu** menggunakan Flutter.
 
@@ -69,6 +69,12 @@ python -m http.server 8080
 
 Buka `http://localhost:8080`. Jangan membuka hasil build langsung dengan skema `file://` karena worker database memerlukan HTTP lokal.
 
+Ikon aplikasi iOS/web dan mark launch screen dapat diregenerasi secara deterministik dari token brand:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tool/generate_app_icons.ps1
+```
+
 Pemeriksaan wajib sebelum membuka pull request:
 
 ```bash
@@ -78,6 +84,15 @@ flutter test
 ```
 
 Bundle ID aplikasi adalah `com.kurogi.satudulu`. Material signing tidak diperlukan untuk pemeriksaan pull request.
+
+## Build IPA di GitHub
+
+- Push ke `main` menjalankan format check, analyzer, dan seluruh test.
+- Tag `v*` atau manual dispatch pada workflow **Build Unsigned iOS IPA** menghasilkan artefak `satu-dulu-unsigned-ipa` selama 14 hari.
+- IPA unsigned harus ditandatangani ulang sebelum dipasang ke perangkat.
+- Workflow **Build Signed iOS IPA** hanya dapat dijalankan manual dari environment terlindungi `ios-build` setelah seluruh secret signing Apple tersedia.
+
+Detail signing dan troubleshooting ada di `docs/12_GITHUB_ACTIONS_IOS.md`.
 
 ## Urutan membaca
 
