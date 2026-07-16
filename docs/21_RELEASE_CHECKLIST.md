@@ -16,8 +16,8 @@
 ## Distribution
 
 - [x] Run unsigned IPA workflow and inspect artifact (`v0.1.0`, run `29525454301`).
-- [ ] For signed build, use protected `ios-build` environment and configured secrets.
-- [ ] Install the signed build on an intended device before sharing.
+- [x] Signed GitHub build intentionally skipped; owner chose local sideload signing.
+- [ ] Re-sign and smoke-test the unsigned IPA on the intended iPhone.
 - [x] Record release notes in `CHANGELOG.md`.
 
 Unsigned IPA artifacts require signing or re-signing before installation.

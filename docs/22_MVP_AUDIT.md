@@ -53,6 +53,8 @@ Tanggal audit lokal: 17 Juli 2026.
 - Verify reminder delivery across app restart and timezone changes.
 - Test PDF import from Files/iCloud provider and source removal.
 - Inspect smallest supported iPhone, Dynamic Type, Reduce Motion, and PDF landscape.
-- Confirm signing profile matches `com.kurogi.satudulu` before a signed build.
+- Re-sign the released unsigned IPA with the selected sideload tool and smoke-test it on the intended iPhone.
 
 These items remain release gates; Windows cannot provide credible evidence for them.
+
+The owner intentionally chose sideload distribution for `v0.1.0`; GitHub-hosted Apple signing is not a release requirement.

@@ -44,8 +44,8 @@ EXPORT_OPTIONS_PLIST_BASE64
 - app icon: cobalt focus mark di atas off-white;
 - primary accent: `#4468F2`;
 - reminder defaults: tersimpan lokal dan dapat diubah pengguna;
-- signed build type: development or ad-hoc;
-- whether App Store distribution is planned;
+- distribusi `v0.1.0`: IPA unsigned untuk ditandatangani ulang oleh tooling sideload;
+- signed GitHub workflow dan App Store distribution tidak digunakan untuk rilis ini;
 - widget tidak termasuk MVP.
 
 ## Repository integration checklist
@@ -55,6 +55,6 @@ EXPORT_OPTIONS_PLIST_BASE64
 - [x] Add docs pack to root.
 - [ ] Add branch protection.
 - [x] Configure least-privilege permissions in workflow files.
-- [ ] Create `ios-build` environment.
-- [ ] Add signing secrets only if signed IPA needed.
+- [x] Create reserved `ios-build` environment; tidak digunakan pada `v0.1.0`.
+- [x] Leave signing secrets unset because the owner chose sideload distribution.
 - [x] Run bootstrap and implement the MVP roadmap.
