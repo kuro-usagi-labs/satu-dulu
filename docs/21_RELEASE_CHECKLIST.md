@@ -15,7 +15,7 @@
 
 ## Distribution
 
-- [ ] Run unsigned IPA workflow and inspect artifact.
+- [x] Run unsigned IPA workflow and inspect artifact (`v0.1.0`, run `29525454301`).
 - [ ] For signed build, use protected `ios-build` environment and configured secrets.
 - [ ] Install the signed build on an intended device before sharing.
 - [x] Record release notes in `CHANGELOG.md`.

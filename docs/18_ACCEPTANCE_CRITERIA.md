@@ -64,6 +64,6 @@ Status diperbarui 17 Juli 2026 berdasarkan test otomatis dan inspeksi source. It
 
 - [x] PR runs format check, analyze, tests.
 - [x] iOS build uses macOS runner.
-- [ ] unsigned IPA workflow creates artifact.
+- [x] unsigned IPA workflow creates artifact (run `29525454301`, tag `v0.1.0`).
 - [x] signed workflow does not expose secrets.
 - [x] release build failure is actionable through named workflow steps.

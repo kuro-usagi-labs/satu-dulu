@@ -35,6 +35,16 @@ Tanggal audit lokal: 17 Juli 2026.
 - Workflow YAML parse and signing-material scan — passed
 - App icon dimension/alpha and plist/storyboard XML validation — passed
 
+## GitHub release validation
+
+- Flutter CI run `29525231912` passed on commit `5b9ad62`.
+- Unsigned iOS run `29525454301` passed from tag `v0.1.0` on macOS 15.
+- Artifact `satu-dulu-unsigned-ipa` contains `SatuDulu-unsigned.ipa` (13,421,020 bytes).
+- IPA metadata: `com.kurogi.satudulu`, version `0.1.0` build `1`, minimum iOS `16.0`.
+- Runner privacy manifest is present.
+- No embedded provisioning profile or `_CodeSignature` is present, as expected for the unsigned workflow.
+- IPA SHA-256: `6566EDD39D2D9460BE693100E8A15EA81CFD5A64FF41474B4529BF445195746C`.
+
 ## Requires macOS or physical-device validation
 
 - Build the iOS target on the configured macOS GitHub runner.
