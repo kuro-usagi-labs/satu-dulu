@@ -11,6 +11,8 @@ web/*.js.map
 
 # Local tooling and editors
 .tooling/
+.agents/
+skills-lock.json
 .idea/
 .vscode/
 *.iml
