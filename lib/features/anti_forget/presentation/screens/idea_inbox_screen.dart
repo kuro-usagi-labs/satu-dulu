@@ -38,8 +38,9 @@ class IdeaInboxScreen extends ConsumerWidget {
               ],
             ),
           ),
-          error: (error, stackTrace) =>
-              _ErrorState(onRetry: () => ref.invalidate(activeIdeasProvider)),
+          error: (error, stackTrace) => _ErrorState(
+            onRetry: () => ref.invalidate(activeIdeasProvider),
+          ),
           data: (items) => ListView(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.generous,
@@ -57,9 +58,9 @@ class IdeaInboxScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.compact),
               Text(
                 'Simpan lintasan pikiranmu di sini. Ide baru tidak membuat sprint, tugas, atau tekanan baru.',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
               const SizedBox(height: AppSpacing.major),
               if (items.isEmpty)
@@ -188,7 +189,7 @@ class IdeaInboxScreen extends ConsumerWidget {
       }
       ref.invalidate(activeIdeasProvider);
     } on AppException catch (error) {
-      _showError(context, error.message);
+      if (context.mounted) _showError(context, error.message);
     }
   }
 
@@ -222,7 +223,7 @@ class IdeaInboxScreen extends ConsumerWidget {
       ref.invalidate(projectsProvider);
       if (context.mounted) context.push('/projects/$projectId');
     } on AppException catch (error) {
-      _showError(context, error.message);
+      if (context.mounted) _showError(context, error.message);
     }
   }
 
@@ -258,7 +259,7 @@ class IdeaInboxScreen extends ConsumerWidget {
           .setIdeaDisposition(idea.id, disposition);
       ref.invalidate(activeIdeasProvider);
     } on AppException catch (error) {
-      _showError(context, error.message);
+      if (context.mounted) _showError(context, error.message);
     }
   }
 
@@ -303,10 +304,7 @@ class _IdeaCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    idea.title,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+                  Text(idea.title, style: Theme.of(context).textTheme.titleMedium),
                   if (idea.note case final note?) ...[
                     const SizedBox(height: AppSpacing.micro),
                     Text(
@@ -333,17 +331,24 @@ class _IdeaCard extends StatelessWidget {
             PopupMenuButton<String>(
               tooltip: 'Tindakan ide',
               onSelected: (value) {
-                switch (value) {
-                  case 'edit':
-                    onEdit();
-                  case 'convert':
-                    onConvert();
-                  case 'park':
-                    onDisposition(IdeaDisposition.parked);
-                  case 'inbox':
-                    onDisposition(IdeaDisposition.inbox);
-                  case 'discard':
-                    onDisposition(IdeaDisposition.discarded);
+                if (value == 'edit') {
+                  onEdit();
+                  return;
+                }
+                if (value == 'convert') {
+                  onConvert();
+                  return;
+                }
+                if (value == 'park') {
+                  onDisposition(IdeaDisposition.parked);
+                  return;
+                }
+                if (value == 'inbox') {
+                  onDisposition(IdeaDisposition.inbox);
+                  return;
+                }
+                if (value == 'discard') {
+                  onDisposition(IdeaDisposition.discarded);
                 }
               },
               itemBuilder: (context) => [
