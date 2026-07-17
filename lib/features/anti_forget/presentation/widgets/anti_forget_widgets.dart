@@ -4,7 +4,11 @@ import 'package:satu_dulu/core/widgets/app_primitives.dart';
 import 'package:satu_dulu/features/anti_forget/domain/entities/anti_forget_models.dart';
 
 class DailyCheckInCard extends StatelessWidget {
-  const DailyCheckInCard({required this.checkIn, required this.onTap, super.key});
+  const DailyCheckInCard({
+    required this.checkIn,
+    required this.onTap,
+    super.key,
+  });
 
   final DailyCheckIn? checkIn;
   final VoidCallback onTap;
@@ -60,7 +64,11 @@ class DailyCheckInCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(value == null ? Icons.arrow_forward_rounded : Icons.edit_outlined),
+              Icon(
+                value == null
+                    ? Icons.arrow_forward_rounded
+                    : Icons.edit_outlined,
+              ),
             ],
           ),
         ),
@@ -110,9 +118,7 @@ class RecoveryModeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AppIconBadge(
-                  icon: urgent
-                      ? Icons.route_outlined
-                      : Icons.explore_outlined,
+                  icon: urgent ? Icons.route_outlined : Icons.explore_outlined,
                   foreground: urgent ? AppColors.warning : AppColors.accentDeep,
                   background: AppColors.surface,
                 ),
@@ -135,9 +141,9 @@ class RecoveryModeCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.innerCompact),
             Text(
               brief.message,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
             ),
             if (brief.suggestedAction?.trim().isNotEmpty == true) ...[
               const SizedBox(height: AppSpacing.innerCompact),

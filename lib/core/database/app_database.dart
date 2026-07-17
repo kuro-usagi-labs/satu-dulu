@@ -48,11 +48,8 @@ class Ideas extends Table {
 @DataClassName('RestartCapsuleRow')
 class RestartCapsules extends Table {
   TextColumn get id => text()();
-  TextColumn get projectId => text().unique().references(
-    Projects,
-    #id,
-    onDelete: KeyAction.cascade,
-  )();
+  TextColumn get projectId =>
+      text().unique().references(Projects, #id, onDelete: KeyAction.cascade)();
   TextColumn get lastKnownState => text().nullable()();
   TextColumn get lastOutput => text().nullable()();
   TextColumn get whatWorked => text().nullable()();

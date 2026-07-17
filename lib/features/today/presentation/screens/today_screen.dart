@@ -111,8 +111,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                 brief: support!.recovery,
                 onPrimary: () =>
                     _handleRecoveryPrimary(support.recovery, focus, null),
-                onSecondary: () =>
-                    _handleRecoverySecondary(support, focus),
+                onSecondary: () => _handleRecoverySecondary(support, focus),
               ),
             ],
             const SizedBox(height: AppSpacing.major),
@@ -206,22 +205,16 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
           const SizedBox(height: AppSpacing.standard),
           RecoveryModeCard(
             brief: support!.recovery,
-            onPrimary: () => _handleRecoveryPrimary(
-              support.recovery,
-              today.project,
-              today,
-            ),
-            onSecondary: () =>
-                _handleRecoverySecondary(support, today.project),
+            onPrimary: () =>
+                _handleRecoveryPrimary(support.recovery, today.project, today),
+            onSecondary: () => _handleRecoverySecondary(support, today.project),
           ),
         ],
-        if (support?.capsule case final capsule?
-            when capsule.hasContext) ...[
+        if (support?.capsule case final capsule? when capsule.hasContext) ...[
           const SizedBox(height: AppSpacing.standard),
           RestartContextCard(
             capsule: capsule,
-            onTap: () =>
-                context.push('/projects/${today.project.id}/restart'),
+            onTap: () => context.push('/projects/${today.project.id}/restart'),
           ),
         ],
         const SizedBox(height: AppSpacing.major),

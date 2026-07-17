@@ -894,6 +894,1645 @@ class ProjectsCompanion extends UpdateCompanion<ProjectRow> {
   }
 }
 
+class $IdeasTable extends Ideas with TableInfo<$IdeasTable, IdeaRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $IdeasTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dispositionMeta = const VerificationMeta(
+    'disposition',
+  );
+  @override
+  late final GeneratedColumn<String> disposition = GeneratedColumn<String>(
+    'disposition',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _convertedProjectIdMeta =
+      const VerificationMeta('convertedProjectId');
+  @override
+  late final GeneratedColumn<String> convertedProjectId =
+      GeneratedColumn<String>(
+        'converted_project_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES projects (id) ON DELETE SET NULL',
+        ),
+      );
+  static const VerificationMeta _capturedAtMeta = const VerificationMeta(
+    'capturedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> capturedAt = GeneratedColumn<DateTime>(
+    'captured_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    title,
+    note,
+    source,
+    disposition,
+    convertedProjectId,
+    capturedAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'ideas';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<IdeaRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    }
+    if (data.containsKey('disposition')) {
+      context.handle(
+        _dispositionMeta,
+        disposition.isAcceptableOrUnknown(
+          data['disposition']!,
+          _dispositionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_dispositionMeta);
+    }
+    if (data.containsKey('converted_project_id')) {
+      context.handle(
+        _convertedProjectIdMeta,
+        convertedProjectId.isAcceptableOrUnknown(
+          data['converted_project_id']!,
+          _convertedProjectIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('captured_at')) {
+      context.handle(
+        _capturedAtMeta,
+        capturedAt.isAcceptableOrUnknown(data['captured_at']!, _capturedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_capturedAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  IdeaRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return IdeaRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      ),
+      disposition: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}disposition'],
+      )!,
+      convertedProjectId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}converted_project_id'],
+      ),
+      capturedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}captured_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $IdeasTable createAlias(String alias) {
+    return $IdeasTable(attachedDatabase, alias);
+  }
+}
+
+class IdeaRow extends DataClass implements Insertable<IdeaRow> {
+  final String id;
+  final String title;
+  final String? note;
+  final String? source;
+  final String disposition;
+  final String? convertedProjectId;
+  final DateTime capturedAt;
+  final DateTime updatedAt;
+  const IdeaRow({
+    required this.id,
+    required this.title,
+    this.note,
+    this.source,
+    required this.disposition,
+    this.convertedProjectId,
+    required this.capturedAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || source != null) {
+      map['source'] = Variable<String>(source);
+    }
+    map['disposition'] = Variable<String>(disposition);
+    if (!nullToAbsent || convertedProjectId != null) {
+      map['converted_project_id'] = Variable<String>(convertedProjectId);
+    }
+    map['captured_at'] = Variable<DateTime>(capturedAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  IdeasCompanion toCompanion(bool nullToAbsent) {
+    return IdeasCompanion(
+      id: Value(id),
+      title: Value(title),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      source: source == null && nullToAbsent
+          ? const Value.absent()
+          : Value(source),
+      disposition: Value(disposition),
+      convertedProjectId: convertedProjectId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(convertedProjectId),
+      capturedAt: Value(capturedAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory IdeaRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return IdeaRow(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      note: serializer.fromJson<String?>(json['note']),
+      source: serializer.fromJson<String?>(json['source']),
+      disposition: serializer.fromJson<String>(json['disposition']),
+      convertedProjectId: serializer.fromJson<String?>(
+        json['convertedProjectId'],
+      ),
+      capturedAt: serializer.fromJson<DateTime>(json['capturedAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'note': serializer.toJson<String?>(note),
+      'source': serializer.toJson<String?>(source),
+      'disposition': serializer.toJson<String>(disposition),
+      'convertedProjectId': serializer.toJson<String?>(convertedProjectId),
+      'capturedAt': serializer.toJson<DateTime>(capturedAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  IdeaRow copyWith({
+    String? id,
+    String? title,
+    Value<String?> note = const Value.absent(),
+    Value<String?> source = const Value.absent(),
+    String? disposition,
+    Value<String?> convertedProjectId = const Value.absent(),
+    DateTime? capturedAt,
+    DateTime? updatedAt,
+  }) => IdeaRow(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    note: note.present ? note.value : this.note,
+    source: source.present ? source.value : this.source,
+    disposition: disposition ?? this.disposition,
+    convertedProjectId: convertedProjectId.present
+        ? convertedProjectId.value
+        : this.convertedProjectId,
+    capturedAt: capturedAt ?? this.capturedAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  IdeaRow copyWithCompanion(IdeasCompanion data) {
+    return IdeaRow(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      note: data.note.present ? data.note.value : this.note,
+      source: data.source.present ? data.source.value : this.source,
+      disposition: data.disposition.present
+          ? data.disposition.value
+          : this.disposition,
+      convertedProjectId: data.convertedProjectId.present
+          ? data.convertedProjectId.value
+          : this.convertedProjectId,
+      capturedAt: data.capturedAt.present
+          ? data.capturedAt.value
+          : this.capturedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('IdeaRow(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('note: $note, ')
+          ..write('source: $source, ')
+          ..write('disposition: $disposition, ')
+          ..write('convertedProjectId: $convertedProjectId, ')
+          ..write('capturedAt: $capturedAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    title,
+    note,
+    source,
+    disposition,
+    convertedProjectId,
+    capturedAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is IdeaRow &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.note == this.note &&
+          other.source == this.source &&
+          other.disposition == this.disposition &&
+          other.convertedProjectId == this.convertedProjectId &&
+          other.capturedAt == this.capturedAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class IdeasCompanion extends UpdateCompanion<IdeaRow> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String?> note;
+  final Value<String?> source;
+  final Value<String> disposition;
+  final Value<String?> convertedProjectId;
+  final Value<DateTime> capturedAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const IdeasCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.note = const Value.absent(),
+    this.source = const Value.absent(),
+    this.disposition = const Value.absent(),
+    this.convertedProjectId = const Value.absent(),
+    this.capturedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  IdeasCompanion.insert({
+    required String id,
+    required String title,
+    this.note = const Value.absent(),
+    this.source = const Value.absent(),
+    required String disposition,
+    this.convertedProjectId = const Value.absent(),
+    required DateTime capturedAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       title = Value(title),
+       disposition = Value(disposition),
+       capturedAt = Value(capturedAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<IdeaRow> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? note,
+    Expression<String>? source,
+    Expression<String>? disposition,
+    Expression<String>? convertedProjectId,
+    Expression<DateTime>? capturedAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (note != null) 'note': note,
+      if (source != null) 'source': source,
+      if (disposition != null) 'disposition': disposition,
+      if (convertedProjectId != null)
+        'converted_project_id': convertedProjectId,
+      if (capturedAt != null) 'captured_at': capturedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  IdeasCompanion copyWith({
+    Value<String>? id,
+    Value<String>? title,
+    Value<String?>? note,
+    Value<String?>? source,
+    Value<String>? disposition,
+    Value<String?>? convertedProjectId,
+    Value<DateTime>? capturedAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return IdeasCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      note: note ?? this.note,
+      source: source ?? this.source,
+      disposition: disposition ?? this.disposition,
+      convertedProjectId: convertedProjectId ?? this.convertedProjectId,
+      capturedAt: capturedAt ?? this.capturedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (disposition.present) {
+      map['disposition'] = Variable<String>(disposition.value);
+    }
+    if (convertedProjectId.present) {
+      map['converted_project_id'] = Variable<String>(convertedProjectId.value);
+    }
+    if (capturedAt.present) {
+      map['captured_at'] = Variable<DateTime>(capturedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('IdeasCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('note: $note, ')
+          ..write('source: $source, ')
+          ..write('disposition: $disposition, ')
+          ..write('convertedProjectId: $convertedProjectId, ')
+          ..write('capturedAt: $capturedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $RestartCapsulesTable extends RestartCapsules
+    with TableInfo<$RestartCapsulesTable, RestartCapsuleRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RestartCapsulesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _projectIdMeta = const VerificationMeta(
+    'projectId',
+  );
+  @override
+  late final GeneratedColumn<String> projectId = GeneratedColumn<String>(
+    'project_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'UNIQUE REFERENCES projects (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _lastKnownStateMeta = const VerificationMeta(
+    'lastKnownState',
+  );
+  @override
+  late final GeneratedColumn<String> lastKnownState = GeneratedColumn<String>(
+    'last_known_state',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastOutputMeta = const VerificationMeta(
+    'lastOutput',
+  );
+  @override
+  late final GeneratedColumn<String> lastOutput = GeneratedColumn<String>(
+    'last_output',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _whatWorkedMeta = const VerificationMeta(
+    'whatWorked',
+  );
+  @override
+  late final GeneratedColumn<String> whatWorked = GeneratedColumn<String>(
+    'what_worked',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _blockerMeta = const VerificationMeta(
+    'blocker',
+  );
+  @override
+  late final GeneratedColumn<String> blocker = GeneratedColumn<String>(
+    'blocker',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nextActionMeta = const VerificationMeta(
+    'nextAction',
+  );
+  @override
+  late final GeneratedColumn<String> nextAction = GeneratedColumn<String>(
+    'next_action',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _parkedReasonMeta = const VerificationMeta(
+    'parkedReason',
+  );
+  @override
+  late final GeneratedColumn<String> parkedReason = GeneratedColumn<String>(
+    'parked_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    projectId,
+    lastKnownState,
+    lastOutput,
+    whatWorked,
+    blocker,
+    nextAction,
+    parkedReason,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'restart_capsules';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<RestartCapsuleRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('project_id')) {
+      context.handle(
+        _projectIdMeta,
+        projectId.isAcceptableOrUnknown(data['project_id']!, _projectIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_projectIdMeta);
+    }
+    if (data.containsKey('last_known_state')) {
+      context.handle(
+        _lastKnownStateMeta,
+        lastKnownState.isAcceptableOrUnknown(
+          data['last_known_state']!,
+          _lastKnownStateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_output')) {
+      context.handle(
+        _lastOutputMeta,
+        lastOutput.isAcceptableOrUnknown(data['last_output']!, _lastOutputMeta),
+      );
+    }
+    if (data.containsKey('what_worked')) {
+      context.handle(
+        _whatWorkedMeta,
+        whatWorked.isAcceptableOrUnknown(data['what_worked']!, _whatWorkedMeta),
+      );
+    }
+    if (data.containsKey('blocker')) {
+      context.handle(
+        _blockerMeta,
+        blocker.isAcceptableOrUnknown(data['blocker']!, _blockerMeta),
+      );
+    }
+    if (data.containsKey('next_action')) {
+      context.handle(
+        _nextActionMeta,
+        nextAction.isAcceptableOrUnknown(data['next_action']!, _nextActionMeta),
+      );
+    }
+    if (data.containsKey('parked_reason')) {
+      context.handle(
+        _parkedReasonMeta,
+        parkedReason.isAcceptableOrUnknown(
+          data['parked_reason']!,
+          _parkedReasonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RestartCapsuleRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RestartCapsuleRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      projectId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}project_id'],
+      )!,
+      lastKnownState: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_known_state'],
+      ),
+      lastOutput: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_output'],
+      ),
+      whatWorked: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}what_worked'],
+      ),
+      blocker: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}blocker'],
+      ),
+      nextAction: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}next_action'],
+      ),
+      parkedReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}parked_reason'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $RestartCapsulesTable createAlias(String alias) {
+    return $RestartCapsulesTable(attachedDatabase, alias);
+  }
+}
+
+class RestartCapsuleRow extends DataClass
+    implements Insertable<RestartCapsuleRow> {
+  final String id;
+  final String projectId;
+  final String? lastKnownState;
+  final String? lastOutput;
+  final String? whatWorked;
+  final String? blocker;
+  final String? nextAction;
+  final String? parkedReason;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const RestartCapsuleRow({
+    required this.id,
+    required this.projectId,
+    this.lastKnownState,
+    this.lastOutput,
+    this.whatWorked,
+    this.blocker,
+    this.nextAction,
+    this.parkedReason,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['project_id'] = Variable<String>(projectId);
+    if (!nullToAbsent || lastKnownState != null) {
+      map['last_known_state'] = Variable<String>(lastKnownState);
+    }
+    if (!nullToAbsent || lastOutput != null) {
+      map['last_output'] = Variable<String>(lastOutput);
+    }
+    if (!nullToAbsent || whatWorked != null) {
+      map['what_worked'] = Variable<String>(whatWorked);
+    }
+    if (!nullToAbsent || blocker != null) {
+      map['blocker'] = Variable<String>(blocker);
+    }
+    if (!nullToAbsent || nextAction != null) {
+      map['next_action'] = Variable<String>(nextAction);
+    }
+    if (!nullToAbsent || parkedReason != null) {
+      map['parked_reason'] = Variable<String>(parkedReason);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  RestartCapsulesCompanion toCompanion(bool nullToAbsent) {
+    return RestartCapsulesCompanion(
+      id: Value(id),
+      projectId: Value(projectId),
+      lastKnownState: lastKnownState == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastKnownState),
+      lastOutput: lastOutput == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastOutput),
+      whatWorked: whatWorked == null && nullToAbsent
+          ? const Value.absent()
+          : Value(whatWorked),
+      blocker: blocker == null && nullToAbsent
+          ? const Value.absent()
+          : Value(blocker),
+      nextAction: nextAction == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nextAction),
+      parkedReason: parkedReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parkedReason),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory RestartCapsuleRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RestartCapsuleRow(
+      id: serializer.fromJson<String>(json['id']),
+      projectId: serializer.fromJson<String>(json['projectId']),
+      lastKnownState: serializer.fromJson<String?>(json['lastKnownState']),
+      lastOutput: serializer.fromJson<String?>(json['lastOutput']),
+      whatWorked: serializer.fromJson<String?>(json['whatWorked']),
+      blocker: serializer.fromJson<String?>(json['blocker']),
+      nextAction: serializer.fromJson<String?>(json['nextAction']),
+      parkedReason: serializer.fromJson<String?>(json['parkedReason']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'projectId': serializer.toJson<String>(projectId),
+      'lastKnownState': serializer.toJson<String?>(lastKnownState),
+      'lastOutput': serializer.toJson<String?>(lastOutput),
+      'whatWorked': serializer.toJson<String?>(whatWorked),
+      'blocker': serializer.toJson<String?>(blocker),
+      'nextAction': serializer.toJson<String?>(nextAction),
+      'parkedReason': serializer.toJson<String?>(parkedReason),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  RestartCapsuleRow copyWith({
+    String? id,
+    String? projectId,
+    Value<String?> lastKnownState = const Value.absent(),
+    Value<String?> lastOutput = const Value.absent(),
+    Value<String?> whatWorked = const Value.absent(),
+    Value<String?> blocker = const Value.absent(),
+    Value<String?> nextAction = const Value.absent(),
+    Value<String?> parkedReason = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => RestartCapsuleRow(
+    id: id ?? this.id,
+    projectId: projectId ?? this.projectId,
+    lastKnownState: lastKnownState.present
+        ? lastKnownState.value
+        : this.lastKnownState,
+    lastOutput: lastOutput.present ? lastOutput.value : this.lastOutput,
+    whatWorked: whatWorked.present ? whatWorked.value : this.whatWorked,
+    blocker: blocker.present ? blocker.value : this.blocker,
+    nextAction: nextAction.present ? nextAction.value : this.nextAction,
+    parkedReason: parkedReason.present ? parkedReason.value : this.parkedReason,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  RestartCapsuleRow copyWithCompanion(RestartCapsulesCompanion data) {
+    return RestartCapsuleRow(
+      id: data.id.present ? data.id.value : this.id,
+      projectId: data.projectId.present ? data.projectId.value : this.projectId,
+      lastKnownState: data.lastKnownState.present
+          ? data.lastKnownState.value
+          : this.lastKnownState,
+      lastOutput: data.lastOutput.present
+          ? data.lastOutput.value
+          : this.lastOutput,
+      whatWorked: data.whatWorked.present
+          ? data.whatWorked.value
+          : this.whatWorked,
+      blocker: data.blocker.present ? data.blocker.value : this.blocker,
+      nextAction: data.nextAction.present
+          ? data.nextAction.value
+          : this.nextAction,
+      parkedReason: data.parkedReason.present
+          ? data.parkedReason.value
+          : this.parkedReason,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RestartCapsuleRow(')
+          ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
+          ..write('lastKnownState: $lastKnownState, ')
+          ..write('lastOutput: $lastOutput, ')
+          ..write('whatWorked: $whatWorked, ')
+          ..write('blocker: $blocker, ')
+          ..write('nextAction: $nextAction, ')
+          ..write('parkedReason: $parkedReason, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    projectId,
+    lastKnownState,
+    lastOutput,
+    whatWorked,
+    blocker,
+    nextAction,
+    parkedReason,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RestartCapsuleRow &&
+          other.id == this.id &&
+          other.projectId == this.projectId &&
+          other.lastKnownState == this.lastKnownState &&
+          other.lastOutput == this.lastOutput &&
+          other.whatWorked == this.whatWorked &&
+          other.blocker == this.blocker &&
+          other.nextAction == this.nextAction &&
+          other.parkedReason == this.parkedReason &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class RestartCapsulesCompanion extends UpdateCompanion<RestartCapsuleRow> {
+  final Value<String> id;
+  final Value<String> projectId;
+  final Value<String?> lastKnownState;
+  final Value<String?> lastOutput;
+  final Value<String?> whatWorked;
+  final Value<String?> blocker;
+  final Value<String?> nextAction;
+  final Value<String?> parkedReason;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const RestartCapsulesCompanion({
+    this.id = const Value.absent(),
+    this.projectId = const Value.absent(),
+    this.lastKnownState = const Value.absent(),
+    this.lastOutput = const Value.absent(),
+    this.whatWorked = const Value.absent(),
+    this.blocker = const Value.absent(),
+    this.nextAction = const Value.absent(),
+    this.parkedReason = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RestartCapsulesCompanion.insert({
+    required String id,
+    required String projectId,
+    this.lastKnownState = const Value.absent(),
+    this.lastOutput = const Value.absent(),
+    this.whatWorked = const Value.absent(),
+    this.blocker = const Value.absent(),
+    this.nextAction = const Value.absent(),
+    this.parkedReason = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       projectId = Value(projectId),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<RestartCapsuleRow> custom({
+    Expression<String>? id,
+    Expression<String>? projectId,
+    Expression<String>? lastKnownState,
+    Expression<String>? lastOutput,
+    Expression<String>? whatWorked,
+    Expression<String>? blocker,
+    Expression<String>? nextAction,
+    Expression<String>? parkedReason,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (projectId != null) 'project_id': projectId,
+      if (lastKnownState != null) 'last_known_state': lastKnownState,
+      if (lastOutput != null) 'last_output': lastOutput,
+      if (whatWorked != null) 'what_worked': whatWorked,
+      if (blocker != null) 'blocker': blocker,
+      if (nextAction != null) 'next_action': nextAction,
+      if (parkedReason != null) 'parked_reason': parkedReason,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RestartCapsulesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? projectId,
+    Value<String?>? lastKnownState,
+    Value<String?>? lastOutput,
+    Value<String?>? whatWorked,
+    Value<String?>? blocker,
+    Value<String?>? nextAction,
+    Value<String?>? parkedReason,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return RestartCapsulesCompanion(
+      id: id ?? this.id,
+      projectId: projectId ?? this.projectId,
+      lastKnownState: lastKnownState ?? this.lastKnownState,
+      lastOutput: lastOutput ?? this.lastOutput,
+      whatWorked: whatWorked ?? this.whatWorked,
+      blocker: blocker ?? this.blocker,
+      nextAction: nextAction ?? this.nextAction,
+      parkedReason: parkedReason ?? this.parkedReason,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (projectId.present) {
+      map['project_id'] = Variable<String>(projectId.value);
+    }
+    if (lastKnownState.present) {
+      map['last_known_state'] = Variable<String>(lastKnownState.value);
+    }
+    if (lastOutput.present) {
+      map['last_output'] = Variable<String>(lastOutput.value);
+    }
+    if (whatWorked.present) {
+      map['what_worked'] = Variable<String>(whatWorked.value);
+    }
+    if (blocker.present) {
+      map['blocker'] = Variable<String>(blocker.value);
+    }
+    if (nextAction.present) {
+      map['next_action'] = Variable<String>(nextAction.value);
+    }
+    if (parkedReason.present) {
+      map['parked_reason'] = Variable<String>(parkedReason.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RestartCapsulesCompanion(')
+          ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
+          ..write('lastKnownState: $lastKnownState, ')
+          ..write('lastOutput: $lastOutput, ')
+          ..write('whatWorked: $whatWorked, ')
+          ..write('blocker: $blocker, ')
+          ..write('nextAction: $nextAction, ')
+          ..write('parkedReason: $parkedReason, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DailyCheckInsTable extends DailyCheckIns
+    with TableInfo<$DailyCheckInsTable, DailyCheckInRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DailyCheckInsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _checkInDateMeta = const VerificationMeta(
+    'checkInDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> checkInDate = GeneratedColumn<DateTime>(
+    'check_in_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _energyLevelMeta = const VerificationMeta(
+    'energyLevel',
+  );
+  @override
+  late final GeneratedColumn<String> energyLevel = GeneratedColumn<String>(
+    'energy_level',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _availableMinutesMeta = const VerificationMeta(
+    'availableMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> availableMinutes = GeneratedColumn<int>(
+    'available_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    checkInDate,
+    energyLevel,
+    availableMinutes,
+    note,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'daily_check_ins';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DailyCheckInRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('check_in_date')) {
+      context.handle(
+        _checkInDateMeta,
+        checkInDate.isAcceptableOrUnknown(
+          data['check_in_date']!,
+          _checkInDateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_checkInDateMeta);
+    }
+    if (data.containsKey('energy_level')) {
+      context.handle(
+        _energyLevelMeta,
+        energyLevel.isAcceptableOrUnknown(
+          data['energy_level']!,
+          _energyLevelMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_energyLevelMeta);
+    }
+    if (data.containsKey('available_minutes')) {
+      context.handle(
+        _availableMinutesMeta,
+        availableMinutes.isAcceptableOrUnknown(
+          data['available_minutes']!,
+          _availableMinutesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_availableMinutesMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DailyCheckInRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DailyCheckInRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      checkInDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}check_in_date'],
+      )!,
+      energyLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}energy_level'],
+      )!,
+      availableMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}available_minutes'],
+      )!,
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $DailyCheckInsTable createAlias(String alias) {
+    return $DailyCheckInsTable(attachedDatabase, alias);
+  }
+}
+
+class DailyCheckInRow extends DataClass implements Insertable<DailyCheckInRow> {
+  final String id;
+  final DateTime checkInDate;
+  final String energyLevel;
+  final int availableMinutes;
+  final String? note;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const DailyCheckInRow({
+    required this.id,
+    required this.checkInDate,
+    required this.energyLevel,
+    required this.availableMinutes,
+    this.note,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['check_in_date'] = Variable<DateTime>(checkInDate);
+    map['energy_level'] = Variable<String>(energyLevel);
+    map['available_minutes'] = Variable<int>(availableMinutes);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  DailyCheckInsCompanion toCompanion(bool nullToAbsent) {
+    return DailyCheckInsCompanion(
+      id: Value(id),
+      checkInDate: Value(checkInDate),
+      energyLevel: Value(energyLevel),
+      availableMinutes: Value(availableMinutes),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory DailyCheckInRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DailyCheckInRow(
+      id: serializer.fromJson<String>(json['id']),
+      checkInDate: serializer.fromJson<DateTime>(json['checkInDate']),
+      energyLevel: serializer.fromJson<String>(json['energyLevel']),
+      availableMinutes: serializer.fromJson<int>(json['availableMinutes']),
+      note: serializer.fromJson<String?>(json['note']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'checkInDate': serializer.toJson<DateTime>(checkInDate),
+      'energyLevel': serializer.toJson<String>(energyLevel),
+      'availableMinutes': serializer.toJson<int>(availableMinutes),
+      'note': serializer.toJson<String?>(note),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  DailyCheckInRow copyWith({
+    String? id,
+    DateTime? checkInDate,
+    String? energyLevel,
+    int? availableMinutes,
+    Value<String?> note = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => DailyCheckInRow(
+    id: id ?? this.id,
+    checkInDate: checkInDate ?? this.checkInDate,
+    energyLevel: energyLevel ?? this.energyLevel,
+    availableMinutes: availableMinutes ?? this.availableMinutes,
+    note: note.present ? note.value : this.note,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  DailyCheckInRow copyWithCompanion(DailyCheckInsCompanion data) {
+    return DailyCheckInRow(
+      id: data.id.present ? data.id.value : this.id,
+      checkInDate: data.checkInDate.present
+          ? data.checkInDate.value
+          : this.checkInDate,
+      energyLevel: data.energyLevel.present
+          ? data.energyLevel.value
+          : this.energyLevel,
+      availableMinutes: data.availableMinutes.present
+          ? data.availableMinutes.value
+          : this.availableMinutes,
+      note: data.note.present ? data.note.value : this.note,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyCheckInRow(')
+          ..write('id: $id, ')
+          ..write('checkInDate: $checkInDate, ')
+          ..write('energyLevel: $energyLevel, ')
+          ..write('availableMinutes: $availableMinutes, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    checkInDate,
+    energyLevel,
+    availableMinutes,
+    note,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DailyCheckInRow &&
+          other.id == this.id &&
+          other.checkInDate == this.checkInDate &&
+          other.energyLevel == this.energyLevel &&
+          other.availableMinutes == this.availableMinutes &&
+          other.note == this.note &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class DailyCheckInsCompanion extends UpdateCompanion<DailyCheckInRow> {
+  final Value<String> id;
+  final Value<DateTime> checkInDate;
+  final Value<String> energyLevel;
+  final Value<int> availableMinutes;
+  final Value<String?> note;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const DailyCheckInsCompanion({
+    this.id = const Value.absent(),
+    this.checkInDate = const Value.absent(),
+    this.energyLevel = const Value.absent(),
+    this.availableMinutes = const Value.absent(),
+    this.note = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DailyCheckInsCompanion.insert({
+    required String id,
+    required DateTime checkInDate,
+    required String energyLevel,
+    required int availableMinutes,
+    this.note = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       checkInDate = Value(checkInDate),
+       energyLevel = Value(energyLevel),
+       availableMinutes = Value(availableMinutes),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<DailyCheckInRow> custom({
+    Expression<String>? id,
+    Expression<DateTime>? checkInDate,
+    Expression<String>? energyLevel,
+    Expression<int>? availableMinutes,
+    Expression<String>? note,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (checkInDate != null) 'check_in_date': checkInDate,
+      if (energyLevel != null) 'energy_level': energyLevel,
+      if (availableMinutes != null) 'available_minutes': availableMinutes,
+      if (note != null) 'note': note,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DailyCheckInsCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? checkInDate,
+    Value<String>? energyLevel,
+    Value<int>? availableMinutes,
+    Value<String?>? note,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return DailyCheckInsCompanion(
+      id: id ?? this.id,
+      checkInDate: checkInDate ?? this.checkInDate,
+      energyLevel: energyLevel ?? this.energyLevel,
+      availableMinutes: availableMinutes ?? this.availableMinutes,
+      note: note ?? this.note,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (checkInDate.present) {
+      map['check_in_date'] = Variable<DateTime>(checkInDate.value);
+    }
+    if (energyLevel.present) {
+      map['energy_level'] = Variable<String>(energyLevel.value);
+    }
+    if (availableMinutes.present) {
+      map['available_minutes'] = Variable<int>(availableMinutes.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyCheckInsCompanion(')
+          ..write('id: $id, ')
+          ..write('checkInDate: $checkInDate, ')
+          ..write('energyLevel: $energyLevel, ')
+          ..write('availableMinutes: $availableMinutes, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $SprintsTable extends Sprints with TableInfo<$SprintsTable, SprintRow> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -5883,6 +7522,18 @@ class $WeeklyReviewsTable extends WeeklyReviews
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _decisionAppliedAtMeta = const VerificationMeta(
+    'decisionAppliedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> decisionAppliedAt =
+      GeneratedColumn<DateTime>(
+        'decision_applied_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -5918,6 +7569,7 @@ class $WeeklyReviewsTable extends WeeklyReviews
     wasteOrBlocker,
     decision,
     nextWeekFocus,
+    decisionAppliedAt,
     createdAt,
     updatedAt,
   ];
@@ -6018,6 +7670,15 @@ class $WeeklyReviewsTable extends WeeklyReviews
         ),
       );
     }
+    if (data.containsKey('decision_applied_at')) {
+      context.handle(
+        _decisionAppliedAtMeta,
+        decisionAppliedAt.isAcceptableOrUnknown(
+          data['decision_applied_at']!,
+          _decisionAppliedAtMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -6091,6 +7752,10 @@ class $WeeklyReviewsTable extends WeeklyReviews
         DriftSqlType.string,
         data['${effectivePrefix}next_week_focus'],
       ),
+      decisionAppliedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}decision_applied_at'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -6120,6 +7785,7 @@ class WeeklyReviewRow extends DataClass implements Insertable<WeeklyReviewRow> {
   final String? wasteOrBlocker;
   final String decision;
   final String? nextWeekFocus;
+  final DateTime? decisionAppliedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
   const WeeklyReviewRow({
@@ -6134,6 +7800,7 @@ class WeeklyReviewRow extends DataClass implements Insertable<WeeklyReviewRow> {
     this.wasteOrBlocker,
     required this.decision,
     this.nextWeekFocus,
+    this.decisionAppliedAt,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -6162,6 +7829,9 @@ class WeeklyReviewRow extends DataClass implements Insertable<WeeklyReviewRow> {
     map['decision'] = Variable<String>(decision);
     if (!nullToAbsent || nextWeekFocus != null) {
       map['next_week_focus'] = Variable<String>(nextWeekFocus);
+    }
+    if (!nullToAbsent || decisionAppliedAt != null) {
+      map['decision_applied_at'] = Variable<DateTime>(decisionAppliedAt);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -6193,6 +7863,9 @@ class WeeklyReviewRow extends DataClass implements Insertable<WeeklyReviewRow> {
       nextWeekFocus: nextWeekFocus == null && nullToAbsent
           ? const Value.absent()
           : Value(nextWeekFocus),
+      decisionAppliedAt: decisionAppliedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(decisionAppliedAt),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -6215,6 +7888,9 @@ class WeeklyReviewRow extends DataClass implements Insertable<WeeklyReviewRow> {
       wasteOrBlocker: serializer.fromJson<String?>(json['wasteOrBlocker']),
       decision: serializer.fromJson<String>(json['decision']),
       nextWeekFocus: serializer.fromJson<String?>(json['nextWeekFocus']),
+      decisionAppliedAt: serializer.fromJson<DateTime?>(
+        json['decisionAppliedAt'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -6234,6 +7910,7 @@ class WeeklyReviewRow extends DataClass implements Insertable<WeeklyReviewRow> {
       'wasteOrBlocker': serializer.toJson<String?>(wasteOrBlocker),
       'decision': serializer.toJson<String>(decision),
       'nextWeekFocus': serializer.toJson<String?>(nextWeekFocus),
+      'decisionAppliedAt': serializer.toJson<DateTime?>(decisionAppliedAt),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -6251,6 +7928,7 @@ class WeeklyReviewRow extends DataClass implements Insertable<WeeklyReviewRow> {
     Value<String?> wasteOrBlocker = const Value.absent(),
     String? decision,
     Value<String?> nextWeekFocus = const Value.absent(),
+    Value<DateTime?> decisionAppliedAt = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => WeeklyReviewRow(
@@ -6273,6 +7951,9 @@ class WeeklyReviewRow extends DataClass implements Insertable<WeeklyReviewRow> {
     nextWeekFocus: nextWeekFocus.present
         ? nextWeekFocus.value
         : this.nextWeekFocus,
+    decisionAppliedAt: decisionAppliedAt.present
+        ? decisionAppliedAt.value
+        : this.decisionAppliedAt,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -6299,6 +7980,9 @@ class WeeklyReviewRow extends DataClass implements Insertable<WeeklyReviewRow> {
       nextWeekFocus: data.nextWeekFocus.present
           ? data.nextWeekFocus.value
           : this.nextWeekFocus,
+      decisionAppliedAt: data.decisionAppliedAt.present
+          ? data.decisionAppliedAt.value
+          : this.decisionAppliedAt,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -6318,6 +8002,7 @@ class WeeklyReviewRow extends DataClass implements Insertable<WeeklyReviewRow> {
           ..write('wasteOrBlocker: $wasteOrBlocker, ')
           ..write('decision: $decision, ')
           ..write('nextWeekFocus: $nextWeekFocus, ')
+          ..write('decisionAppliedAt: $decisionAppliedAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -6337,6 +8022,7 @@ class WeeklyReviewRow extends DataClass implements Insertable<WeeklyReviewRow> {
     wasteOrBlocker,
     decision,
     nextWeekFocus,
+    decisionAppliedAt,
     createdAt,
     updatedAt,
   );
@@ -6355,6 +8041,7 @@ class WeeklyReviewRow extends DataClass implements Insertable<WeeklyReviewRow> {
           other.wasteOrBlocker == this.wasteOrBlocker &&
           other.decision == this.decision &&
           other.nextWeekFocus == this.nextWeekFocus &&
+          other.decisionAppliedAt == this.decisionAppliedAt &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -6371,6 +8058,7 @@ class WeeklyReviewsCompanion extends UpdateCompanion<WeeklyReviewRow> {
   final Value<String?> wasteOrBlocker;
   final Value<String> decision;
   final Value<String?> nextWeekFocus;
+  final Value<DateTime?> decisionAppliedAt;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -6386,6 +8074,7 @@ class WeeklyReviewsCompanion extends UpdateCompanion<WeeklyReviewRow> {
     this.wasteOrBlocker = const Value.absent(),
     this.decision = const Value.absent(),
     this.nextWeekFocus = const Value.absent(),
+    this.decisionAppliedAt = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -6402,6 +8091,7 @@ class WeeklyReviewsCompanion extends UpdateCompanion<WeeklyReviewRow> {
     this.wasteOrBlocker = const Value.absent(),
     required String decision,
     this.nextWeekFocus = const Value.absent(),
+    this.decisionAppliedAt = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -6424,6 +8114,7 @@ class WeeklyReviewsCompanion extends UpdateCompanion<WeeklyReviewRow> {
     Expression<String>? wasteOrBlocker,
     Expression<String>? decision,
     Expression<String>? nextWeekFocus,
+    Expression<DateTime>? decisionAppliedAt,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -6440,6 +8131,7 @@ class WeeklyReviewsCompanion extends UpdateCompanion<WeeklyReviewRow> {
       if (wasteOrBlocker != null) 'waste_or_blocker': wasteOrBlocker,
       if (decision != null) 'decision': decision,
       if (nextWeekFocus != null) 'next_week_focus': nextWeekFocus,
+      if (decisionAppliedAt != null) 'decision_applied_at': decisionAppliedAt,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -6458,6 +8150,7 @@ class WeeklyReviewsCompanion extends UpdateCompanion<WeeklyReviewRow> {
     Value<String?>? wasteOrBlocker,
     Value<String>? decision,
     Value<String?>? nextWeekFocus,
+    Value<DateTime?>? decisionAppliedAt,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
@@ -6474,6 +8167,7 @@ class WeeklyReviewsCompanion extends UpdateCompanion<WeeklyReviewRow> {
       wasteOrBlocker: wasteOrBlocker ?? this.wasteOrBlocker,
       decision: decision ?? this.decision,
       nextWeekFocus: nextWeekFocus ?? this.nextWeekFocus,
+      decisionAppliedAt: decisionAppliedAt ?? this.decisionAppliedAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -6516,6 +8210,9 @@ class WeeklyReviewsCompanion extends UpdateCompanion<WeeklyReviewRow> {
     if (nextWeekFocus.present) {
       map['next_week_focus'] = Variable<String>(nextWeekFocus.value);
     }
+    if (decisionAppliedAt.present) {
+      map['decision_applied_at'] = Variable<DateTime>(decisionAppliedAt.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -6542,6 +8239,7 @@ class WeeklyReviewsCompanion extends UpdateCompanion<WeeklyReviewRow> {
           ..write('wasteOrBlocker: $wasteOrBlocker, ')
           ..write('decision: $decision, ')
           ..write('nextWeekFocus: $nextWeekFocus, ')
+          ..write('decisionAppliedAt: $decisionAppliedAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -7138,6 +8836,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ProjectsTable projects = $ProjectsTable(this);
+  late final $IdeasTable ideas = $IdeasTable(this);
+  late final $RestartCapsulesTable restartCapsules = $RestartCapsulesTable(
+    this,
+  );
+  late final $DailyCheckInsTable dailyCheckIns = $DailyCheckInsTable(this);
   late final $SprintsTable sprints = $SprintsTable(this);
   late final $DailyPlansTable dailyPlans = $DailyPlansTable(this);
   late final $DailyActionsTable dailyActions = $DailyActionsTable(this);
@@ -7155,6 +8858,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     projects,
+    ideas,
+    restartCapsules,
+    dailyCheckIns,
     sprints,
     dailyPlans,
     dailyActions,
@@ -7168,6 +8874,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'projects',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('ideas', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'projects',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('restart_capsules', kind: UpdateKind.delete)],
+    ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
         'projects',
@@ -7283,6 +9003,44 @@ typedef $$ProjectsTableUpdateCompanionBuilder =
 final class $$ProjectsTableReferences
     extends BaseReferences<_$AppDatabase, $ProjectsTable, ProjectRow> {
   $$ProjectsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$IdeasTable, List<IdeaRow>> _ideasRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.ideas,
+    aliasName: 'projects__id__ideas__converted_project_id',
+  );
+
+  $$IdeasTableProcessedTableManager get ideasRefs {
+    final manager = $$IdeasTableTableManager($_db, $_db.ideas).filter(
+      (f) => f.convertedProjectId.id.sqlEquals($_itemColumn<String>('id')!),
+    );
+
+    final cache = $_typedResult.readTableOrNull(_ideasRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$RestartCapsulesTable, List<RestartCapsuleRow>>
+  _restartCapsulesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.restartCapsules,
+    aliasName: 'projects__id__restart_capsules__project_id',
+  );
+
+  $$RestartCapsulesTableProcessedTableManager get restartCapsulesRefs {
+    final manager = $$RestartCapsulesTableTableManager(
+      $_db,
+      $_db.restartCapsules,
+    ).filter((f) => f.projectId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _restartCapsulesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 
   static MultiTypedResultKey<$SprintsTable, List<SprintRow>> _sprintsRefsTable(
     _$AppDatabase db,
@@ -7441,6 +9199,56 @@ class $$ProjectsTableFilterComposer
     column: $table.archivedAt,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> ideasRefs(
+    Expression<bool> Function($$IdeasTableFilterComposer f) f,
+  ) {
+    final $$IdeasTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.ideas,
+      getReferencedColumn: (t) => t.convertedProjectId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$IdeasTableFilterComposer(
+            $db: $db,
+            $table: $db.ideas,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> restartCapsulesRefs(
+    Expression<bool> Function($$RestartCapsulesTableFilterComposer f) f,
+  ) {
+    final $$RestartCapsulesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.restartCapsules,
+      getReferencedColumn: (t) => t.projectId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RestartCapsulesTableFilterComposer(
+            $db: $db,
+            $table: $db.restartCapsules,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 
   Expression<bool> sprintsRefs(
     Expression<bool> Function($$SprintsTableFilterComposer f) f,
@@ -7692,6 +9500,56 @@ class $$ProjectsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  Expression<T> ideasRefs<T extends Object>(
+    Expression<T> Function($$IdeasTableAnnotationComposer a) f,
+  ) {
+    final $$IdeasTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.ideas,
+      getReferencedColumn: (t) => t.convertedProjectId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$IdeasTableAnnotationComposer(
+            $db: $db,
+            $table: $db.ideas,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> restartCapsulesRefs<T extends Object>(
+    Expression<T> Function($$RestartCapsulesTableAnnotationComposer a) f,
+  ) {
+    final $$RestartCapsulesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.restartCapsules,
+      getReferencedColumn: (t) => t.projectId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RestartCapsulesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.restartCapsules,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> sprintsRefs<T extends Object>(
     Expression<T> Function($$SprintsTableAnnotationComposer a) f,
   ) {
@@ -7807,6 +9665,8 @@ class $$ProjectsTableTableManager
           (ProjectRow, $$ProjectsTableReferences),
           ProjectRow,
           PrefetchHooks Function({
+            bool ideasRefs,
+            bool restartCapsulesRefs,
             bool sprintsRefs,
             bool guideDocumentsRefs,
             bool metricEntriesRefs,
@@ -7906,6 +9766,8 @@ class $$ProjectsTableTableManager
               .toList(),
           prefetchHooksCallback:
               ({
+                ideasRefs = false,
+                restartCapsulesRefs = false,
                 sprintsRefs = false,
                 guideDocumentsRefs = false,
                 metricEntriesRefs = false,
@@ -7914,6 +9776,8 @@ class $$ProjectsTableTableManager
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
+                    if (ideasRefs) db.ideas,
+                    if (restartCapsulesRefs) db.restartCapsules,
                     if (sprintsRefs) db.sprints,
                     if (guideDocumentsRefs) db.guideDocuments,
                     if (metricEntriesRefs) db.metricEntries,
@@ -7922,6 +9786,48 @@ class $$ProjectsTableTableManager
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
                     return [
+                      if (ideasRefs)
+                        await $_getPrefetchedData<
+                          ProjectRow,
+                          $ProjectsTable,
+                          IdeaRow
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ProjectsTableReferences
+                              ._ideasRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ProjectsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).ideasRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.convertedProjectId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (restartCapsulesRefs)
+                        await $_getPrefetchedData<
+                          ProjectRow,
+                          $ProjectsTable,
+                          RestartCapsuleRow
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ProjectsTableReferences
+                              ._restartCapsulesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ProjectsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).restartCapsulesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.projectId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (sprintsRefs)
                         await $_getPrefetchedData<
                           ProjectRow,
@@ -8027,11 +9933,1067 @@ typedef $$ProjectsTableProcessedTableManager =
       (ProjectRow, $$ProjectsTableReferences),
       ProjectRow,
       PrefetchHooks Function({
+        bool ideasRefs,
+        bool restartCapsulesRefs,
         bool sprintsRefs,
         bool guideDocumentsRefs,
         bool metricEntriesRefs,
         bool weeklyReviewsRefs,
       })
+    >;
+typedef $$IdeasTableCreateCompanionBuilder =
+    IdeasCompanion Function({
+      required String id,
+      required String title,
+      Value<String?> note,
+      Value<String?> source,
+      required String disposition,
+      Value<String?> convertedProjectId,
+      required DateTime capturedAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$IdeasTableUpdateCompanionBuilder =
+    IdeasCompanion Function({
+      Value<String> id,
+      Value<String> title,
+      Value<String?> note,
+      Value<String?> source,
+      Value<String> disposition,
+      Value<String?> convertedProjectId,
+      Value<DateTime> capturedAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$IdeasTableReferences
+    extends BaseReferences<_$AppDatabase, $IdeasTable, IdeaRow> {
+  $$IdeasTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ProjectsTable _convertedProjectIdTable(_$AppDatabase db) =>
+      db.projects.createAlias('ideas__converted_project_id__projects__id');
+
+  $$ProjectsTableProcessedTableManager? get convertedProjectId {
+    final $_column = $_itemColumn<String>('converted_project_id');
+    if ($_column == null) return null;
+    final manager = $$ProjectsTableTableManager(
+      $_db,
+      $_db.projects,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_convertedProjectIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$IdeasTableFilterComposer extends Composer<_$AppDatabase, $IdeasTable> {
+  $$IdeasTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get disposition => $composableBuilder(
+    column: $table.disposition,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ProjectsTableFilterComposer get convertedProjectId {
+    final $$ProjectsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.convertedProjectId,
+      referencedTable: $db.projects,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ProjectsTableFilterComposer(
+            $db: $db,
+            $table: $db.projects,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$IdeasTableOrderingComposer
+    extends Composer<_$AppDatabase, $IdeasTable> {
+  $$IdeasTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get disposition => $composableBuilder(
+    column: $table.disposition,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ProjectsTableOrderingComposer get convertedProjectId {
+    final $$ProjectsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.convertedProjectId,
+      referencedTable: $db.projects,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ProjectsTableOrderingComposer(
+            $db: $db,
+            $table: $db.projects,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$IdeasTableAnnotationComposer
+    extends Composer<_$AppDatabase, $IdeasTable> {
+  $$IdeasTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<String> get disposition => $composableBuilder(
+    column: $table.disposition,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$ProjectsTableAnnotationComposer get convertedProjectId {
+    final $$ProjectsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.convertedProjectId,
+      referencedTable: $db.projects,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ProjectsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.projects,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$IdeasTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $IdeasTable,
+          IdeaRow,
+          $$IdeasTableFilterComposer,
+          $$IdeasTableOrderingComposer,
+          $$IdeasTableAnnotationComposer,
+          $$IdeasTableCreateCompanionBuilder,
+          $$IdeasTableUpdateCompanionBuilder,
+          (IdeaRow, $$IdeasTableReferences),
+          IdeaRow,
+          PrefetchHooks Function({bool convertedProjectId})
+        > {
+  $$IdeasTableTableManager(_$AppDatabase db, $IdeasTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$IdeasTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$IdeasTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$IdeasTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<String?> source = const Value.absent(),
+                Value<String> disposition = const Value.absent(),
+                Value<String?> convertedProjectId = const Value.absent(),
+                Value<DateTime> capturedAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => IdeasCompanion(
+                id: id,
+                title: title,
+                note: note,
+                source: source,
+                disposition: disposition,
+                convertedProjectId: convertedProjectId,
+                capturedAt: capturedAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String title,
+                Value<String?> note = const Value.absent(),
+                Value<String?> source = const Value.absent(),
+                required String disposition,
+                Value<String?> convertedProjectId = const Value.absent(),
+                required DateTime capturedAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => IdeasCompanion.insert(
+                id: id,
+                title: title,
+                note: note,
+                source: source,
+                disposition: disposition,
+                convertedProjectId: convertedProjectId,
+                capturedAt: capturedAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) =>
+                    (e.readTable(table), $$IdeasTableReferences(db, table, e)),
+              )
+              .toList(),
+          prefetchHooksCallback: ({convertedProjectId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (convertedProjectId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.convertedProjectId,
+                                referencedTable: $$IdeasTableReferences
+                                    ._convertedProjectIdTable(db),
+                                referencedColumn: $$IdeasTableReferences
+                                    ._convertedProjectIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$IdeasTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $IdeasTable,
+      IdeaRow,
+      $$IdeasTableFilterComposer,
+      $$IdeasTableOrderingComposer,
+      $$IdeasTableAnnotationComposer,
+      $$IdeasTableCreateCompanionBuilder,
+      $$IdeasTableUpdateCompanionBuilder,
+      (IdeaRow, $$IdeasTableReferences),
+      IdeaRow,
+      PrefetchHooks Function({bool convertedProjectId})
+    >;
+typedef $$RestartCapsulesTableCreateCompanionBuilder =
+    RestartCapsulesCompanion Function({
+      required String id,
+      required String projectId,
+      Value<String?> lastKnownState,
+      Value<String?> lastOutput,
+      Value<String?> whatWorked,
+      Value<String?> blocker,
+      Value<String?> nextAction,
+      Value<String?> parkedReason,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$RestartCapsulesTableUpdateCompanionBuilder =
+    RestartCapsulesCompanion Function({
+      Value<String> id,
+      Value<String> projectId,
+      Value<String?> lastKnownState,
+      Value<String?> lastOutput,
+      Value<String?> whatWorked,
+      Value<String?> blocker,
+      Value<String?> nextAction,
+      Value<String?> parkedReason,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$RestartCapsulesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $RestartCapsulesTable,
+          RestartCapsuleRow
+        > {
+  $$RestartCapsulesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $ProjectsTable _projectIdTable(_$AppDatabase db) =>
+      db.projects.createAlias('restart_capsules__project_id__projects__id');
+
+  $$ProjectsTableProcessedTableManager get projectId {
+    final $_column = $_itemColumn<String>('project_id')!;
+
+    final manager = $$ProjectsTableTableManager(
+      $_db,
+      $_db.projects,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_projectIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$RestartCapsulesTableFilterComposer
+    extends Composer<_$AppDatabase, $RestartCapsulesTable> {
+  $$RestartCapsulesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastKnownState => $composableBuilder(
+    column: $table.lastKnownState,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastOutput => $composableBuilder(
+    column: $table.lastOutput,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get whatWorked => $composableBuilder(
+    column: $table.whatWorked,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get blocker => $composableBuilder(
+    column: $table.blocker,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nextAction => $composableBuilder(
+    column: $table.nextAction,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get parkedReason => $composableBuilder(
+    column: $table.parkedReason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ProjectsTableFilterComposer get projectId {
+    final $$ProjectsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.projectId,
+      referencedTable: $db.projects,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ProjectsTableFilterComposer(
+            $db: $db,
+            $table: $db.projects,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RestartCapsulesTableOrderingComposer
+    extends Composer<_$AppDatabase, $RestartCapsulesTable> {
+  $$RestartCapsulesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastKnownState => $composableBuilder(
+    column: $table.lastKnownState,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastOutput => $composableBuilder(
+    column: $table.lastOutput,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get whatWorked => $composableBuilder(
+    column: $table.whatWorked,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get blocker => $composableBuilder(
+    column: $table.blocker,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nextAction => $composableBuilder(
+    column: $table.nextAction,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get parkedReason => $composableBuilder(
+    column: $table.parkedReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ProjectsTableOrderingComposer get projectId {
+    final $$ProjectsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.projectId,
+      referencedTable: $db.projects,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ProjectsTableOrderingComposer(
+            $db: $db,
+            $table: $db.projects,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RestartCapsulesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RestartCapsulesTable> {
+  $$RestartCapsulesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get lastKnownState => $composableBuilder(
+    column: $table.lastKnownState,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastOutput => $composableBuilder(
+    column: $table.lastOutput,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get whatWorked => $composableBuilder(
+    column: $table.whatWorked,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get blocker =>
+      $composableBuilder(column: $table.blocker, builder: (column) => column);
+
+  GeneratedColumn<String> get nextAction => $composableBuilder(
+    column: $table.nextAction,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get parkedReason => $composableBuilder(
+    column: $table.parkedReason,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$ProjectsTableAnnotationComposer get projectId {
+    final $$ProjectsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.projectId,
+      referencedTable: $db.projects,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ProjectsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.projects,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RestartCapsulesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $RestartCapsulesTable,
+          RestartCapsuleRow,
+          $$RestartCapsulesTableFilterComposer,
+          $$RestartCapsulesTableOrderingComposer,
+          $$RestartCapsulesTableAnnotationComposer,
+          $$RestartCapsulesTableCreateCompanionBuilder,
+          $$RestartCapsulesTableUpdateCompanionBuilder,
+          (RestartCapsuleRow, $$RestartCapsulesTableReferences),
+          RestartCapsuleRow,
+          PrefetchHooks Function({bool projectId})
+        > {
+  $$RestartCapsulesTableTableManager(
+    _$AppDatabase db,
+    $RestartCapsulesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RestartCapsulesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RestartCapsulesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RestartCapsulesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> projectId = const Value.absent(),
+                Value<String?> lastKnownState = const Value.absent(),
+                Value<String?> lastOutput = const Value.absent(),
+                Value<String?> whatWorked = const Value.absent(),
+                Value<String?> blocker = const Value.absent(),
+                Value<String?> nextAction = const Value.absent(),
+                Value<String?> parkedReason = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RestartCapsulesCompanion(
+                id: id,
+                projectId: projectId,
+                lastKnownState: lastKnownState,
+                lastOutput: lastOutput,
+                whatWorked: whatWorked,
+                blocker: blocker,
+                nextAction: nextAction,
+                parkedReason: parkedReason,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String projectId,
+                Value<String?> lastKnownState = const Value.absent(),
+                Value<String?> lastOutput = const Value.absent(),
+                Value<String?> whatWorked = const Value.absent(),
+                Value<String?> blocker = const Value.absent(),
+                Value<String?> nextAction = const Value.absent(),
+                Value<String?> parkedReason = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => RestartCapsulesCompanion.insert(
+                id: id,
+                projectId: projectId,
+                lastKnownState: lastKnownState,
+                lastOutput: lastOutput,
+                whatWorked: whatWorked,
+                blocker: blocker,
+                nextAction: nextAction,
+                parkedReason: parkedReason,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$RestartCapsulesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({projectId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (projectId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.projectId,
+                                referencedTable:
+                                    $$RestartCapsulesTableReferences
+                                        ._projectIdTable(db),
+                                referencedColumn:
+                                    $$RestartCapsulesTableReferences
+                                        ._projectIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$RestartCapsulesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $RestartCapsulesTable,
+      RestartCapsuleRow,
+      $$RestartCapsulesTableFilterComposer,
+      $$RestartCapsulesTableOrderingComposer,
+      $$RestartCapsulesTableAnnotationComposer,
+      $$RestartCapsulesTableCreateCompanionBuilder,
+      $$RestartCapsulesTableUpdateCompanionBuilder,
+      (RestartCapsuleRow, $$RestartCapsulesTableReferences),
+      RestartCapsuleRow,
+      PrefetchHooks Function({bool projectId})
+    >;
+typedef $$DailyCheckInsTableCreateCompanionBuilder =
+    DailyCheckInsCompanion Function({
+      required String id,
+      required DateTime checkInDate,
+      required String energyLevel,
+      required int availableMinutes,
+      Value<String?> note,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$DailyCheckInsTableUpdateCompanionBuilder =
+    DailyCheckInsCompanion Function({
+      Value<String> id,
+      Value<DateTime> checkInDate,
+      Value<String> energyLevel,
+      Value<int> availableMinutes,
+      Value<String?> note,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$DailyCheckInsTableFilterComposer
+    extends Composer<_$AppDatabase, $DailyCheckInsTable> {
+  $$DailyCheckInsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get checkInDate => $composableBuilder(
+    column: $table.checkInDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get energyLevel => $composableBuilder(
+    column: $table.energyLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get availableMinutes => $composableBuilder(
+    column: $table.availableMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DailyCheckInsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DailyCheckInsTable> {
+  $$DailyCheckInsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get checkInDate => $composableBuilder(
+    column: $table.checkInDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get energyLevel => $composableBuilder(
+    column: $table.energyLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get availableMinutes => $composableBuilder(
+    column: $table.availableMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DailyCheckInsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DailyCheckInsTable> {
+  $$DailyCheckInsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get checkInDate => $composableBuilder(
+    column: $table.checkInDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get energyLevel => $composableBuilder(
+    column: $table.energyLevel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get availableMinutes => $composableBuilder(
+    column: $table.availableMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$DailyCheckInsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DailyCheckInsTable,
+          DailyCheckInRow,
+          $$DailyCheckInsTableFilterComposer,
+          $$DailyCheckInsTableOrderingComposer,
+          $$DailyCheckInsTableAnnotationComposer,
+          $$DailyCheckInsTableCreateCompanionBuilder,
+          $$DailyCheckInsTableUpdateCompanionBuilder,
+          (
+            DailyCheckInRow,
+            BaseReferences<_$AppDatabase, $DailyCheckInsTable, DailyCheckInRow>,
+          ),
+          DailyCheckInRow,
+          PrefetchHooks Function()
+        > {
+  $$DailyCheckInsTableTableManager(_$AppDatabase db, $DailyCheckInsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DailyCheckInsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DailyCheckInsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DailyCheckInsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> checkInDate = const Value.absent(),
+                Value<String> energyLevel = const Value.absent(),
+                Value<int> availableMinutes = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DailyCheckInsCompanion(
+                id: id,
+                checkInDate: checkInDate,
+                energyLevel: energyLevel,
+                availableMinutes: availableMinutes,
+                note: note,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime checkInDate,
+                required String energyLevel,
+                required int availableMinutes,
+                Value<String?> note = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => DailyCheckInsCompanion.insert(
+                id: id,
+                checkInDate: checkInDate,
+                energyLevel: energyLevel,
+                availableMinutes: availableMinutes,
+                note: note,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DailyCheckInsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DailyCheckInsTable,
+      DailyCheckInRow,
+      $$DailyCheckInsTableFilterComposer,
+      $$DailyCheckInsTableOrderingComposer,
+      $$DailyCheckInsTableAnnotationComposer,
+      $$DailyCheckInsTableCreateCompanionBuilder,
+      $$DailyCheckInsTableUpdateCompanionBuilder,
+      (
+        DailyCheckInRow,
+        BaseReferences<_$AppDatabase, $DailyCheckInsTable, DailyCheckInRow>,
+      ),
+      DailyCheckInRow,
+      PrefetchHooks Function()
     >;
 typedef $$SprintsTableCreateCompanionBuilder =
     SprintsCompanion Function({
@@ -11923,6 +14885,7 @@ typedef $$WeeklyReviewsTableCreateCompanionBuilder =
       Value<String?> wasteOrBlocker,
       required String decision,
       Value<String?> nextWeekFocus,
+      Value<DateTime?> decisionAppliedAt,
       required DateTime createdAt,
       required DateTime updatedAt,
       Value<int> rowid,
@@ -11940,6 +14903,7 @@ typedef $$WeeklyReviewsTableUpdateCompanionBuilder =
       Value<String?> wasteOrBlocker,
       Value<String> decision,
       Value<String?> nextWeekFocus,
+      Value<DateTime?> decisionAppliedAt,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<int> rowid,
@@ -12040,6 +15004,11 @@ class $$WeeklyReviewsTableFilterComposer
 
   ColumnFilters<String> get nextWeekFocus => $composableBuilder(
     column: $table.nextWeekFocus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get decisionAppliedAt => $composableBuilder(
+    column: $table.decisionAppliedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -12154,6 +15123,11 @@ class $$WeeklyReviewsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get decisionAppliedAt => $composableBuilder(
+    column: $table.decisionAppliedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -12257,6 +15231,11 @@ class $$WeeklyReviewsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<DateTime> get decisionAppliedAt => $composableBuilder(
+    column: $table.decisionAppliedAt,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -12349,6 +15328,7 @@ class $$WeeklyReviewsTableTableManager
                 Value<String?> wasteOrBlocker = const Value.absent(),
                 Value<String> decision = const Value.absent(),
                 Value<String?> nextWeekFocus = const Value.absent(),
+                Value<DateTime?> decisionAppliedAt = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -12364,6 +15344,7 @@ class $$WeeklyReviewsTableTableManager
                 wasteOrBlocker: wasteOrBlocker,
                 decision: decision,
                 nextWeekFocus: nextWeekFocus,
+                decisionAppliedAt: decisionAppliedAt,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -12381,6 +15362,7 @@ class $$WeeklyReviewsTableTableManager
                 Value<String?> wasteOrBlocker = const Value.absent(),
                 required String decision,
                 Value<String?> nextWeekFocus = const Value.absent(),
+                Value<DateTime?> decisionAppliedAt = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
@@ -12396,6 +15378,7 @@ class $$WeeklyReviewsTableTableManager
                 wasteOrBlocker: wasteOrBlocker,
                 decision: decision,
                 nextWeekFocus: nextWeekFocus,
+                decisionAppliedAt: decisionAppliedAt,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -12789,6 +15772,12 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$ProjectsTableTableManager get projects =>
       $$ProjectsTableTableManager(_db, _db.projects);
+  $$IdeasTableTableManager get ideas =>
+      $$IdeasTableTableManager(_db, _db.ideas);
+  $$RestartCapsulesTableTableManager get restartCapsules =>
+      $$RestartCapsulesTableTableManager(_db, _db.restartCapsules);
+  $$DailyCheckInsTableTableManager get dailyCheckIns =>
+      $$DailyCheckInsTableTableManager(_db, _db.dailyCheckIns);
   $$SprintsTableTableManager get sprints =>
       $$SprintsTableTableManager(_db, _db.sprints);
   $$DailyPlansTableTableManager get dailyPlans =>

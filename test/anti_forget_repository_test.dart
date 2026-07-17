@@ -28,28 +28,31 @@ void main() {
     expect(ideas.single.disposition, IdeaDisposition.inbox);
   });
 
-  test('converting an idea creates a parked project and restart capsule', () async {
-    final ideaId = await repository.captureIdea(
-      const IdeaInput(
-        title: 'Jual PDF',
-        note: 'Validasi satu produk digital',
-        source: 'Catatan malam',
-      ),
-    );
+  test(
+    'converting an idea creates a parked project and restart capsule',
+    () async {
+      final ideaId = await repository.captureIdea(
+        const IdeaInput(
+          title: 'Jual PDF',
+          note: 'Validasi satu produk digital',
+          source: 'Catatan malam',
+        ),
+      );
 
-    final projectId = await repository.convertIdeaToProject(ideaId);
-    final project = await (database.select(database.projects)
-          ..where((table) => table.id.equals(projectId)))
-        .getSingle();
-    final capsule = await repository.getRestartCapsule(projectId);
+      final projectId = await repository.convertIdeaToProject(ideaId);
+      final project = await (database.select(
+        database.projects,
+      )..where((table) => table.id.equals(projectId))).getSingle();
+      final capsule = await repository.getRestartCapsule(projectId);
 
-    expect(project.status, ProjectStatus.parkingLot.name);
-    expect(project.shortGoal, 'Validasi satu produk digital');
-    expect(await database.select(database.sprints).get(), isEmpty);
-    expect(capsule, isNotNull);
-    expect(capsule!.nextAction, contains('Tentukan tujuan'));
-    expect(await repository.watchIdeas().first, isEmpty);
-  });
+      expect(project.status, ProjectStatus.parkingLot.name);
+      expect(project.shortGoal, 'Validasi satu produk digital');
+      expect(await database.select(database.sprints).get(), isEmpty);
+      expect(capsule, isNotNull);
+      expect(capsule!.nextAction, contains('Tentukan tujuan'));
+      expect(await repository.watchIdeas().first, isEmpty);
+    },
+  );
 
   test('daily check-in is upserted for one local day', () async {
     final day = DateTime(2026, 7, 17, 8);

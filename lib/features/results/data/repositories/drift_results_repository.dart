@@ -123,7 +123,9 @@ class DriftResultsRepository implements ResultsRepository {
                   ..limit(1))
                 .getSingleOrNull();
 
-        await _database.into(_database.weeklyReviews).insertOnConflictUpdate(
+        await _database
+            .into(_database.weeklyReviews)
+            .insertOnConflictUpdate(
               _reviewCompanion(
                 input,
                 existing: existing,
@@ -141,7 +143,8 @@ class DriftResultsRepository implements ResultsRepository {
               lastKnownState: input.importantResult,
               parkedReason: null,
             );
-            final shouldRenew = activeSprint == null ||
+            final shouldRenew =
+                activeSprint == null ||
                 !activeSprint.endDate.isAfter(
                   today.add(const Duration(days: 7)),
                 );
@@ -168,7 +171,8 @@ class DriftResultsRepository implements ResultsRepository {
               input,
               now,
               lastKnownState:
-                  _trim(input.importantResult) ?? 'Pendekatan sebelumnya ditutup.',
+                  _trim(input.importantResult) ??
+                  'Pendekatan sebelumnya ditutup.',
               parkedReason: null,
             );
             await _createSprintWithPlan(
@@ -186,21 +190,20 @@ class DriftResultsRepository implements ResultsRepository {
               );
             }
             await _finishSprint(activeSprint, now, completed: false);
-            await (_database.update(_database.projects)..where(
-                  (table) => table.id.equals(input.projectId),
-                ))
-                .write(
-                  ProjectsCompanion(
-                    status: Value(ProjectStatus.parkingLot.name),
-                    updatedAt: Value(now),
-                  ),
-                );
+            await (_database.update(
+              _database.projects,
+            )..where((table) => table.id.equals(input.projectId))).write(
+              ProjectsCompanion(
+                status: Value(ProjectStatus.parkingLot.name),
+                updatedAt: Value(now),
+              ),
+            );
             await _upsertCapsule(
               input,
               now,
-              lastKnownState:
-                  _trim(input.importantResult) ?? project.shortGoal,
-              parkedReason: _trim(input.wasteOrBlocker) ??
+              lastKnownState: _trim(input.importantResult) ?? project.shortGoal,
+              parkedReason:
+                  _trim(input.wasteOrBlocker) ??
                   'Diparkir melalui review mingguan.',
             );
         }
@@ -227,7 +230,9 @@ class DriftResultsRepository implements ResultsRepository {
                   table.weekStart.equals(weekStart),
             ))
             .getSingleOrNull();
-    await _database.into(_database.weeklyReviews).insertOnConflictUpdate(
+    await _database
+        .into(_database.weeklyReviews)
+        .insertOnConflictUpdate(
           _reviewCompanion(
             input,
             existing: existing,
@@ -271,15 +276,14 @@ class DriftResultsRepository implements ResultsRepository {
             ))
             .get();
     for (final project in displaced) {
-      await (_database.update(_database.projects)..where(
-            (table) => table.id.equals(project.id),
-          ))
-          .write(
-            ProjectsCompanion(
-              status: Value(ProjectStatus.parkingLot.name),
-              updatedAt: Value(now),
-            ),
-          );
+      await (_database.update(
+        _database.projects,
+      )..where((table) => table.id.equals(project.id))).write(
+        ProjectsCompanion(
+          status: Value(ProjectStatus.parkingLot.name),
+          updatedAt: Value(now),
+        ),
+      );
       await (_database.update(_database.sprints)..where(
             (table) =>
                 table.projectId.equals(project.id) &
@@ -292,16 +296,15 @@ class DriftResultsRepository implements ResultsRepository {
             ),
           );
     }
-    await (_database.update(_database.projects)..where(
-          (table) => table.id.equals(projectId),
-        ))
-        .write(
-          ProjectsCompanion(
-            status: Value(ProjectStatus.focus.name),
-            archivedAt: const Value(null),
-            updatedAt: Value(now),
-          ),
-        );
+    await (_database.update(
+      _database.projects,
+    )..where((table) => table.id.equals(projectId))).write(
+      ProjectsCompanion(
+        status: Value(ProjectStatus.focus.name),
+        archivedAt: const Value(null),
+        updatedAt: Value(now),
+      ),
+    );
   }
 
   Future<void> _finishSprint(
@@ -310,17 +313,16 @@ class DriftResultsRepository implements ResultsRepository {
     required bool completed,
   }) async {
     if (sprint == null) return;
-    await (_database.update(_database.sprints)..where(
-          (table) => table.id.equals(sprint.id),
-        ))
-        .write(
-          SprintsCompanion(
-            status: Value(
-              completed ? SprintStatus.completed.name : SprintStatus.cancelled.name,
-            ),
-            updatedAt: Value(now),
-          ),
-        );
+    await (_database.update(
+      _database.sprints,
+    )..where((table) => table.id.equals(sprint.id))).write(
+      SprintsCompanion(
+        status: Value(
+          completed ? SprintStatus.completed.name : SprintStatus.cancelled.name,
+        ),
+        updatedAt: Value(now),
+      ),
+    );
   }
 
   Future<void> _createSprintWithPlan({
@@ -333,7 +335,9 @@ class DriftResultsRepository implements ResultsRepository {
     final sprintId = _uuid.v4();
     final planId = _uuid.v4();
     final nextAction = _trim(hypothesis) ?? 'Mulai langkah pertama';
-    await _database.into(_database.sprints).insert(
+    await _database
+        .into(_database.sprints)
+        .insert(
           SprintsCompanion.insert(
             id: sprintId,
             projectId: projectId,
@@ -347,17 +351,18 @@ class DriftResultsRepository implements ResultsRepository {
             updatedAt: now,
           ),
         );
-    await (_database.update(_database.projects)..where(
-          (table) => table.id.equals(projectId),
-        ))
-        .write(
-          ProjectsCompanion(
-            startDate: Value(startDate),
-            reviewDate: Value(startDate.add(const Duration(days: 29))),
-            updatedAt: Value(now),
-          ),
-        );
-    await _database.into(_database.dailyPlans).insert(
+    await (_database.update(
+      _database.projects,
+    )..where((table) => table.id.equals(projectId))).write(
+      ProjectsCompanion(
+        startDate: Value(startDate),
+        reviewDate: Value(startDate.add(const Duration(days: 29))),
+        updatedAt: Value(now),
+      ),
+    );
+    await _database
+        .into(_database.dailyPlans)
+        .insert(
           DailyPlansCompanion.insert(
             id: planId,
             sprintId: sprintId,
@@ -368,7 +373,9 @@ class DriftResultsRepository implements ResultsRepository {
             updatedAt: now,
           ),
         );
-    await _database.into(_database.dailyActions).insert(
+    await _database
+        .into(_database.dailyActions)
+        .insert(
           DailyActionsCompanion.insert(
             id: _uuid.v4(),
             dailyPlanId: planId,
@@ -391,7 +398,9 @@ class DriftResultsRepository implements ResultsRepository {
               ..where((table) => table.projectId.equals(input.projectId))
               ..limit(1))
             .getSingleOrNull();
-    await _database.into(_database.restartCapsules).insertOnConflictUpdate(
+    await _database
+        .into(_database.restartCapsules)
+        .insertOnConflictUpdate(
           RestartCapsulesCompanion.insert(
             id: existing?.id ?? _uuid.v4(),
             projectId: input.projectId,

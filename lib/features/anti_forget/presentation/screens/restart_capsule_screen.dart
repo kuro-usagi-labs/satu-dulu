@@ -93,9 +93,9 @@ class _RestartCapsuleScreenState extends ConsumerState<RestartCapsuleScreen> {
             const SizedBox(height: AppSpacing.compact),
             Text(
               'Isi singkat. Capsule ini muncul saat proyek dilanjutkan atau ketika kamu kehilangan arah.',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.textSecondary,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: AppSpacing.section),
             const AppNotice(
@@ -108,7 +108,8 @@ class _RestartCapsuleScreenState extends ConsumerState<RestartCapsuleScreen> {
             _field(
               controller: _state,
               label: 'Terakhir proyek ini ada di mana?',
-              hint: 'Contoh: landing page sudah jadi, belum memilih produk pertama',
+              hint:
+                  'Contoh: landing page sudah jadi, belum memilih produk pertama',
             ),
             _field(
               controller: _output,
@@ -196,7 +197,9 @@ class _RestartCapsuleScreenState extends ConsumerState<RestartCapsuleScreen> {
   Future<void> _save() async {
     setState(() => _saving = true);
     try {
-      await ref.read(antiForgetRepositoryProvider).saveRestartCapsule(
+      await ref
+          .read(antiForgetRepositoryProvider)
+          .saveRestartCapsule(
             RestartCapsuleInput(
               projectId: widget.projectId,
               lastKnownState: _state.text,

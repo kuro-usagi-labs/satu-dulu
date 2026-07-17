@@ -7,10 +7,7 @@ abstract interface class AntiForgetRepository {
 
   Future<void> updateIdea(String ideaId, IdeaInput input);
 
-  Future<void> setIdeaDisposition(
-    String ideaId,
-    IdeaDisposition disposition,
-  );
+  Future<void> setIdeaDisposition(String ideaId, IdeaDisposition disposition);
 
   Future<String> convertIdeaToProject(String ideaId);
 

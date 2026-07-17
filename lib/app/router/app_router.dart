@@ -61,9 +61,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/projects/:projectId/restart',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => RestartCapsuleScreen(
-          projectId: state.pathParameters['projectId']!,
-        ),
+        builder: (context, state) =>
+            RestartCapsuleScreen(projectId: state.pathParameters['projectId']!),
       ),
       GoRoute(
         path: '/projects/:projectId/edit',

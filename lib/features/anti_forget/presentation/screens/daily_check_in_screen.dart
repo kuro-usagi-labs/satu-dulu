@@ -66,14 +66,15 @@ class _DailyCheckInScreenState extends ConsumerState<DailyCheckInScreen> {
           const SizedBox(height: AppSpacing.compact),
           Text(
             'Jawaban ini tidak menilai harimu. Satu Dulu memakainya untuk mengecilkan rencana saat perlu.',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: AppColors.textSecondary,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.major),
           const AppSectionHeader(
             title: 'Energi',
-            description: 'Pilih keadaan yang paling mendekati, bukan yang ideal.',
+            description:
+                'Pilih keadaan yang paling mendekati, bukan yang ideal.',
           ),
           const SizedBox(height: AppSpacing.standard),
           SegmentedButton<EnergyLevel>(
@@ -95,7 +96,8 @@ class _DailyCheckInScreenState extends ConsumerState<DailyCheckInScreen> {
               ),
             ],
             selected: {_energy},
-            onSelectionChanged: (value) => setState(() => _energy = value.first),
+            onSelectionChanged: (value) =>
+                setState(() => _energy = value.first),
           ),
           const SizedBox(height: AppSpacing.major),
           const AppSectionHeader(
@@ -197,7 +199,9 @@ class _DailyCheckInScreenState extends ConsumerState<DailyCheckInScreen> {
   Future<void> _save() async {
     setState(() => _saving = true);
     try {
-      await ref.read(antiForgetRepositoryProvider).saveDailyCheckIn(
+      await ref
+          .read(antiForgetRepositoryProvider)
+          .saveDailyCheckIn(
             DailyCheckInInput(
               checkInDate: DateTime.now(),
               energyLevel: _energy,

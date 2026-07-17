@@ -20,63 +20,69 @@ void main() {
 
   tearDown(() => database.close());
 
-  test('park review updates status, sprint, capsule, and audit field', () async {
-    final projectId = await tracker.createProject(_projectInput('TikTok'));
-    final input = _reviewInput(
-      projectId,
-      decision: ReviewDecision.park,
-      next: 'Tulis tiga hook saat proyek dilanjutkan',
-    );
-
-    await results.saveAndApplyWeeklyReview(input);
-
-    final project = await (database.select(database.projects)
-          ..where((table) => table.id.equals(projectId)))
-        .getSingle();
-    final sprint = await (database.select(database.sprints)
-          ..where((table) => table.projectId.equals(projectId)))
-        .getSingle();
-    final capsule = await (database.select(database.restartCapsules)
-          ..where((table) => table.projectId.equals(projectId)))
-        .getSingle();
-    final review = await database.select(database.weeklyReviews).getSingle();
-
-    expect(project.status, ProjectStatus.parkingLot.name);
-    expect(sprint.status, SprintStatus.cancelled.name);
-    expect(capsule.nextAction, 'Tulis tiga hook saat proyek dilanjutkan');
-    expect(review.decisionAppliedAt, isNotNull);
-  });
-
-  test('pivot closes old sprint and creates a new active sprint with plan', () async {
-    final projectId = await tracker.createProject(_projectInput('YouTube'));
-
-    await results.saveAndApplyWeeklyReview(
-      _reviewInput(
+  test(
+    'park review updates status, sprint, capsule, and audit field',
+    () async {
+      final projectId = await tracker.createProject(_projectInput('TikTok'));
+      final input = _reviewInput(
         projectId,
-        decision: ReviewDecision.pivot,
-        next: 'Uji video 30 detik dengan hook konflik',
-      ),
-    );
+        decision: ReviewDecision.park,
+        next: 'Tulis tiga hook saat proyek dilanjutkan',
+      );
 
-    final sprints = await (database.select(database.sprints)
-          ..where((table) => table.projectId.equals(projectId)))
-        .get();
-    final active = sprints.where(
-      (sprint) => sprint.status == SprintStatus.active.name,
-    );
-    final completed = sprints.where(
-      (sprint) => sprint.status == SprintStatus.completed.name,
-    );
+      await results.saveAndApplyWeeklyReview(input);
 
-    expect(active, hasLength(1));
-    expect(completed, hasLength(1));
-    final activeSprint = active.single;
-    expect(activeSprint.hypothesis, contains('hook konflik'));
-    final plan = await (database.select(database.dailyPlans)
-          ..where((table) => table.sprintId.equals(activeSprint.id)))
-        .getSingle();
-    expect(plan.requiredOutcome, contains('hook konflik'));
-  });
+      final project = await (database.select(
+        database.projects,
+      )..where((table) => table.id.equals(projectId))).getSingle();
+      final sprint = await (database.select(
+        database.sprints,
+      )..where((table) => table.projectId.equals(projectId))).getSingle();
+      final capsule = await (database.select(
+        database.restartCapsules,
+      )..where((table) => table.projectId.equals(projectId))).getSingle();
+      final review = await database.select(database.weeklyReviews).getSingle();
+
+      expect(project.status, ProjectStatus.parkingLot.name);
+      expect(sprint.status, SprintStatus.cancelled.name);
+      expect(capsule.nextAction, 'Tulis tiga hook saat proyek dilanjutkan');
+      expect(review.decisionAppliedAt, isNotNull);
+    },
+  );
+
+  test(
+    'pivot closes old sprint and creates a new active sprint with plan',
+    () async {
+      final projectId = await tracker.createProject(_projectInput('YouTube'));
+
+      await results.saveAndApplyWeeklyReview(
+        _reviewInput(
+          projectId,
+          decision: ReviewDecision.pivot,
+          next: 'Uji video 30 detik dengan hook konflik',
+        ),
+      );
+
+      final sprints = await (database.select(
+        database.sprints,
+      )..where((table) => table.projectId.equals(projectId))).get();
+      final active = sprints.where(
+        (sprint) => sprint.status == SprintStatus.active.name,
+      );
+      final completed = sprints.where(
+        (sprint) => sprint.status == SprintStatus.completed.name,
+      );
+
+      expect(active, hasLength(1));
+      expect(completed, hasLength(1));
+      final activeSprint = active.single;
+      expect(activeSprint.hypothesis, contains('hook konflik'));
+      final plan = await (database.select(
+        database.dailyPlans,
+      )..where((table) => table.sprintId.equals(activeSprint.id))).getSingle();
+      expect(plan.requiredOutcome, contains('hook konflik'));
+    },
+  );
 
   test('applied review cannot be applied twice', () async {
     final projectId = await tracker.createProject(_projectInput('PDF'));
@@ -115,8 +121,11 @@ WeeklyReviewInput _reviewInput(
   required String next,
 }) {
   final now = DateTime.now();
-  final start = DateTime(now.year, now.month, now.day)
-      .subtract(Duration(days: now.weekday - 1));
+  final start = DateTime(
+    now.year,
+    now.month,
+    now.day,
+  ).subtract(Duration(days: now.weekday - 1));
   return WeeklyReviewInput(
     projectId: projectId,
     weekStart: start,

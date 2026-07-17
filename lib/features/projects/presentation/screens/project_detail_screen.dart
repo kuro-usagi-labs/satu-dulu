@@ -218,7 +218,9 @@ class _RestartCapsuleCard extends StatelessWidget {
             children: [
               AppIconBadge(
                 icon: Icons.inventory_2_outlined,
-                foreground: hasContext ? AppColors.guide : AppColors.textSecondary,
+                foreground: hasContext
+                    ? AppColors.guide
+                    : AppColors.textSecondary,
                 background: AppColors.surface,
               ),
               const SizedBox(width: AppSpacing.innerCompact),

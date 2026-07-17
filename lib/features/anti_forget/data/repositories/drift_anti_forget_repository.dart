@@ -39,7 +39,9 @@ class DriftAntiForgetRepository implements AntiForgetRepository {
     final id = _uuid.v4();
     final now = DateTime.now().toUtc();
     try {
-      await _database.into(_database.ideas).insert(
+      await _database
+          .into(_database.ideas)
+          .insert(
             IdeasCompanion.insert(
               id: id,
               title: title,
@@ -62,16 +64,17 @@ class DriftAntiForgetRepository implements AntiForgetRepository {
     if (title.isEmpty) {
       throw const ValidationException('Judul ide wajib diisi.');
     }
-    final affected = await (_database.update(
-      _database.ideas,
-    )..where((table) => table.id.equals(ideaId))).write(
-      IdeasCompanion(
-        title: Value(title),
-        note: Value(_trim(input.note)),
-        source: Value(_trim(input.source)),
-        updatedAt: Value(DateTime.now().toUtc()),
-      ),
-    );
+    final affected =
+        await (_database.update(
+          _database.ideas,
+        )..where((table) => table.id.equals(ideaId))).write(
+          IdeasCompanion(
+            title: Value(title),
+            note: Value(_trim(input.note)),
+            source: Value(_trim(input.source)),
+            updatedAt: Value(DateTime.now().toUtc()),
+          ),
+        );
     if (affected != 1) {
       throw const DatabaseException('Ide tidak ditemukan.');
     }
@@ -82,14 +85,15 @@ class DriftAntiForgetRepository implements AntiForgetRepository {
     String ideaId,
     IdeaDisposition disposition,
   ) async {
-    final affected = await (_database.update(
-      _database.ideas,
-    )..where((table) => table.id.equals(ideaId))).write(
-      IdeasCompanion(
-        disposition: Value(disposition.name),
-        updatedAt: Value(DateTime.now().toUtc()),
-      ),
-    );
+    final affected =
+        await (_database.update(
+          _database.ideas,
+        )..where((table) => table.id.equals(ideaId))).write(
+          IdeasCompanion(
+            disposition: Value(disposition.name),
+            updatedAt: Value(DateTime.now().toUtc()),
+          ),
+        );
     if (affected != 1) {
       throw const DatabaseException('Ide tidak ditemukan.');
     }
@@ -118,7 +122,9 @@ class DriftAntiForgetRepository implements AntiForgetRepository {
         }
 
         final projectId = _uuid.v4();
-        await _database.into(_database.projects).insert(
+        await _database
+            .into(_database.projects)
+            .insert(
               ProjectsCompanion.insert(
                 id: projectId,
                 name: idea.title.trim(),
@@ -131,7 +137,9 @@ class DriftAntiForgetRepository implements AntiForgetRepository {
               ),
             );
 
-        await _database.into(_database.restartCapsules).insert(
+        await _database
+            .into(_database.restartCapsules)
+            .insert(
               RestartCapsulesCompanion.insert(
                 id: _uuid.v4(),
                 projectId: projectId,
@@ -190,7 +198,9 @@ class DriftAntiForgetRepository implements AntiForgetRepository {
               ..limit(1))
             .getSingleOrNull();
     final now = DateTime.now().toUtc();
-    await _database.into(_database.restartCapsules).insertOnConflictUpdate(
+    await _database
+        .into(_database.restartCapsules)
+        .insertOnConflictUpdate(
           RestartCapsulesCompanion.insert(
             id: existing?.id ?? _uuid.v4(),
             projectId: input.projectId,
@@ -229,7 +239,9 @@ class DriftAntiForgetRepository implements AntiForgetRepository {
               ..limit(1))
             .getSingleOrNull();
     final now = DateTime.now().toUtc();
-    await _database.into(_database.dailyCheckIns).insertOnConflictUpdate(
+    await _database
+        .into(_database.dailyCheckIns)
+        .insertOnConflictUpdate(
           DailyCheckInsCompanion.insert(
             id: existing?.id ?? _uuid.v4(),
             checkInDate: day,
@@ -292,11 +304,12 @@ class DriftAntiForgetRepository implements AntiForgetRepository {
                 ..limit(1))
               .getSingleOrNull();
       if (plan != null) {
-        actionCount = await (_database.selectOnly(_database.dailyActions)
-              ..addColumns([_database.dailyActions.id.count()])
-              ..where(_database.dailyActions.dailyPlanId.equals(plan.id)))
-            .map((row) => row.read(_database.dailyActions.id.count()) ?? 0)
-            .getSingle();
+        actionCount =
+            await (_database.selectOnly(_database.dailyActions)
+                  ..addColumns([_database.dailyActions.id.count()])
+                  ..where(_database.dailyActions.dailyPlanId.equals(plan.id)))
+                .map((row) => row.read(_database.dailyActions.id.count()) ?? 0)
+                .getSingle();
         shippedToday =
             await (_database.select(_database.shipRecords)
                   ..where((table) => table.dailyPlanId.equals(plan!.id))
@@ -306,18 +319,21 @@ class DriftAntiForgetRepository implements AntiForgetRepository {
       }
     }
 
-    final shipJoin = _database.select(_database.shipRecords).join([
-      innerJoin(
-        _database.dailyPlans,
-        _database.dailyPlans.id.equalsExp(_database.shipRecords.dailyPlanId),
-      ),
-      innerJoin(
-        _database.sprints,
-        _database.sprints.id.equalsExp(_database.dailyPlans.sprintId),
-      ),
-    ])
-      ..where(_database.sprints.projectId.equals(focus.id))
-      ..orderBy([OrderingTerm.desc(_database.shipRecords.shippedAt)]);
+    final shipJoin =
+        _database.select(_database.shipRecords).join([
+            innerJoin(
+              _database.dailyPlans,
+              _database.dailyPlans.id.equalsExp(
+                _database.shipRecords.dailyPlanId,
+              ),
+            ),
+            innerJoin(
+              _database.sprints,
+              _database.sprints.id.equalsExp(_database.dailyPlans.sprintId),
+            ),
+          ])
+          ..where(_database.sprints.projectId.equals(focus.id))
+          ..orderBy([OrderingTerm.desc(_database.shipRecords.shippedAt)]);
     final shipRows = await shipJoin.get();
     final lastShippedAt = shipRows.isEmpty
         ? null
@@ -348,38 +364,38 @@ class DriftAntiForgetRepository implements AntiForgetRepository {
   }
 
   Idea _ideaFromRow(IdeaRow row) => Idea(
-        id: row.id,
-        title: row.title,
-        note: row.note,
-        source: row.source,
-        disposition: IdeaDisposition.values.byName(row.disposition),
-        convertedProjectId: row.convertedProjectId,
-        capturedAt: row.capturedAt.toUtc(),
-        updatedAt: row.updatedAt.toUtc(),
-      );
+    id: row.id,
+    title: row.title,
+    note: row.note,
+    source: row.source,
+    disposition: IdeaDisposition.values.byName(row.disposition),
+    convertedProjectId: row.convertedProjectId,
+    capturedAt: row.capturedAt.toUtc(),
+    updatedAt: row.updatedAt.toUtc(),
+  );
 
   RestartCapsule _capsuleFromRow(RestartCapsuleRow row) => RestartCapsule(
-        id: row.id,
-        projectId: row.projectId,
-        lastKnownState: row.lastKnownState,
-        lastOutput: row.lastOutput,
-        whatWorked: row.whatWorked,
-        blocker: row.blocker,
-        nextAction: row.nextAction,
-        parkedReason: row.parkedReason,
-        createdAt: row.createdAt.toUtc(),
-        updatedAt: row.updatedAt.toUtc(),
-      );
+    id: row.id,
+    projectId: row.projectId,
+    lastKnownState: row.lastKnownState,
+    lastOutput: row.lastOutput,
+    whatWorked: row.whatWorked,
+    blocker: row.blocker,
+    nextAction: row.nextAction,
+    parkedReason: row.parkedReason,
+    createdAt: row.createdAt.toUtc(),
+    updatedAt: row.updatedAt.toUtc(),
+  );
 
   DailyCheckIn _checkInFromRow(DailyCheckInRow row) => DailyCheckIn(
-        id: row.id,
-        checkInDate: row.checkInDate.toUtc(),
-        energyLevel: EnergyLevel.values.byName(row.energyLevel),
-        availableMinutes: row.availableMinutes,
-        note: row.note,
-        createdAt: row.createdAt.toUtc(),
-        updatedAt: row.updatedAt.toUtc(),
-      );
+    id: row.id,
+    checkInDate: row.checkInDate.toUtc(),
+    energyLevel: EnergyLevel.values.byName(row.energyLevel),
+    availableMinutes: row.availableMinutes,
+    note: row.note,
+    createdAt: row.createdAt.toUtc(),
+    updatedAt: row.updatedAt.toUtc(),
+  );
 
   DateTime _dateOnlyUtc(DateTime value) {
     final local = value.toLocal();
