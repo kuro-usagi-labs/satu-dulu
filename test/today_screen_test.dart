@@ -257,6 +257,9 @@ class _FakeResultsRepository implements ResultsRepository {
   Future<void> saveWeeklyReview(WeeklyReviewInput input) async {}
 
   @override
+  Future<void> saveAndApplyWeeklyReview(WeeklyReviewInput input) async {}
+
+  @override
   Stream<ResultsSummary> watchSummary(String projectId) {
     return Stream.value(_emptySummary);
   }
