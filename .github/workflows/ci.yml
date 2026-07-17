@@ -21,9 +21,23 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: dart run build_runner build
-      - name: Show Dart formatter diff
-        run: |
-          dart format .
-          git diff --exit-code
+      - name: Format Dart sources for diagnostics
+        run: dart format .
+      - name: Upload formatted sources
+        uses: actions/upload-artifact@v4
+        with:
+          name: formatted-stability-sources
+          path: |
+            lib/app/app_version.dart
+            lib/core/database/app_database.dart
+            lib/features/projects/data/repositories/drift_tracker_repository.dart
+            lib/features/settings/presentation/widgets/notification_settings.dart
+            lib/features/today/presentation/screens/today_screen.dart
+            test/app_version_test.dart
+            test/tracker_repository_test.dart
+          if-no-files-found: error
+          retention-days: 1
+      - name: Verify formatter cleanliness
+        run: git diff --exit-code
       - run: flutter analyze
       - run: flutter test --coverage
