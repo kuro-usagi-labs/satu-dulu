@@ -38,9 +38,8 @@ class IdeaInboxScreen extends ConsumerWidget {
               ],
             ),
           ),
-          error: (error, stackTrace) => _ErrorState(
-            onRetry: () => ref.invalidate(activeIdeasProvider),
-          ),
+          error: (error, stackTrace) =>
+              _ErrorState(onRetry: () => ref.invalidate(activeIdeasProvider)),
           data: (items) => ListView(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.generous,
@@ -58,9 +57,9 @@ class IdeaInboxScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.compact),
               Text(
                 'Simpan lintasan pikiranmu di sini. Ide baru tidak membuat sprint, tugas, atau tekanan baru.',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
               ),
               const SizedBox(height: AppSpacing.major),
               if (items.isEmpty)
@@ -304,7 +303,10 @@ class _IdeaCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(idea.title, style: Theme.of(context).textTheme.titleMedium),
+                  Text(
+                    idea.title,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   if (idea.note case final note?) ...[
                     const SizedBox(height: AppSpacing.micro),
                     Text(
