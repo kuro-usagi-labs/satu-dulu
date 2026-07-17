@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:satu_dulu/app/theme/app_theme.dart';
 import 'package:satu_dulu/core/errors/app_exception.dart';
 import 'package:satu_dulu/core/widgets/app_primitives.dart';
+import 'package:satu_dulu/features/anti_forget/presentation/controllers/anti_forget_providers.dart';
 import 'package:satu_dulu/features/projects/domain/entities/tracker_models.dart';
 import 'package:satu_dulu/features/projects/presentation/controllers/tracker_providers.dart';
 import 'package:satu_dulu/features/projects/presentation/widgets/project_detail_widgets.dart';
@@ -53,6 +54,7 @@ class _ProjectContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final capsule = ref.watch(restartCapsuleProvider(project.id));
     return ListView(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: const EdgeInsets.fromLTRB(
@@ -91,6 +93,27 @@ class _ProjectContent extends ConsumerWidget {
             value: project.successDefinition!,
           ),
         ],
+        const SizedBox(height: AppSpacing.major),
+        const AppSectionHeader(
+          title: 'Restart Capsule',
+          description:
+              'Konteks pendek agar kamu bisa kembali tanpa mengingat semuanya.',
+        ),
+        const SizedBox(height: AppSpacing.standard),
+        capsule.when(
+          loading: () => const AppLoadingBlock(height: 124),
+          error: (error, stackTrace) => OutlinedButton.icon(
+            onPressed: () => ref.invalidate(restartCapsuleProvider(project.id)),
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('Muat capsule lagi'),
+          ),
+          data: (value) => _RestartCapsuleCard(
+            nextAction: value?.nextAction,
+            blocker: value?.blocker,
+            hasContext: value?.hasContext ?? false,
+            onTap: () => context.push('/projects/${project.id}/restart'),
+          ),
+        ),
         const SizedBox(height: AppSpacing.major),
         const AppSectionHeader(
           title: 'Lanjut dari sini',
@@ -136,7 +159,7 @@ class _ProjectContent extends ConsumerWidget {
         icon: const Icon(Icons.archive_outlined),
         title: const Text('Arsipkan proyek?'),
         content: Text(
-          '“${project.name}” tidak lagi muncul di daftar utama. Semua hasil dan data tetap disimpan.',
+          '“${project.name}” tidak lagi muncul di daftar utama. Semua hasil, capsule, dan data tetap disimpan.',
         ),
         actions: [
           TextButton(
@@ -155,6 +178,7 @@ class _ProjectContent extends ConsumerWidget {
       await ref.read(trackerRepositoryProvider).archiveProject(project.id);
       ref.invalidate(projectsProvider);
       ref.invalidate(todayProvider);
+      ref.invalidate(antiForgetTodaySupportProvider);
       if (context.mounted) context.go('/projects');
     } on AppException catch (error) {
       if (context.mounted) {
@@ -163,5 +187,70 @@ class _ProjectContent extends ConsumerWidget {
         ).showSnackBar(SnackBar(content: Text(error.message)));
       }
     }
+  }
+}
+
+class _RestartCapsuleCard extends StatelessWidget {
+  const _RestartCapsuleCard({
+    required this.nextAction,
+    required this.blocker,
+    required this.hasContext,
+    required this.onTap,
+  });
+
+  final String? nextAction;
+  final String? blocker;
+  final bool hasContext;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: hasContext ? AppColors.guideSoft : AppColors.surfaceSecondary,
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.standard),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppIconBadge(
+                icon: Icons.inventory_2_outlined,
+                foreground: hasContext ? AppColors.guide : AppColors.textSecondary,
+                background: AppColors.surface,
+              ),
+              const SizedBox(width: AppSpacing.innerCompact),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      hasContext ? 'Konteks tersimpan' : 'Capsule belum diisi',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.micro),
+                    Text(
+                      nextAction?.trim().isNotEmpty == true
+                          ? 'Mulai lagi dari: $nextAction'
+                          : blocker?.trim().isNotEmpty == true
+                          ? 'Hambatan terakhir: $blocker'
+                          : 'Simpan kondisi terakhir, hambatan, dan satu tindakan pertama.',
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right_rounded),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
