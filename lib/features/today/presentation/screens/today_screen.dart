@@ -10,6 +10,9 @@ import 'package:satu_dulu/core/errors/app_exception.dart';
 import 'package:satu_dulu/core/widgets/app_primitives.dart';
 import 'package:satu_dulu/core/widgets/empty_state_card.dart';
 import 'package:satu_dulu/core/widgets/screen_frame.dart';
+import 'package:satu_dulu/features/anti_forget/domain/entities/anti_forget_models.dart';
+import 'package:satu_dulu/features/anti_forget/presentation/controllers/anti_forget_providers.dart';
+import 'package:satu_dulu/features/anti_forget/presentation/widgets/anti_forget_widgets.dart';
 import 'package:satu_dulu/features/projects/domain/entities/tracker_models.dart';
 import 'package:satu_dulu/features/projects/presentation/controllers/tracker_providers.dart';
 import 'package:satu_dulu/features/today/presentation/widgets/today_sheets.dart';
@@ -48,15 +51,14 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _refreshCurrentDay();
-    }
+    if (state == AppLifecycleState.resumed) _refreshCurrentDay();
   }
 
   @override
   Widget build(BuildContext context) {
     final overview = ref.watch(todayProvider(_today));
     final projects = ref.watch(projectsProvider);
+    final support = ref.watch(antiForgetTodaySupportProvider(_today));
     final dateLabel = DateFormat('EEEE, d MMMM', 'id_ID').format(_today);
 
     return ScreenFrame(
@@ -72,16 +74,22 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       child: overview.when(
         loading: () => const TodayLoading(),
         error: (error, stackTrace) => TodayErrorCard(
-          onRetry: () => ref.invalidate(todayProvider(_today)),
+          onRetry: () {
+            ref.invalidate(todayProvider(_today));
+            ref.invalidate(antiForgetTodaySupportProvider(_today));
+          },
         ),
         data: (today) => today == null
-            ? _buildEmptyState(projects)
-            : _buildToday(context, today),
+            ? _buildEmptyState(projects, support.value)
+            : _buildToday(context, today, support.value),
       ),
     );
   }
 
-  Widget _buildEmptyState(AsyncValue<List<Project>> projects) {
+  Widget _buildEmptyState(
+    AsyncValue<List<Project>> projects,
+    AntiForgetTodaySupport? support,
+  ) {
     return projects.when(
       loading: () => const AppLoadingBlock(height: 260),
       error: (error, stackTrace) =>
@@ -90,49 +98,74 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
         final focus = items
             .where((project) => project.status == ProjectStatus.focus)
             .firstOrNull;
-        if (focus == null) {
-          final hasProjects = items.isNotEmpty;
-          return EmptyStateCard(
-            icon: hasProjects
-                ? Icons.adjust_rounded
-                : Icons.center_focus_strong_rounded,
-            title: hasProjects
-                ? 'Pilih satu fokus utama'
-                : 'Mulai dari satu fokus',
-            description: hasProjects
-                ? 'Kamu sudah punya proyek. Pilih satu yang memimpin Hari Ini; yang lain tetap aman disimpan.'
-                : 'Buat satu proyek untuk 30 hari. Kamu akan langsung menyiapkan hasil pertamamu.',
-            footnote: 'Ide lain tidak akan dihapus atau dilupakan.',
-            actionLabel: hasProjects
-                ? 'Pilih dari proyek'
-                : 'Buat fokus pertama',
-            onAction: () =>
-                context.push(hasProjects ? '/projects' : '/projects/new'),
-          );
-        }
-
-        if (_reviewIsDue(focus)) {
-          return EmptyStateCard(
-            icon: Icons.flag_outlined,
-            title: 'Putaran 30 harimu selesai',
-            description:
-                'Lihat bukti yang terkumpul sebelum memutuskan untuk lanjut, mengubah arah, atau menyimpan proyek ini dulu.',
-            actionLabel: 'Review fokus ini',
-            onAction: () => context.push('/results/review?project=${focus.id}'),
-          );
-        }
-
-        return EmptyStateCard(
-          icon: Icons.edit_calendar_outlined,
-          title: 'Hari ini belum punya hasil',
-          description:
-              'Mulai bersih. Tentukan satu hasil yang benar-benar bisa kamu selesaikan atau terbitkan hari ini.',
-          footnote: 'Tidak ada utang tugas yang dibawa dari kemarin.',
-          actionLabel: 'Tentukan hasil hari ini',
-          onAction: () => context.push('/today/plan'),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            DailyCheckInCard(
+              checkIn: support?.checkIn,
+              onTap: () => context.push('/check-in'),
+            ),
+            if (support?.recovery.isActive == true && focus != null) ...[
+              const SizedBox(height: AppSpacing.standard),
+              RecoveryModeCard(
+                brief: support!.recovery,
+                onPrimary: () =>
+                    _handleRecoveryPrimary(support.recovery, focus, null),
+                onSecondary: () =>
+                    _handleRecoverySecondary(support, focus),
+              ),
+            ],
+            const SizedBox(height: AppSpacing.major),
+            if (focus == null)
+              EmptyStateCard(
+                icon: items.isNotEmpty
+                    ? Icons.adjust_rounded
+                    : Icons.center_focus_strong_rounded,
+                title: items.isNotEmpty
+                    ? 'Pilih satu fokus utama'
+                    : 'Mulai dari satu fokus',
+                description: items.isNotEmpty
+                    ? 'Kamu sudah punya proyek. Pilih satu yang memimpin Hari Ini; yang lain tetap aman disimpan.'
+                    : 'Buat satu proyek untuk 30 hari. Kamu akan langsung menyiapkan hasil pertamamu.',
+                footnote: 'Ide lain dapat ditangkap di Idea Inbox.',
+                actionLabel: items.isNotEmpty
+                    ? 'Pilih dari proyek'
+                    : 'Buat fokus pertama',
+                onAction: () => context.push(
+                  items.isNotEmpty ? '/projects' : '/projects/new',
+                ),
+              )
+            else if (_reviewIsDue(focus))
+              EmptyStateCard(
+                icon: Icons.flag_outlined,
+                title: 'Putaranmu perlu ditinjau',
+                description:
+                    'Lihat bukti yang terkumpul sebelum lanjut, pivot, atau menyimpan proyek ini dulu.',
+                actionLabel: 'Review fokus ini',
+                onAction: () =>
+                    context.push('/results/review?project=${focus.id}'),
+              )
+            else
+              EmptyStateCard(
+                icon: Icons.edit_calendar_outlined,
+                title: 'Hari ini belum punya hasil',
+                description: _emptyPlanDescription(support?.checkIn),
+                footnote: 'Tidak ada utang tugas yang dibawa dari kemarin.',
+                actionLabel: 'Tentukan hasil hari ini',
+                onAction: () => context.push('/today/plan'),
+              ),
+          ],
         );
       },
     );
+  }
+
+  String _emptyPlanDescription(DailyCheckIn? checkIn) {
+    if (checkIn?.energyLevel == EnergyLevel.low ||
+        (checkIn?.availableMinutes ?? 60) <= 10) {
+      return 'Kapasitasmu kecil hari ini. Tentukan satu hasil atau tindakan yang dapat selesai dalam ${checkIn?.capacityLabel ?? '10 menit'}.';
+    }
+    return 'Mulai bersih. Tentukan satu hasil yang benar-benar bisa kamu selesaikan atau terbitkan hari ini.';
   }
 
   bool _reviewIsDue(Project project) {
@@ -143,10 +176,14 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       reviewDate.month,
       reviewDate.day,
     );
-    return normalized.isBefore(_today);
+    return !normalized.isAfter(_today);
   }
 
-  Widget _buildToday(BuildContext context, TodayOverview today) {
+  Widget _buildToday(
+    BuildContext context,
+    TodayOverview today,
+    AntiForgetTodaySupport? support,
+  ) {
     final completed = today.actions
         .where((action) => action.isCompleted)
         .length;
@@ -161,6 +198,33 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        DailyCheckInCard(
+          checkIn: support?.checkIn,
+          onTap: () => context.push('/check-in'),
+        ),
+        if (support?.recovery.isActive == true) ...[
+          const SizedBox(height: AppSpacing.standard),
+          RecoveryModeCard(
+            brief: support!.recovery,
+            onPrimary: () => _handleRecoveryPrimary(
+              support.recovery,
+              today.project,
+              today,
+            ),
+            onSecondary: () =>
+                _handleRecoverySecondary(support, today.project),
+          ),
+        ],
+        if (support?.capsule case final capsule?
+            when capsule.hasContext) ...[
+          const SizedBox(height: AppSpacing.standard),
+          RestartContextCard(
+            capsule: capsule,
+            onTap: () =>
+                context.push('/projects/${today.project.id}/restart'),
+          ),
+        ],
+        const SizedBox(height: AppSpacing.major),
         TodayFocusHero(
           projectName: today.project.name,
           sprintDay: today.sprintDay,
@@ -241,13 +305,70 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     );
   }
 
+  void _handleRecoveryPrimary(
+    RecoveryBrief brief,
+    Project project,
+    TodayOverview? today,
+  ) {
+    switch (brief.reason) {
+      case RecoveryReason.missingSprint:
+        context.push('/projects/${project.id}');
+      case RecoveryReason.reviewDue:
+        context.push('/results/review?project=${project.id}');
+      case RecoveryReason.noPlanAfterNoon:
+        context.push('/today/plan');
+      case RecoveryReason.noShipTwoDays:
+        if (today == null) {
+          context.push('/today/plan');
+        } else {
+          _scrollToActions();
+        }
+      case RecoveryReason.lowEnergyOversizedPlan:
+        setState(() => _lowEnergy = true);
+        _scrollToActions();
+      case RecoveryReason.none:
+        break;
+    }
+  }
+
+  void _handleRecoverySecondary(
+    AntiForgetTodaySupport support,
+    Project project,
+  ) {
+    if (support.capsule?.hasContext == true) {
+      context.push('/projects/${project.id}/restart');
+      return;
+    }
+    if (briefNeedsResults(support.recovery.reason)) {
+      context.go('/results');
+    } else {
+      context.go('/guides');
+    }
+  }
+
+  bool briefNeedsResults(RecoveryReason reason) =>
+      reason == RecoveryReason.reviewDue;
+
+  Future<void> _scrollToActions() async {
+    final actionContext = _actionsKey.currentContext;
+    if (actionContext == null || !actionContext.mounted) return;
+    await Scrollable.ensureVisible(
+      actionContext,
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : AppDuration.card,
+      curve: Curves.easeOutCubic,
+      alignment: 0.16,
+    );
+  }
+
   Future<void> _setAction(DailyAction action, bool completed) async {
     setState(() => _mutating = true);
     try {
       await ref
           .read(trackerRepositoryProvider)
           .setActionCompleted(action.id, completed: completed);
-      ref.invalidate(todayProvider(_today));
+      _invalidateToday();
     } on AppException catch (error) {
       _showError(error.message);
     } finally {
@@ -278,7 +399,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
             externalUrl: draft.externalUrl,
             evidenceNote: draft.evidenceNote,
           );
-      ref.invalidate(todayProvider(_today));
+      _invalidateToday();
       if (!mounted) return;
       if (!MediaQuery.disableAnimationsOf(context)) {
         await HapticFeedback.mediumImpact();
@@ -305,7 +426,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   }
 
   Future<void> _showLostTrack(TodayOverview today) async {
-    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final choice = await showModalBottomSheet<RecoveryChoice>(
       context: context,
       isScrollControlled: true,
@@ -324,32 +444,27 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       await context.push('/guides/$documentId/read$pageQuery');
       return;
     }
-
-    final actionContext = _actionsKey.currentContext;
-    if (actionContext != null && actionContext.mounted) {
-      await Scrollable.ensureVisible(
-        actionContext,
-        duration: reduceMotion ? Duration.zero : AppDuration.card,
-        curve: Curves.easeOutCubic,
-        alignment: 0.16,
-      );
-    }
+    await _scrollToActions();
   }
 
   void _refreshCurrentDay() {
     if (!mounted) return;
     final nextDay = _localDay(DateTime.now());
     if (_sameDay(nextDay, _today)) {
-      ref.invalidate(todayProvider(_today));
+      _invalidateToday();
       return;
     }
-
     setState(() {
       _today = nextDay;
       _lowEnergy = false;
       _mutating = false;
     });
     _scheduleMidnightRefresh();
+  }
+
+  void _invalidateToday() {
+    ref.invalidate(todayProvider(_today));
+    ref.invalidate(antiForgetTodaySupportProvider(_today));
   }
 
   void _scheduleMidnightRefresh() {
