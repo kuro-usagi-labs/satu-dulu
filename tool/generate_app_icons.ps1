@@ -27,7 +27,7 @@ function New-SatuDuluArtwork {
     if ($Transparent) {
       $graphics.Clear([System.Drawing.Color]::Transparent)
     } else {
-      $graphics.Clear([System.Drawing.ColorTranslator]::FromHtml('#F6F7F9'))
+      $graphics.Clear([System.Drawing.ColorTranslator]::FromHtml('#F6F8FC'))
     }
 
     $scale = $Size / 1024.0
@@ -38,7 +38,7 @@ function New-SatuDuluArtwork {
       [single](536 * $scale)
     )
     $ringWidth = [single]([Math]::Max(2, 72 * $scale))
-    $ringColor = if ($Transparent) { '#AEBDFB' } else { '#D9E0FF' }
+    $ringColor = if ($Transparent) { '#AFC5F4' } else { '#D4E0FA' }
     $ringPen = [System.Drawing.Pen]::new(
       [System.Drawing.ColorTranslator]::FromHtml($ringColor),
       $ringWidth
@@ -47,7 +47,7 @@ function New-SatuDuluArtwork {
     $ringPen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
 
     $dotBrush = [System.Drawing.SolidBrush]::new(
-      [System.Drawing.ColorTranslator]::FromHtml('#4468F2')
+      [System.Drawing.ColorTranslator]::FromHtml('#1D5BD8')
     )
     try {
       # The open orbit leaves deliberate space while the single dot stays central.

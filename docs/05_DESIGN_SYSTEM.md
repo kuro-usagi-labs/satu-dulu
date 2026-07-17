@@ -22,39 +22,43 @@ whitespace, dan komposisi—bukan border pada setiap blok.
 ## Color tokens
 
 ```text
-Background / Canvas      #F5F2EC
-Canvas Deep              #ECE6DC
-Surface Primary          #FFFDF9
-Surface Secondary        #F0ECE4
-Surface Warm             #F8EDE5
-Text Primary             #20251F
-Text Secondary           #646B63
-Text Tertiary            #686F67
-Border Subtle            #E4DED3
-Control Border           #868D85
-Divider                  #E9E3D9
-Accent Primary           #BC482F
-Accent Deep              #9C3B27
-Accent Soft              #FBE7DE
-Success                  #3B735A
-Success Soft             #E7F0EA
-Warning                  #A66D1E
-Warning Soft             #F7EEDB
-Danger                   #A83F39
-Danger Soft              #F7E6E4
-Guide Context            #536A5B
-Guide Soft               #E8EFEA
+Background / Canvas      #F6F8FC
+Canvas Deep              #EDF2F8
+Surface Primary          #FFFFFF
+Surface Secondary        #F0F4FA
+Surface Focus            #EAF1FF
+Surface Pressed          #E3EAF4
+Text Primary             #101828
+Text Secondary           #475467
+Text Tertiary            #586577
+Text Inverse             #FFFFFF
+Border Subtle            #DAE2ED
+Control Border           #79879A
+Divider                  #E5EAF1
+Accent Primary           #1D5BD8
+Accent Deep              #1747A6
+Accent Soft              #E8F0FF
+Success                  #087A55
+Success Soft             #E6F6EF
+Warning                  #8A5700
+Warning Soft             #FFF2D1
+Danger                   #B42318
+Danger Soft              #FDECEA
+Guide Context            #3F5F90
+Guide Soft               #EAF0F8
 ```
 
-Gunakan accent terracotta secara hemat untuk CTA, selected state, focus marker,
-dan progress. Guide green hanya digunakan dalam konteks membaca/recovery. Jangan
-memberi warna pada setiap kartu.
+Gunakan cobalt sebagai satu-satunya warna dengan salience tinggi untuk CTA,
+selected state, focus marker, dan progress. Guide slate-blue hanya digunakan
+dalam konteks membaca/recovery. Green, amber, dan red tetap khusus untuk status
+semantik. Jangan memberi warna pada setiap kartu.
 
 Teks dan batas control harus tetap terbaca pada canvas terang. Kombinasi utama
-memenuhi WCAG AA untuk teks normal: inverse/accent 4,96:1, tertiary/canvas
-4,63:1, danger/danger-soft 5,06:1. `Control Border` dipakai untuk field dan
-outlined control karena kontrasnya minimal 3:1; `Border Subtle` hanya untuk
-divider atau pemisah dekoratif. Jangan menurunkan opacity teks informatif.
+memenuhi WCAG AA untuk teks normal: inverse/accent 5,93:1, tertiary/canvas
+5,58:1, danger/danger-soft 5,75:1. `Control Border` dipakai untuk field dan
+outlined control karena kontrasnya tetap minimal 3:1 pada seluruh neutral
+surface; `Border Subtle` hanya untuk divider atau pemisah dekoratif. Jangan
+menurunkan opacity teks informatif.
 
 ## Typography
 
@@ -109,13 +113,13 @@ Gunakan sangat lembut.
 
 ```text
 Card default:
-0 8 18 rgba(89, 69, 54, 0.05)
+0 8 18 rgba(36, 70, 111, 0.05)
 
 Floating primary:
-0 14 32 rgba(82, 59, 46, 0.09)
+0 14 32 rgba(19, 45, 82, 0.09)
 
 Focus hero:
-0 14 28 rgba(188, 72, 47, 0.14)
+0 14 28 rgba(29, 91, 216, 0.14)
 ```
 
 Border halus atau perubahan surface lebih disukai daripada shadow tebal. Jangan
