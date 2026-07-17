@@ -35,6 +35,17 @@
 - division by zero for revenue/hour;
 - optional values handled.
 
+### Cycle closure
+
+- due hanya setelah end date sprint;
+- Continue membuat tepat satu sprint baru;
+- Pivot kosong rollback dan Pivot valid menjaga goal project;
+- Park dengan/tanpa replacement;
+- stale replacement sprint dibatalkan;
+- duplicate close ditolak;
+- daily plan/action tidak rollover;
+- migration v1 → v2 menjaga seluruh data lama.
+
 ## Widget tests
 
 - Today with focus;
@@ -45,6 +56,8 @@
 - PDF list search;
 - PDF metadata form validation;
 - Results empty state;
+- cycle review Continue/Pivot/Park pada 320×640 dan text scale 1,3;
+- cycle review invalid/not-due/already-closed state;
 - notification permission explanation.
 
 ## Integration tests

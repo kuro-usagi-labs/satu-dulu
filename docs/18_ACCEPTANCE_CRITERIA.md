@@ -35,6 +35,17 @@ Status diperbarui 17 Juli 2026 berdasarkan test otomatis dan inspeksi source. It
 - [x] Opens primary guide when available.
 - [x] Works with missing guide.
 
+## 30-day cycle
+
+- [x] Today derives due state from sprint status/date, not weekly review.
+- [x] Continue closes the old sprint and starts one fresh 30-day cycle.
+- [x] Pivot requires a new approach without changing the project goal.
+- [x] Park supports a replacement focus or an explicit choose-later state.
+- [x] Decision is atomic and duplicate submission is rejected.
+- [x] Evidence is limited to the sprint date range.
+- [x] Old daily plans and actions do not roll into the new cycle.
+- [x] Schema v1 data is preserved by migration v2.
+
 ## PDF import
 
 - [x] Only accepted PDF proceeds.

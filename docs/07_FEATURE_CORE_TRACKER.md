@@ -120,3 +120,23 @@ enum ReviewDecision { continueProject, pivotApproach, parkProject }
 ```
 
 Decision tidak otomatis mengubah status tanpa confirmation.
+
+## 30-day cycle closure
+
+Penutupan siklus berbeda dari weekly decision. Satu sprint hanya dapat memiliki
+satu closure final.
+
+Behavior:
+
+- Continue menyelesaikan sprint lama dan membuat sprint 30 hari baru;
+- Pivot mewajibkan pendekatan baru pada `Sprint.hypothesis`, sementara goal
+  project tetap;
+- Park menyelesaikan sprint lama, memindahkan project ke Parking Lot, dan
+  menawarkan focus pengganti;
+- memilih replacement membatalkan sprint aktif lamanya yang stale lalu membuat
+  putaran baru yang mencakup tanggal keputusan;
+- putaran baru tidak menyalin daily plan atau daily action lama;
+- retry atau double submit tidak boleh membuat sprint kedua.
+
+Seluruh perubahan status, sprint baru, dan closure record disimpan dalam satu
+database transaction.

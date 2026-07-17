@@ -12,9 +12,32 @@ class DriftResultsRepository implements ResultsRepository {
   final Uuid _uuid;
 
   @override
-  Stream<ResultsSummary> watchSummary(String projectId) {
+  Stream<ResultsSummary> watchSummary(
+    String projectId, {
+    DateTime? startDate,
+    DateTime? endDate,
+  }) {
+    final normalizedStart = startDate == null ? null : _dateOnlyUtc(startDate);
+    final normalizedEnd = endDate == null ? null : _dateOnlyUtc(endDate);
+    if (normalizedStart != null &&
+        normalizedEnd != null &&
+        normalizedEnd.isBefore(normalizedStart)) {
+      throw const ValidationException('Rentang hasil tidak valid.');
+    }
+
     final query = _database.select(_database.metricEntries)
-      ..where((table) => table.projectId.equals(projectId))
+      ..where((table) {
+        var predicate = table.projectId.equals(projectId);
+        if (normalizedStart != null) {
+          predicate =
+              predicate & table.entryDate.isBiggerOrEqualValue(normalizedStart);
+        }
+        if (normalizedEnd != null) {
+          predicate =
+              predicate & table.entryDate.isSmallerOrEqualValue(normalizedEnd);
+        }
+        return predicate;
+      })
       ..orderBy([(table) => OrderingTerm.desc(table.entryDate)]);
     return query.watch().map((rows) => _summarize(rows.map(_metric).toList()));
   }
@@ -188,11 +211,8 @@ class DriftResultsRepository implements ResultsRepository {
     updatedAt: row.updatedAt.toUtc(),
   );
 
-  DateTime _dateOnlyUtc(DateTime value) => DateTime.utc(
-    value.toLocal().year,
-    value.toLocal().month,
-    value.toLocal().day,
-  );
+  DateTime _dateOnlyUtc(DateTime value) =>
+      DateTime.utc(value.year, value.month, value.day);
 
   String? _trim(String? value) {
     final trimmed = value?.trim();

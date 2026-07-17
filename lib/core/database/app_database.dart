@@ -241,6 +241,38 @@ class NotificationPreferences extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
+@DataClassName('SprintClosureRow')
+class SprintClosures extends Table {
+  TextColumn get id => text()();
+  @ReferenceName('closuresForClosedSprint')
+  TextColumn get sprintId =>
+      text().unique().references(Sprints, #id, onDelete: KeyAction.cascade)();
+  TextColumn get decision => text().check(
+    const CustomExpression<bool>(
+      "decision IN ('continueFocus', 'pivot', 'park')",
+    ),
+  )();
+  TextColumn get evidenceSummary => text().nullable()();
+  TextColumn get nextApproach => text().nullable()();
+  @ReferenceName('closuresForNextSprint')
+  TextColumn get nextSprintId => text().nullable().unique().references(
+    Sprints,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
+  TextColumn get replacementProjectId => text().nullable().references(
+    Projects,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
+  DateTimeColumn get closedAt => dateTime()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
 @DriftDatabase(
   tables: [
     Projects,
@@ -254,6 +286,7 @@ class NotificationPreferences extends Table {
     MetricEntries,
     WeeklyReviews,
     NotificationPreferences,
+    SprintClosures,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -271,10 +304,15 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (migrator, from, to) async {
+      if (from < 2) {
+        await migrator.createTable(sprintClosures);
+      }
+    },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },

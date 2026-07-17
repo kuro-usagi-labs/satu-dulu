@@ -9,6 +9,7 @@ import atexit
 import re
 
 from contextlib import contextmanager
+from datetime import datetime, timedelta, timezone
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -357,6 +358,39 @@ def main() -> None:
         phone.mouse.wheel(0, 2_000)
         phone.wait_for_timeout(800)
         screenshot(phone, "results-06-saved-decision.png")
+
+        # Reopen the same local database 31 days later so the dedicated cycle
+        # closure UI is exercised without mutating production code or fixtures.
+        cycle_page = phone_context.new_page()
+        cycle_page.set_viewport_size({"width": 390, "height": 844})
+        cycle_page.clock.install(
+            time=datetime.now(timezone.utc) + timedelta(days=31)
+        )
+        cycle_page.on(
+            "pageerror", lambda error: browser_errors.append(str(error))
+        )
+        open_app(cycle_page, base_url)
+        screenshot(cycle_page, "cycle-01-due.png")
+        tap_label(cycle_page, "Tutup putaran ini")
+        screenshot(cycle_page, "cycle-02-evidence.png")
+        cycle_page.mouse.move(190, 520)
+        cycle_page.mouse.wheel(0, 680)
+        cycle_page.wait_for_timeout(800)
+        screenshot(cycle_page, "cycle-03-decisions.png")
+        tap_label(cycle_page, "Ubah pendekatan")
+        cycle_page.mouse.wheel(0, 700)
+        cycle_page.wait_for_timeout(500)
+        fill_label(
+            cycle_page,
+            "Pendekatan baru",
+            "Uji demo singkat dengan pembuka yang lebih konkret.",
+        )
+        screenshot(cycle_page, "cycle-04-pivot.png")
+        tap_label(cycle_page, "Simpan dulu")
+        cycle_page.mouse.wheel(0, 800)
+        cycle_page.wait_for_timeout(600)
+        screenshot(cycle_page, "cycle-05-park.png")
+        cycle_page.close()
 
         # Open a fresh CanvasKit surface at compact size while reusing the
         # same browser context/database. Resizing the long-lived page can leave

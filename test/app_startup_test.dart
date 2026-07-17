@@ -61,8 +61,27 @@ void main() {
       createdAt: now,
       updatedAt: now,
     );
+    final sprint = Sprint(
+      id: 'sprint-existing',
+      projectId: project.id,
+      name: 'Putaran berjalan',
+      startDate: now,
+      endDate: now.add(const Duration(days: 29)),
+      status: SprintStatus.active,
+    );
 
-    await _pumpApp(tester, FakeTrackerRepository(projects: [project]));
+    await _pumpApp(
+      tester,
+      FakeTrackerRepository(
+        projects: [project],
+        latestSprint: sprint,
+        cycleReviewTarget: CycleReviewTarget(
+          project: project,
+          sprint: sprint,
+          availability: CycleReviewAvailability.notDue,
+        ),
+      ),
+    );
     await _pumpUntilFound(tester, find.text('Hari ini belum punya hasil'));
 
     expect(find.text('Hari ini belum punya hasil'), findsOneWidget);

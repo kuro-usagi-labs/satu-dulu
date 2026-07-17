@@ -77,6 +77,12 @@ class ResultsScreen extends ConsumerWidget {
     );
     final summary = ref.watch(resultsSummaryProvider(selected.id));
     final reviews = ref.watch(weeklyReviewsProvider(selected.id));
+    final now = DateTime.now();
+    final cycleQuery = (
+      projectId: selected.id,
+      localDate: DateTime(now.year, now.month, now.day),
+    );
+    final cycle = ref.watch(cycleReviewTargetProvider(cycleQuery));
 
     return ScreenFrame(
       eyebrow: 'Bukti, bukan tebakan',
@@ -109,6 +115,22 @@ class ResultsScreen extends ConsumerWidget {
             icon: Icons.add_rounded,
             label: 'Catat bukti',
           ),
+          if (cycle.value?.availability == CycleReviewAvailability.due) ...[
+            const SizedBox(height: AppSpacing.standard),
+            AppNotice(
+              icon: Icons.flag_outlined,
+              title: 'Putaran ini siap ditutup',
+              description:
+                  'Bukti di bawah hanya berasal dari putaran 30 hari yang baru selesai.',
+            ),
+            const SizedBox(height: AppSpacing.compact),
+            OutlinedButton.icon(
+              onPressed: () =>
+                  context.push('/projects/${selected.id}/cycle-review'),
+              icon: const Icon(Icons.alt_route_rounded),
+              label: const Text('Pilih arah putaran berikutnya'),
+            ),
+          ],
           const SizedBox(height: AppSpacing.major),
           summary.when(
             loading: () => const Column(

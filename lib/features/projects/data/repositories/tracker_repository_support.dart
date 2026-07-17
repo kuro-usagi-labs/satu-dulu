@@ -34,6 +34,31 @@ abstract final class TrackerRepositorySupport {
     }
   }
 
+  static void validateCloseCycle(CloseCycleInput input) {
+    if (input.projectId.trim().isEmpty || input.sprintId.trim().isEmpty) {
+      throw const ValidationException('Putaran yang akan ditutup tidak valid.');
+    }
+    if (input.durationDays < 1) {
+      throw const ValidationException('Durasi putaran harus lebih dari nol.');
+    }
+    if (input.decision == CycleDecision.pivot &&
+        nullableTrim(input.nextApproach) == null) {
+      throw const ValidationException('Pendekatan baru wajib diisi.');
+    }
+    if (input.decision != CycleDecision.park &&
+        nullableTrim(input.replacementProjectId) != null) {
+      throw const ValidationException(
+        'Fokus pengganti hanya digunakan saat proyek disimpan dulu.',
+      );
+    }
+    if (input.decision == CycleDecision.park &&
+        nullableTrim(input.replacementProjectId) == input.projectId) {
+      throw const ValidationException(
+        'Proyek yang disimpan tidak dapat menjadi penggantinya sendiri.',
+      );
+    }
+  }
+
   static Project projectFromRow(ProjectRow row) => Project(
     id: row.id,
     name: row.name,
@@ -60,6 +85,17 @@ abstract final class TrackerRepositorySupport {
     targetOutputs: row.targetOutputs,
     successCriteria: row.successCriteria,
     status: SprintStatus.values.byName(row.status),
+  );
+
+  static SprintClosure closureFromRow(SprintClosureRow row) => SprintClosure(
+    id: row.id,
+    sprintId: row.sprintId,
+    decision: CycleDecision.values.byName(row.decision),
+    evidenceSummary: row.evidenceSummary,
+    nextApproach: row.nextApproach,
+    nextSprintId: row.nextSprintId,
+    replacementProjectId: row.replacementProjectId,
+    closedAt: row.closedAt.toUtc(),
   );
 
   static DailyAction actionFromRow(DailyActionRow row) => DailyAction(

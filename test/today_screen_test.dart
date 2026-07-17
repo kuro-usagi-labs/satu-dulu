@@ -322,7 +322,11 @@ class _FakeResultsRepository implements ResultsRepository {
   Future<void> saveWeeklyReview(WeeklyReviewInput input) async {}
 
   @override
-  Stream<ResultsSummary> watchSummary(String projectId) {
+  Stream<ResultsSummary> watchSummary(
+    String projectId, {
+    DateTime? startDate,
+    DateTime? endDate,
+  }) {
     return Stream.value(_emptySummary);
   }
 

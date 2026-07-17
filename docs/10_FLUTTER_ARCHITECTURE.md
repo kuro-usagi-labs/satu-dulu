@@ -89,6 +89,7 @@ Routes:
 /projects
 /projects/new
 /projects/:projectId
+/projects/:projectId/cycle-review
 /guides
 /guides/import
 /guides/:documentId

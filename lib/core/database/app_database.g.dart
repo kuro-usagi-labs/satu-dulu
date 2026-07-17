@@ -7134,6 +7134,660 @@ class NotificationPreferencesCompanion
   }
 }
 
+class $SprintClosuresTable extends SprintClosures
+    with TableInfo<$SprintClosuresTable, SprintClosureRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SprintClosuresTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sprintIdMeta = const VerificationMeta(
+    'sprintId',
+  );
+  @override
+  late final GeneratedColumn<String> sprintId = GeneratedColumn<String>(
+    'sprint_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'UNIQUE REFERENCES sprints (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _decisionMeta = const VerificationMeta(
+    'decision',
+  );
+  @override
+  late final GeneratedColumn<String> decision = GeneratedColumn<String>(
+    'decision',
+    aliasedName,
+    false,
+    check: () => const CustomExpression<bool>(
+      "decision IN ('continueFocus', 'pivot', 'park')",
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _evidenceSummaryMeta = const VerificationMeta(
+    'evidenceSummary',
+  );
+  @override
+  late final GeneratedColumn<String> evidenceSummary = GeneratedColumn<String>(
+    'evidence_summary',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nextApproachMeta = const VerificationMeta(
+    'nextApproach',
+  );
+  @override
+  late final GeneratedColumn<String> nextApproach = GeneratedColumn<String>(
+    'next_approach',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nextSprintIdMeta = const VerificationMeta(
+    'nextSprintId',
+  );
+  @override
+  late final GeneratedColumn<String> nextSprintId = GeneratedColumn<String>(
+    'next_sprint_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'UNIQUE REFERENCES sprints (id) ON DELETE SET NULL',
+    ),
+  );
+  static const VerificationMeta _replacementProjectIdMeta =
+      const VerificationMeta('replacementProjectId');
+  @override
+  late final GeneratedColumn<String> replacementProjectId =
+      GeneratedColumn<String>(
+        'replacement_project_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES projects (id) ON DELETE SET NULL',
+        ),
+      );
+  static const VerificationMeta _closedAtMeta = const VerificationMeta(
+    'closedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> closedAt = GeneratedColumn<DateTime>(
+    'closed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    sprintId,
+    decision,
+    evidenceSummary,
+    nextApproach,
+    nextSprintId,
+    replacementProjectId,
+    closedAt,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sprint_closures';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SprintClosureRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('sprint_id')) {
+      context.handle(
+        _sprintIdMeta,
+        sprintId.isAcceptableOrUnknown(data['sprint_id']!, _sprintIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sprintIdMeta);
+    }
+    if (data.containsKey('decision')) {
+      context.handle(
+        _decisionMeta,
+        decision.isAcceptableOrUnknown(data['decision']!, _decisionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_decisionMeta);
+    }
+    if (data.containsKey('evidence_summary')) {
+      context.handle(
+        _evidenceSummaryMeta,
+        evidenceSummary.isAcceptableOrUnknown(
+          data['evidence_summary']!,
+          _evidenceSummaryMeta,
+        ),
+      );
+    }
+    if (data.containsKey('next_approach')) {
+      context.handle(
+        _nextApproachMeta,
+        nextApproach.isAcceptableOrUnknown(
+          data['next_approach']!,
+          _nextApproachMeta,
+        ),
+      );
+    }
+    if (data.containsKey('next_sprint_id')) {
+      context.handle(
+        _nextSprintIdMeta,
+        nextSprintId.isAcceptableOrUnknown(
+          data['next_sprint_id']!,
+          _nextSprintIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('replacement_project_id')) {
+      context.handle(
+        _replacementProjectIdMeta,
+        replacementProjectId.isAcceptableOrUnknown(
+          data['replacement_project_id']!,
+          _replacementProjectIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('closed_at')) {
+      context.handle(
+        _closedAtMeta,
+        closedAt.isAcceptableOrUnknown(data['closed_at']!, _closedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_closedAtMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SprintClosureRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SprintClosureRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      sprintId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sprint_id'],
+      )!,
+      decision: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}decision'],
+      )!,
+      evidenceSummary: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}evidence_summary'],
+      ),
+      nextApproach: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}next_approach'],
+      ),
+      nextSprintId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}next_sprint_id'],
+      ),
+      replacementProjectId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}replacement_project_id'],
+      ),
+      closedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}closed_at'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SprintClosuresTable createAlias(String alias) {
+    return $SprintClosuresTable(attachedDatabase, alias);
+  }
+}
+
+class SprintClosureRow extends DataClass
+    implements Insertable<SprintClosureRow> {
+  final String id;
+  final String sprintId;
+  final String decision;
+  final String? evidenceSummary;
+  final String? nextApproach;
+  final String? nextSprintId;
+  final String? replacementProjectId;
+  final DateTime closedAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const SprintClosureRow({
+    required this.id,
+    required this.sprintId,
+    required this.decision,
+    this.evidenceSummary,
+    this.nextApproach,
+    this.nextSprintId,
+    this.replacementProjectId,
+    required this.closedAt,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['sprint_id'] = Variable<String>(sprintId);
+    map['decision'] = Variable<String>(decision);
+    if (!nullToAbsent || evidenceSummary != null) {
+      map['evidence_summary'] = Variable<String>(evidenceSummary);
+    }
+    if (!nullToAbsent || nextApproach != null) {
+      map['next_approach'] = Variable<String>(nextApproach);
+    }
+    if (!nullToAbsent || nextSprintId != null) {
+      map['next_sprint_id'] = Variable<String>(nextSprintId);
+    }
+    if (!nullToAbsent || replacementProjectId != null) {
+      map['replacement_project_id'] = Variable<String>(replacementProjectId);
+    }
+    map['closed_at'] = Variable<DateTime>(closedAt);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  SprintClosuresCompanion toCompanion(bool nullToAbsent) {
+    return SprintClosuresCompanion(
+      id: Value(id),
+      sprintId: Value(sprintId),
+      decision: Value(decision),
+      evidenceSummary: evidenceSummary == null && nullToAbsent
+          ? const Value.absent()
+          : Value(evidenceSummary),
+      nextApproach: nextApproach == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nextApproach),
+      nextSprintId: nextSprintId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nextSprintId),
+      replacementProjectId: replacementProjectId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(replacementProjectId),
+      closedAt: Value(closedAt),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory SprintClosureRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SprintClosureRow(
+      id: serializer.fromJson<String>(json['id']),
+      sprintId: serializer.fromJson<String>(json['sprintId']),
+      decision: serializer.fromJson<String>(json['decision']),
+      evidenceSummary: serializer.fromJson<String?>(json['evidenceSummary']),
+      nextApproach: serializer.fromJson<String?>(json['nextApproach']),
+      nextSprintId: serializer.fromJson<String?>(json['nextSprintId']),
+      replacementProjectId: serializer.fromJson<String?>(
+        json['replacementProjectId'],
+      ),
+      closedAt: serializer.fromJson<DateTime>(json['closedAt']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'sprintId': serializer.toJson<String>(sprintId),
+      'decision': serializer.toJson<String>(decision),
+      'evidenceSummary': serializer.toJson<String?>(evidenceSummary),
+      'nextApproach': serializer.toJson<String?>(nextApproach),
+      'nextSprintId': serializer.toJson<String?>(nextSprintId),
+      'replacementProjectId': serializer.toJson<String?>(replacementProjectId),
+      'closedAt': serializer.toJson<DateTime>(closedAt),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  SprintClosureRow copyWith({
+    String? id,
+    String? sprintId,
+    String? decision,
+    Value<String?> evidenceSummary = const Value.absent(),
+    Value<String?> nextApproach = const Value.absent(),
+    Value<String?> nextSprintId = const Value.absent(),
+    Value<String?> replacementProjectId = const Value.absent(),
+    DateTime? closedAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => SprintClosureRow(
+    id: id ?? this.id,
+    sprintId: sprintId ?? this.sprintId,
+    decision: decision ?? this.decision,
+    evidenceSummary: evidenceSummary.present
+        ? evidenceSummary.value
+        : this.evidenceSummary,
+    nextApproach: nextApproach.present ? nextApproach.value : this.nextApproach,
+    nextSprintId: nextSprintId.present ? nextSprintId.value : this.nextSprintId,
+    replacementProjectId: replacementProjectId.present
+        ? replacementProjectId.value
+        : this.replacementProjectId,
+    closedAt: closedAt ?? this.closedAt,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  SprintClosureRow copyWithCompanion(SprintClosuresCompanion data) {
+    return SprintClosureRow(
+      id: data.id.present ? data.id.value : this.id,
+      sprintId: data.sprintId.present ? data.sprintId.value : this.sprintId,
+      decision: data.decision.present ? data.decision.value : this.decision,
+      evidenceSummary: data.evidenceSummary.present
+          ? data.evidenceSummary.value
+          : this.evidenceSummary,
+      nextApproach: data.nextApproach.present
+          ? data.nextApproach.value
+          : this.nextApproach,
+      nextSprintId: data.nextSprintId.present
+          ? data.nextSprintId.value
+          : this.nextSprintId,
+      replacementProjectId: data.replacementProjectId.present
+          ? data.replacementProjectId.value
+          : this.replacementProjectId,
+      closedAt: data.closedAt.present ? data.closedAt.value : this.closedAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SprintClosureRow(')
+          ..write('id: $id, ')
+          ..write('sprintId: $sprintId, ')
+          ..write('decision: $decision, ')
+          ..write('evidenceSummary: $evidenceSummary, ')
+          ..write('nextApproach: $nextApproach, ')
+          ..write('nextSprintId: $nextSprintId, ')
+          ..write('replacementProjectId: $replacementProjectId, ')
+          ..write('closedAt: $closedAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    sprintId,
+    decision,
+    evidenceSummary,
+    nextApproach,
+    nextSprintId,
+    replacementProjectId,
+    closedAt,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SprintClosureRow &&
+          other.id == this.id &&
+          other.sprintId == this.sprintId &&
+          other.decision == this.decision &&
+          other.evidenceSummary == this.evidenceSummary &&
+          other.nextApproach == this.nextApproach &&
+          other.nextSprintId == this.nextSprintId &&
+          other.replacementProjectId == this.replacementProjectId &&
+          other.closedAt == this.closedAt &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class SprintClosuresCompanion extends UpdateCompanion<SprintClosureRow> {
+  final Value<String> id;
+  final Value<String> sprintId;
+  final Value<String> decision;
+  final Value<String?> evidenceSummary;
+  final Value<String?> nextApproach;
+  final Value<String?> nextSprintId;
+  final Value<String?> replacementProjectId;
+  final Value<DateTime> closedAt;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const SprintClosuresCompanion({
+    this.id = const Value.absent(),
+    this.sprintId = const Value.absent(),
+    this.decision = const Value.absent(),
+    this.evidenceSummary = const Value.absent(),
+    this.nextApproach = const Value.absent(),
+    this.nextSprintId = const Value.absent(),
+    this.replacementProjectId = const Value.absent(),
+    this.closedAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SprintClosuresCompanion.insert({
+    required String id,
+    required String sprintId,
+    required String decision,
+    this.evidenceSummary = const Value.absent(),
+    this.nextApproach = const Value.absent(),
+    this.nextSprintId = const Value.absent(),
+    this.replacementProjectId = const Value.absent(),
+    required DateTime closedAt,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       sprintId = Value(sprintId),
+       decision = Value(decision),
+       closedAt = Value(closedAt),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<SprintClosureRow> custom({
+    Expression<String>? id,
+    Expression<String>? sprintId,
+    Expression<String>? decision,
+    Expression<String>? evidenceSummary,
+    Expression<String>? nextApproach,
+    Expression<String>? nextSprintId,
+    Expression<String>? replacementProjectId,
+    Expression<DateTime>? closedAt,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (sprintId != null) 'sprint_id': sprintId,
+      if (decision != null) 'decision': decision,
+      if (evidenceSummary != null) 'evidence_summary': evidenceSummary,
+      if (nextApproach != null) 'next_approach': nextApproach,
+      if (nextSprintId != null) 'next_sprint_id': nextSprintId,
+      if (replacementProjectId != null)
+        'replacement_project_id': replacementProjectId,
+      if (closedAt != null) 'closed_at': closedAt,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SprintClosuresCompanion copyWith({
+    Value<String>? id,
+    Value<String>? sprintId,
+    Value<String>? decision,
+    Value<String?>? evidenceSummary,
+    Value<String?>? nextApproach,
+    Value<String?>? nextSprintId,
+    Value<String?>? replacementProjectId,
+    Value<DateTime>? closedAt,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return SprintClosuresCompanion(
+      id: id ?? this.id,
+      sprintId: sprintId ?? this.sprintId,
+      decision: decision ?? this.decision,
+      evidenceSummary: evidenceSummary ?? this.evidenceSummary,
+      nextApproach: nextApproach ?? this.nextApproach,
+      nextSprintId: nextSprintId ?? this.nextSprintId,
+      replacementProjectId: replacementProjectId ?? this.replacementProjectId,
+      closedAt: closedAt ?? this.closedAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (sprintId.present) {
+      map['sprint_id'] = Variable<String>(sprintId.value);
+    }
+    if (decision.present) {
+      map['decision'] = Variable<String>(decision.value);
+    }
+    if (evidenceSummary.present) {
+      map['evidence_summary'] = Variable<String>(evidenceSummary.value);
+    }
+    if (nextApproach.present) {
+      map['next_approach'] = Variable<String>(nextApproach.value);
+    }
+    if (nextSprintId.present) {
+      map['next_sprint_id'] = Variable<String>(nextSprintId.value);
+    }
+    if (replacementProjectId.present) {
+      map['replacement_project_id'] = Variable<String>(
+        replacementProjectId.value,
+      );
+    }
+    if (closedAt.present) {
+      map['closed_at'] = Variable<DateTime>(closedAt.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SprintClosuresCompanion(')
+          ..write('id: $id, ')
+          ..write('sprintId: $sprintId, ')
+          ..write('decision: $decision, ')
+          ..write('evidenceSummary: $evidenceSummary, ')
+          ..write('nextApproach: $nextApproach, ')
+          ..write('nextSprintId: $nextSprintId, ')
+          ..write('replacementProjectId: $replacementProjectId, ')
+          ..write('closedAt: $closedAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -7149,6 +7803,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $WeeklyReviewsTable weeklyReviews = $WeeklyReviewsTable(this);
   late final $NotificationPreferencesTable notificationPreferences =
       $NotificationPreferencesTable(this);
+  late final $SprintClosuresTable sprintClosures = $SprintClosuresTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7165,6 +7820,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     metricEntries,
     weeklyReviews,
     notificationPreferences,
+    sprintClosures,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -7237,6 +7893,27 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('weekly_reviews', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'sprints',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('sprint_closures', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'sprints',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('sprint_closures', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'projects',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('sprint_closures', kind: UpdateKind.update)],
     ),
   ]);
 }
@@ -7352,6 +8029,25 @@ final class $$ProjectsTableReferences
     ).filter((f) => f.projectId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_weeklyReviewsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$SprintClosuresTable, List<SprintClosureRow>>
+  _sprintClosuresRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.sprintClosures,
+    aliasName: 'projects__id__sprint_closures__replacement_project_id',
+  );
+
+  $$SprintClosuresTableProcessedTableManager get sprintClosuresRefs {
+    final manager = $$SprintClosuresTableTableManager($_db, $_db.sprintClosures)
+        .filter(
+          (f) =>
+              f.replacementProjectId.id.sqlEquals($_itemColumn<String>('id')!),
+        );
+
+    final cache = $_typedResult.readTableOrNull(_sprintClosuresRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -7533,6 +8229,31 @@ class $$ProjectsTableFilterComposer
           }) => $$WeeklyReviewsTableFilterComposer(
             $db: $db,
             $table: $db.weeklyReviews,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> sprintClosuresRefs(
+    Expression<bool> Function($$SprintClosuresTableFilterComposer f) f,
+  ) {
+    final $$SprintClosuresTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.sprintClosures,
+      getReferencedColumn: (t) => t.replacementProjectId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SprintClosuresTableFilterComposer(
+            $db: $db,
+            $table: $db.sprintClosures,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7791,6 +8512,31 @@ class $$ProjectsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> sprintClosuresRefs<T extends Object>(
+    Expression<T> Function($$SprintClosuresTableAnnotationComposer a) f,
+  ) {
+    final $$SprintClosuresTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.sprintClosures,
+      getReferencedColumn: (t) => t.replacementProjectId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SprintClosuresTableAnnotationComposer(
+            $db: $db,
+            $table: $db.sprintClosures,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$ProjectsTableTableManager
@@ -7811,6 +8557,7 @@ class $$ProjectsTableTableManager
             bool guideDocumentsRefs,
             bool metricEntriesRefs,
             bool weeklyReviewsRefs,
+            bool sprintClosuresRefs,
           })
         > {
   $$ProjectsTableTableManager(_$AppDatabase db, $ProjectsTable table)
@@ -7910,6 +8657,7 @@ class $$ProjectsTableTableManager
                 guideDocumentsRefs = false,
                 metricEntriesRefs = false,
                 weeklyReviewsRefs = false,
+                sprintClosuresRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -7918,6 +8666,7 @@ class $$ProjectsTableTableManager
                     if (guideDocumentsRefs) db.guideDocuments,
                     if (metricEntriesRefs) db.metricEntries,
                     if (weeklyReviewsRefs) db.weeklyReviews,
+                    if (sprintClosuresRefs) db.sprintClosures,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -8006,6 +8755,27 @@ class $$ProjectsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (sprintClosuresRefs)
+                        await $_getPrefetchedData<
+                          ProjectRow,
+                          $ProjectsTable,
+                          SprintClosureRow
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ProjectsTableReferences
+                              ._sprintClosuresRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ProjectsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).sprintClosuresRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.replacementProjectId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -8031,6 +8801,7 @@ typedef $$ProjectsTableProcessedTableManager =
         bool guideDocumentsRefs,
         bool metricEntriesRefs,
         bool weeklyReviewsRefs,
+        bool sprintClosuresRefs,
       })
     >;
 typedef $$SprintsTableCreateCompanionBuilder =
@@ -8116,6 +8887,48 @@ final class $$SprintsTableReferences
     ).filter((f) => f.sprintId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_weeklyReviewsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$SprintClosuresTable, List<SprintClosureRow>>
+  _closuresForClosedSprintTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.sprintClosures,
+        aliasName: 'sprints__id__sprint_closures__sprint_id',
+      );
+
+  $$SprintClosuresTableProcessedTableManager get closuresForClosedSprint {
+    final manager = $$SprintClosuresTableTableManager(
+      $_db,
+      $_db.sprintClosures,
+    ).filter((f) => f.sprintId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _closuresForClosedSprintTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$SprintClosuresTable, List<SprintClosureRow>>
+  _closuresForNextSprintTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.sprintClosures,
+        aliasName: 'sprints__id__sprint_closures__next_sprint_id',
+      );
+
+  $$SprintClosuresTableProcessedTableManager get closuresForNextSprint {
+    final manager = $$SprintClosuresTableTableManager(
+      $_db,
+      $_db.sprintClosures,
+    ).filter((f) => f.nextSprintId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _closuresForNextSprintTable($_db),
+    );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -8245,6 +9058,56 @@ class $$SprintsTableFilterComposer
           }) => $$WeeklyReviewsTableFilterComposer(
             $db: $db,
             $table: $db.weeklyReviews,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> closuresForClosedSprint(
+    Expression<bool> Function($$SprintClosuresTableFilterComposer f) f,
+  ) {
+    final $$SprintClosuresTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.sprintClosures,
+      getReferencedColumn: (t) => t.sprintId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SprintClosuresTableFilterComposer(
+            $db: $db,
+            $table: $db.sprintClosures,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> closuresForNextSprint(
+    Expression<bool> Function($$SprintClosuresTableFilterComposer f) f,
+  ) {
+    final $$SprintClosuresTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.sprintClosures,
+      getReferencedColumn: (t) => t.nextSprintId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SprintClosuresTableFilterComposer(
+            $db: $db,
+            $table: $db.sprintClosures,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -8455,6 +9318,56 @@ class $$SprintsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> closuresForClosedSprint<T extends Object>(
+    Expression<T> Function($$SprintClosuresTableAnnotationComposer a) f,
+  ) {
+    final $$SprintClosuresTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.sprintClosures,
+      getReferencedColumn: (t) => t.sprintId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SprintClosuresTableAnnotationComposer(
+            $db: $db,
+            $table: $db.sprintClosures,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> closuresForNextSprint<T extends Object>(
+    Expression<T> Function($$SprintClosuresTableAnnotationComposer a) f,
+  ) {
+    final $$SprintClosuresTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.sprintClosures,
+      getReferencedColumn: (t) => t.nextSprintId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SprintClosuresTableAnnotationComposer(
+            $db: $db,
+            $table: $db.sprintClosures,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$SprintsTableTableManager
@@ -8474,6 +9387,8 @@ class $$SprintsTableTableManager
             bool projectId,
             bool dailyPlansRefs,
             bool weeklyReviewsRefs,
+            bool closuresForClosedSprint,
+            bool closuresForNextSprint,
           })
         > {
   $$SprintsTableTableManager(_$AppDatabase db, $SprintsTable table)
@@ -8556,12 +9471,16 @@ class $$SprintsTableTableManager
                 projectId = false,
                 dailyPlansRefs = false,
                 weeklyReviewsRefs = false,
+                closuresForClosedSprint = false,
+                closuresForNextSprint = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (dailyPlansRefs) db.dailyPlans,
                     if (weeklyReviewsRefs) db.weeklyReviews,
+                    if (closuresForClosedSprint) db.sprintClosures,
+                    if (closuresForNextSprint) db.sprintClosures,
                   ],
                   addJoins:
                       <
@@ -8639,6 +9558,48 @@ class $$SprintsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (closuresForClosedSprint)
+                        await $_getPrefetchedData<
+                          SprintRow,
+                          $SprintsTable,
+                          SprintClosureRow
+                        >(
+                          currentTable: table,
+                          referencedTable: $$SprintsTableReferences
+                              ._closuresForClosedSprintTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$SprintsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).closuresForClosedSprint,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.sprintId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (closuresForNextSprint)
+                        await $_getPrefetchedData<
+                          SprintRow,
+                          $SprintsTable,
+                          SprintClosureRow
+                        >(
+                          currentTable: table,
+                          referencedTable: $$SprintsTableReferences
+                              ._closuresForNextSprintTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$SprintsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).closuresForNextSprint,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.nextSprintId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -8663,6 +9624,8 @@ typedef $$SprintsTableProcessedTableManager =
         bool projectId,
         bool dailyPlansRefs,
         bool weeklyReviewsRefs,
+        bool closuresForClosedSprint,
+        bool closuresForNextSprint,
       })
     >;
 typedef $$DailyPlansTableCreateCompanionBuilder =
@@ -12783,6 +13746,623 @@ typedef $$NotificationPreferencesTableProcessedTableManager =
       NotificationPreferenceRow,
       PrefetchHooks Function()
     >;
+typedef $$SprintClosuresTableCreateCompanionBuilder =
+    SprintClosuresCompanion Function({
+      required String id,
+      required String sprintId,
+      required String decision,
+      Value<String?> evidenceSummary,
+      Value<String?> nextApproach,
+      Value<String?> nextSprintId,
+      Value<String?> replacementProjectId,
+      required DateTime closedAt,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$SprintClosuresTableUpdateCompanionBuilder =
+    SprintClosuresCompanion Function({
+      Value<String> id,
+      Value<String> sprintId,
+      Value<String> decision,
+      Value<String?> evidenceSummary,
+      Value<String?> nextApproach,
+      Value<String?> nextSprintId,
+      Value<String?> replacementProjectId,
+      Value<DateTime> closedAt,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$SprintClosuresTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $SprintClosuresTable, SprintClosureRow> {
+  $$SprintClosuresTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $SprintsTable _sprintIdTable(_$AppDatabase db) =>
+      db.sprints.createAlias('sprint_closures__sprint_id__sprints__id');
+
+  $$SprintsTableProcessedTableManager get sprintId {
+    final $_column = $_itemColumn<String>('sprint_id')!;
+
+    final manager = $$SprintsTableTableManager(
+      $_db,
+      $_db.sprints,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_sprintIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $SprintsTable _nextSprintIdTable(_$AppDatabase db) =>
+      db.sprints.createAlias('sprint_closures__next_sprint_id__sprints__id');
+
+  $$SprintsTableProcessedTableManager? get nextSprintId {
+    final $_column = $_itemColumn<String>('next_sprint_id');
+    if ($_column == null) return null;
+    final manager = $$SprintsTableTableManager(
+      $_db,
+      $_db.sprints,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_nextSprintIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $ProjectsTable _replacementProjectIdTable(_$AppDatabase db) => db
+      .projects
+      .createAlias('sprint_closures__replacement_project_id__projects__id');
+
+  $$ProjectsTableProcessedTableManager? get replacementProjectId {
+    final $_column = $_itemColumn<String>('replacement_project_id');
+    if ($_column == null) return null;
+    final manager = $$ProjectsTableTableManager(
+      $_db,
+      $_db.projects,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(
+      _replacementProjectIdTable($_db),
+    );
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$SprintClosuresTableFilterComposer
+    extends Composer<_$AppDatabase, $SprintClosuresTable> {
+  $$SprintClosuresTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get decision => $composableBuilder(
+    column: $table.decision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get evidenceSummary => $composableBuilder(
+    column: $table.evidenceSummary,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nextApproach => $composableBuilder(
+    column: $table.nextApproach,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get closedAt => $composableBuilder(
+    column: $table.closedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$SprintsTableFilterComposer get sprintId {
+    final $$SprintsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sprintId,
+      referencedTable: $db.sprints,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SprintsTableFilterComposer(
+            $db: $db,
+            $table: $db.sprints,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SprintsTableFilterComposer get nextSprintId {
+    final $$SprintsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.nextSprintId,
+      referencedTable: $db.sprints,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SprintsTableFilterComposer(
+            $db: $db,
+            $table: $db.sprints,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ProjectsTableFilterComposer get replacementProjectId {
+    final $$ProjectsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.replacementProjectId,
+      referencedTable: $db.projects,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ProjectsTableFilterComposer(
+            $db: $db,
+            $table: $db.projects,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SprintClosuresTableOrderingComposer
+    extends Composer<_$AppDatabase, $SprintClosuresTable> {
+  $$SprintClosuresTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get decision => $composableBuilder(
+    column: $table.decision,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get evidenceSummary => $composableBuilder(
+    column: $table.evidenceSummary,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nextApproach => $composableBuilder(
+    column: $table.nextApproach,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get closedAt => $composableBuilder(
+    column: $table.closedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$SprintsTableOrderingComposer get sprintId {
+    final $$SprintsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sprintId,
+      referencedTable: $db.sprints,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SprintsTableOrderingComposer(
+            $db: $db,
+            $table: $db.sprints,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SprintsTableOrderingComposer get nextSprintId {
+    final $$SprintsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.nextSprintId,
+      referencedTable: $db.sprints,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SprintsTableOrderingComposer(
+            $db: $db,
+            $table: $db.sprints,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ProjectsTableOrderingComposer get replacementProjectId {
+    final $$ProjectsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.replacementProjectId,
+      referencedTable: $db.projects,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ProjectsTableOrderingComposer(
+            $db: $db,
+            $table: $db.projects,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SprintClosuresTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SprintClosuresTable> {
+  $$SprintClosuresTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get decision =>
+      $composableBuilder(column: $table.decision, builder: (column) => column);
+
+  GeneratedColumn<String> get evidenceSummary => $composableBuilder(
+    column: $table.evidenceSummary,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get nextApproach => $composableBuilder(
+    column: $table.nextApproach,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get closedAt =>
+      $composableBuilder(column: $table.closedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$SprintsTableAnnotationComposer get sprintId {
+    final $$SprintsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sprintId,
+      referencedTable: $db.sprints,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SprintsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.sprints,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SprintsTableAnnotationComposer get nextSprintId {
+    final $$SprintsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.nextSprintId,
+      referencedTable: $db.sprints,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SprintsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.sprints,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ProjectsTableAnnotationComposer get replacementProjectId {
+    final $$ProjectsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.replacementProjectId,
+      referencedTable: $db.projects,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ProjectsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.projects,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SprintClosuresTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SprintClosuresTable,
+          SprintClosureRow,
+          $$SprintClosuresTableFilterComposer,
+          $$SprintClosuresTableOrderingComposer,
+          $$SprintClosuresTableAnnotationComposer,
+          $$SprintClosuresTableCreateCompanionBuilder,
+          $$SprintClosuresTableUpdateCompanionBuilder,
+          (SprintClosureRow, $$SprintClosuresTableReferences),
+          SprintClosureRow,
+          PrefetchHooks Function({
+            bool sprintId,
+            bool nextSprintId,
+            bool replacementProjectId,
+          })
+        > {
+  $$SprintClosuresTableTableManager(
+    _$AppDatabase db,
+    $SprintClosuresTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SprintClosuresTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SprintClosuresTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SprintClosuresTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> sprintId = const Value.absent(),
+                Value<String> decision = const Value.absent(),
+                Value<String?> evidenceSummary = const Value.absent(),
+                Value<String?> nextApproach = const Value.absent(),
+                Value<String?> nextSprintId = const Value.absent(),
+                Value<String?> replacementProjectId = const Value.absent(),
+                Value<DateTime> closedAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SprintClosuresCompanion(
+                id: id,
+                sprintId: sprintId,
+                decision: decision,
+                evidenceSummary: evidenceSummary,
+                nextApproach: nextApproach,
+                nextSprintId: nextSprintId,
+                replacementProjectId: replacementProjectId,
+                closedAt: closedAt,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String sprintId,
+                required String decision,
+                Value<String?> evidenceSummary = const Value.absent(),
+                Value<String?> nextApproach = const Value.absent(),
+                Value<String?> nextSprintId = const Value.absent(),
+                Value<String?> replacementProjectId = const Value.absent(),
+                required DateTime closedAt,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => SprintClosuresCompanion.insert(
+                id: id,
+                sprintId: sprintId,
+                decision: decision,
+                evidenceSummary: evidenceSummary,
+                nextApproach: nextApproach,
+                nextSprintId: nextSprintId,
+                replacementProjectId: replacementProjectId,
+                closedAt: closedAt,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$SprintClosuresTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                sprintId = false,
+                nextSprintId = false,
+                replacementProjectId = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (sprintId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.sprintId,
+                                    referencedTable:
+                                        $$SprintClosuresTableReferences
+                                            ._sprintIdTable(db),
+                                    referencedColumn:
+                                        $$SprintClosuresTableReferences
+                                            ._sprintIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (nextSprintId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.nextSprintId,
+                                    referencedTable:
+                                        $$SprintClosuresTableReferences
+                                            ._nextSprintIdTable(db),
+                                    referencedColumn:
+                                        $$SprintClosuresTableReferences
+                                            ._nextSprintIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (replacementProjectId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.replacementProjectId,
+                                    referencedTable:
+                                        $$SprintClosuresTableReferences
+                                            ._replacementProjectIdTable(db),
+                                    referencedColumn:
+                                        $$SprintClosuresTableReferences
+                                            ._replacementProjectIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$SprintClosuresTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SprintClosuresTable,
+      SprintClosureRow,
+      $$SprintClosuresTableFilterComposer,
+      $$SprintClosuresTableOrderingComposer,
+      $$SprintClosuresTableAnnotationComposer,
+      $$SprintClosuresTableCreateCompanionBuilder,
+      $$SprintClosuresTableUpdateCompanionBuilder,
+      (SprintClosureRow, $$SprintClosuresTableReferences),
+      SprintClosureRow,
+      PrefetchHooks Function({
+        bool sprintId,
+        bool nextSprintId,
+        bool replacementProjectId,
+      })
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -12812,4 +14392,6 @@ class $AppDatabaseManager {
         _db,
         _db.notificationPreferences,
       );
+  $$SprintClosuresTableTableManager get sprintClosures =>
+      $$SprintClosuresTableTableManager(_db, _db.sprintClosures);
 }

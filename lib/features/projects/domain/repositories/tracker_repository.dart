@@ -9,6 +9,13 @@ abstract interface class TrackerRepository {
 
   Future<Project?> getProject(String projectId);
 
+  Future<Sprint?> getLatestSprint(String projectId);
+
+  Future<CycleReviewTarget?> getCycleReviewTarget(
+    String projectId,
+    DateTime localDate,
+  );
+
   Future<TodayOverview?> loadToday(DateTime localDate);
 
   Future<String> createProject(CreateProjectInput input);
@@ -27,6 +34,8 @@ abstract interface class TrackerRepository {
     String? externalUrl,
     String? evidenceNote,
   });
+
+  Future<CloseCycleResult> closeCycle(CloseCycleInput input);
 
   Future<void> archiveProject(String projectId);
 }

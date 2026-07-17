@@ -23,3 +23,18 @@ final projectProvider = FutureProvider.autoDispose.family<Project?, String>((
 ) {
   return ref.watch(trackerRepositoryProvider).getProject(projectId);
 });
+
+final latestSprintProvider = FutureProvider.autoDispose.family<Sprint?, String>(
+  (ref, projectId) {
+    return ref.watch(trackerRepositoryProvider).getLatestSprint(projectId);
+  },
+);
+
+typedef CycleReviewQuery = ({String projectId, DateTime localDate});
+
+final cycleReviewTargetProvider = FutureProvider.autoDispose
+    .family<CycleReviewTarget?, CycleReviewQuery>((ref, query) {
+      return ref
+          .watch(trackerRepositoryProvider)
+          .getCycleReviewTarget(query.projectId, query.localDate);
+    });

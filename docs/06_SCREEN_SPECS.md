@@ -216,7 +216,23 @@ Step form:
 5. keputusan continue/pivot/park;
 6. next week focus.
 
-## 14. Settings
+## 14. Cycle review
+
+Screen khusus ini tidak digabung dengan weekly review.
+
+Hierarchy:
+
+1. project dan rentang putaran;
+2. snapshot output, views, orders, revenue, dan work time dalam rentang sprint;
+3. pilihan Continue / Pivot / Park;
+4. input pendekatan baru hanya untuk Pivot;
+5. pemilih focus pengganti hanya untuk Park;
+6. sticky decision CTA.
+
+Layout harus scrollable dan compact pada 320×640 dengan text scale 1,3. Tidak
+boleh ada fixed-height spacer atau panel kosong tinggi.
+
+## 15. Settings
 
 - notifications;
 - appearance: light only MVP, system later;

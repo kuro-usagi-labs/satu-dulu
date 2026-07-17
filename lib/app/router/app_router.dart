@@ -14,6 +14,7 @@ import 'package:satu_dulu/features/projects/presentation/screens/create_project_
 import 'package:satu_dulu/features/projects/presentation/screens/edit_project_screen.dart';
 import 'package:satu_dulu/features/projects/presentation/screens/project_detail_screen.dart';
 import 'package:satu_dulu/features/projects/presentation/screens/projects_screen.dart';
+import 'package:satu_dulu/features/results/presentation/screens/cycle_review_screen.dart';
 import 'package:satu_dulu/features/results/presentation/screens/results_screen.dart';
 import 'package:satu_dulu/features/results/presentation/screens/metric_entry_screen.dart';
 import 'package:satu_dulu/features/results/presentation/screens/weekly_review_screen.dart';
@@ -50,6 +51,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) =>
             EditProjectScreen(projectId: state.pathParameters['projectId']!),
+      ),
+      GoRoute(
+        path: '/projects/:projectId/cycle-review',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) =>
+            CycleReviewScreen(projectId: state.pathParameters['projectId']!),
       ),
       GoRoute(
         path: '/projects/:projectId',

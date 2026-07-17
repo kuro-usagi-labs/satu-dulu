@@ -67,6 +67,25 @@ updated_at INTEGER NOT NULL
 UNIQUE(sprint_id, plan_date)
 ```
 
+### sprint_closures — schema v2
+
+```text
+id TEXT PRIMARY KEY
+sprint_id TEXT NOT NULL UNIQUE
+decision TEXT NOT NULL
+evidence_summary TEXT
+next_approach TEXT
+next_sprint_id TEXT UNIQUE
+replacement_project_id TEXT
+closed_at INTEGER NOT NULL
+created_at INTEGER NOT NULL
+updated_at INTEGER NOT NULL
+```
+
+`decision` hanya menerima `continueFocus`, `pivot`, atau `park`. Continue/Pivot
+menautkan `next_sprint_id`; Park dapat menautkan `replacement_project_id`.
+Conditional invariant divalidasi dalam repository transaction.
+
 ### daily_actions
 
 ```text
@@ -202,6 +221,7 @@ updated_at INTEGER NOT NULL
 ## Migration policy
 
 - schema version starts at 1;
+- schema v2 menambah `sprint_closures` secara add-only;
 - every schema change adds migration and migration test;
 - never edit released migration history;
 - backup data before destructive migration;

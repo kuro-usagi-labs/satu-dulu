@@ -136,6 +136,292 @@ void main() {
     expect(nextDay.actions.map((action) => action.label), ['Tindakan baru']);
   });
 
+  group('30-day cycle closure', () {
+    test('review target becomes due only after the sprint end date', () async {
+      final projectId = await repository.createProject(
+        _input(name: 'Focus', day: day),
+      );
+      final sprint = await repository.getLatestSprint(projectId);
+
+      final lastDayTarget = await repository.getCycleReviewTarget(
+        projectId,
+        day.add(const Duration(days: 29)),
+      );
+      final dueTarget = await repository.getCycleReviewTarget(
+        projectId,
+        day.add(const Duration(days: 30)),
+      );
+
+      expect(lastDayTarget?.availability, CycleReviewAvailability.notDue);
+      expect(lastDayTarget?.canClose, isFalse);
+      expect(dueTarget?.availability, CycleReviewAvailability.due);
+      expect(dueTarget?.canClose, isTrue);
+      expect(dueTarget?.sprint?.id, sprint?.id);
+    });
+
+    test(
+      'Continue completes the old sprint and starts one new cycle',
+      () async {
+        final projectId = await repository.createProject(
+          _input(name: 'Focus', day: day),
+        );
+        final oldSprint = (await repository.getLatestSprint(projectId))!;
+        final decisionDay = day.add(const Duration(days: 30));
+
+        final result = await repository.closeCycle(
+          CloseCycleInput(
+            projectId: projectId,
+            sprintId: oldSprint.id,
+            decision: CycleDecision.continueFocus,
+            decidedAt: decisionDay,
+            evidenceSummary: '  Format pendek mulai bekerja.  ',
+          ),
+        );
+
+        final sprintRows = await database.select(database.sprints).get();
+        final oldRow = sprintRows.singleWhere((row) => row.id == oldSprint.id);
+        final nextRow = sprintRows.singleWhere(
+          (row) => row.id == result.nextSprintId,
+        );
+        final project = await repository.getProject(projectId);
+        final closure = await database
+            .select(database.sprintClosures)
+            .getSingle();
+
+        expect(result.decision, CycleDecision.continueFocus);
+        expect(result.focusProjectId, projectId);
+        expect(result.replacementProjectId, isNull);
+        expect(oldRow.status, SprintStatus.completed.name);
+        expect(nextRow.status, SprintStatus.active.name);
+        expect(nextRow.startDate.toUtc(), DateTime.utc(2026, 8, 15));
+        expect(nextRow.endDate.toUtc(), DateTime.utc(2026, 9, 13));
+        expect(project?.reviewDate, DateTime.utc(2026, 9, 13));
+        expect(
+          sprintRows.where((row) => row.status == SprintStatus.active.name),
+          hasLength(1),
+        );
+        expect(closure.sprintId, oldSprint.id);
+        expect(closure.nextSprintId, result.nextSprintId);
+        expect(closure.evidenceSummary, 'Format pendek mulai bekerja.');
+      },
+    );
+
+    test(
+      'Pivot validates its approach and preserves the project goal',
+      () async {
+        final projectId = await repository.createProject(
+          _input(name: 'Focus', day: day),
+        );
+        final oldSprint = (await repository.getLatestSprint(projectId))!;
+        final decisionDay = day.add(const Duration(days: 30));
+
+        await expectLater(
+          repository.closeCycle(
+            CloseCycleInput(
+              projectId: projectId,
+              sprintId: oldSprint.id,
+              decision: CycleDecision.pivot,
+              decidedAt: decisionDay,
+              nextApproach: '   ',
+            ),
+          ),
+          throwsA(isA<ValidationException>()),
+        );
+        expect(await database.select(database.sprintClosures).get(), isEmpty);
+        expect(await database.select(database.sprints).get(), hasLength(1));
+        expect(
+          (await repository.getLatestSprint(projectId))?.status,
+          SprintStatus.active,
+        );
+
+        final result = await repository.closeCycle(
+          CloseCycleInput(
+            projectId: projectId,
+            sprintId: oldSprint.id,
+            decision: CycleDecision.pivot,
+            decidedAt: decisionDay,
+            nextApproach: '  Uji format carousel  ',
+          ),
+        );
+
+        final project = await repository.getProject(projectId);
+        final nextSprint = await repository.getLatestSprint(projectId);
+        final closure = await database
+            .select(database.sprintClosures)
+            .getSingle();
+        expect(result.decision, CycleDecision.pivot);
+        expect(project?.shortGoal, 'Menerbitkan satu hasil');
+        expect(nextSprint?.id, result.nextSprintId);
+        expect(nextSprint?.hypothesis, 'Uji format carousel');
+        expect(closure.nextApproach, 'Uji format carousel');
+      },
+    );
+
+    test('Park can skip choosing a replacement focus', () async {
+      final projectId = await repository.createProject(
+        _input(name: 'Focus', day: day),
+      );
+      final oldSprint = (await repository.getLatestSprint(projectId))!;
+
+      final result = await repository.closeCycle(
+        CloseCycleInput(
+          projectId: projectId,
+          sprintId: oldSprint.id,
+          decision: CycleDecision.park,
+          decidedAt: day.add(const Duration(days: 30)),
+        ),
+      );
+
+      final project = await repository.getProject(projectId);
+      final sprintRows = await database.select(database.sprints).get();
+      final closure = await database
+          .select(database.sprintClosures)
+          .getSingle();
+      expect(result.nextSprintId, isNull);
+      expect(result.focusProjectId, isNull);
+      expect(result.replacementProjectId, isNull);
+      expect(project?.status, ProjectStatus.parkingLot);
+      expect(await repository.getFocusProject(), isNull);
+      expect(sprintRows.single.status, SprintStatus.completed.name);
+      expect(closure.decision, CycleDecision.park.name);
+      expect(closure.nextSprintId, isNull);
+      expect(closure.replacementProjectId, isNull);
+    });
+
+    test(
+      'Park replaces a stale sprint with a current replacement cycle',
+      () async {
+        final replacementDay = day.subtract(const Duration(days: 100));
+        final replacementId = await repository.createProject(
+          _input(
+            name: 'Fokus pengganti',
+            day: replacementDay,
+            status: ProjectStatus.parkingLot,
+          ),
+        );
+        final staleSprint = (await repository.getLatestSprint(replacementId))!;
+        final projectId = await repository.createProject(
+          _input(name: 'Focus', day: day),
+        );
+        final oldSprint = (await repository.getLatestSprint(projectId))!;
+        final decisionDay = day.add(const Duration(days: 30));
+
+        final result = await repository.closeCycle(
+          CloseCycleInput(
+            projectId: projectId,
+            sprintId: oldSprint.id,
+            decision: CycleDecision.park,
+            decidedAt: decisionDay,
+            replacementProjectId: replacementId,
+          ),
+        );
+
+        final sprintRows = await database.select(database.sprints).get();
+        final staleRow = sprintRows.singleWhere(
+          (row) => row.id == staleSprint.id,
+        );
+        final replacementRow = sprintRows.singleWhere(
+          (row) => row.id == result.nextSprintId,
+        );
+        final focus = await repository.getFocusProject();
+        final closure = await database
+            .select(database.sprintClosures)
+            .getSingle();
+
+        expect(staleRow.status, SprintStatus.cancelled.name);
+        expect(replacementRow.projectId, replacementId);
+        expect(replacementRow.status, SprintStatus.active.name);
+        expect(replacementRow.startDate.toUtc(), DateTime.utc(2026, 8, 15));
+        expect(replacementRow.endDate.toUtc(), DateTime.utc(2026, 9, 13));
+        expect(focus?.id, replacementId);
+        expect(result.focusProjectId, replacementId);
+        expect(result.replacementProjectId, replacementId);
+        expect(closure.replacementProjectId, replacementId);
+        expect(closure.nextSprintId, isNull);
+        expect(
+          sprintRows.where(
+            (row) =>
+                row.projectId == replacementId &&
+                row.status == SprintStatus.active.name,
+          ),
+          hasLength(1),
+        );
+      },
+    );
+
+    test(
+      'duplicate retry is rejected without changing committed state',
+      () async {
+        final projectId = await repository.createProject(
+          _input(name: 'Focus', day: day),
+        );
+        final oldSprint = (await repository.getLatestSprint(projectId))!;
+        final input = CloseCycleInput(
+          projectId: projectId,
+          sprintId: oldSprint.id,
+          decision: CycleDecision.continueFocus,
+          decidedAt: day.add(const Duration(days: 30)),
+        );
+        final first = await repository.closeCycle(input);
+        final committedReviewDate = (await repository.getProject(
+          projectId,
+        ))?.reviewDate;
+
+        await expectLater(
+          repository.closeCycle(input),
+          throwsA(isA<ValidationException>()),
+        );
+
+        final sprintRows = await database.select(database.sprints).get();
+        final closureRows = await database
+            .select(database.sprintClosures)
+            .get();
+        expect(sprintRows, hasLength(2));
+        expect(closureRows, hasLength(1));
+        expect(closureRows.single.id, first.closureId);
+        expect(closureRows.single.nextSprintId, first.nextSprintId);
+        expect(
+          sprintRows.where((row) => row.status == SprintStatus.active.name),
+          hasLength(1),
+        );
+        expect(
+          (await repository.getProject(projectId))?.reviewDate,
+          committedReviewDate,
+        );
+      },
+    );
+
+    test('new cycle does not roll the previous daily plan forward', () async {
+      final projectId = await repository.createProject(
+        _input(name: 'Focus', day: day, actions: const ['Tulis', 'Terbitkan']),
+      );
+      final oldSprint = (await repository.getLatestSprint(projectId))!;
+      final oldPlan = await repository.loadToday(day);
+      final decisionDay = day.add(const Duration(days: 30));
+
+      final result = await repository.closeCycle(
+        CloseCycleInput(
+          projectId: projectId,
+          sprintId: oldSprint.id,
+          decision: CycleDecision.continueFocus,
+          decidedAt: decisionDay,
+        ),
+      );
+
+      final plans = await database.select(database.dailyPlans).get();
+      final actions = await database.select(database.dailyActions).get();
+      expect(plans, hasLength(1));
+      expect(plans.single.id, oldPlan?.dailyPlanId);
+      expect(plans.single.sprintId, oldSprint.id);
+      expect(actions.map((action) => action.label), ['Tulis', 'Terbitkan']);
+      expect(
+        plans.where((plan) => plan.sprintId == result.nextSprintId),
+        isEmpty,
+      );
+      expect(await repository.loadToday(decisionDay), isNull);
+    });
+  });
+
   test(
     'editing a parking-lot project to focus replaces focus atomically',
     () async {
@@ -181,6 +467,7 @@ CreateProjectInput _input({
   required DateTime day,
   ProjectStatus status = ProjectStatus.focus,
   List<String> actions = const ['Tulis', 'Terbitkan'],
+  int sprintDays = 30,
 }) {
   return CreateProjectInput(
     name: name,
@@ -192,5 +479,6 @@ CreateProjectInput _input({
     requiredOutcome: 'Terbitkan hasil pertama',
     actions: actions,
     lowEnergyAction: 'Tulis satu paragraf',
+    sprintDays: sprintDays,
   );
 }

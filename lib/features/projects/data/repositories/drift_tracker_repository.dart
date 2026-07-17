@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:satu_dulu/core/database/app_database.dart';
 import 'package:satu_dulu/core/errors/app_exception.dart';
+import 'package:satu_dulu/features/projects/data/repositories/cycle_persistence.dart';
+import 'package:satu_dulu/features/projects/data/repositories/cycle_queries.dart';
 import 'package:satu_dulu/features/projects/data/repositories/ship_persistence.dart';
 import 'package:satu_dulu/features/projects/data/repositories/tracker_repository_support.dart';
 import 'package:satu_dulu/features/projects/domain/entities/tracker_models.dart';
@@ -44,6 +46,16 @@ class DriftTrackerRepository implements TrackerRepository {
             .getSingleOrNull();
     return row == null ? null : TrackerRepositorySupport.projectFromRow(row);
   }
+
+  @override
+  Future<Sprint?> getLatestSprint(String projectId) =>
+      CycleQueries(_database).getLatestSprint(projectId);
+
+  @override
+  Future<CycleReviewTarget?> getCycleReviewTarget(
+    String projectId,
+    DateTime localDate,
+  ) => CycleQueries(_database).getReviewTarget(projectId, localDate);
 
   Future<Project?> _getProjectWithStatus(ProjectStatus status) async {
     final row =
@@ -408,6 +420,10 @@ class DriftTrackerRepository implements TrackerRepository {
     externalUrl: externalUrl,
     evidenceNote: evidenceNote,
   );
+
+  @override
+  Future<CloseCycleResult> closeCycle(CloseCycleInput input) =>
+      CyclePersistence(_database, _uuid).close(input);
 
   @override
   Future<void> archiveProject(String projectId) async {

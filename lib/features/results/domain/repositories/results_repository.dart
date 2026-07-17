@@ -1,7 +1,14 @@
 import 'package:satu_dulu/features/results/domain/entities/result_models.dart';
 
 abstract interface class ResultsRepository {
-  Stream<ResultsSummary> watchSummary(String projectId);
+  /// Watches project metrics within optional inclusive calendar-date bounds.
+  ///
+  /// Omitting both bounds preserves the all-time summary behavior.
+  Stream<ResultsSummary> watchSummary(
+    String projectId, {
+    DateTime? startDate,
+    DateTime? endDate,
+  });
 
   Future<MetricEntry?> getMetric(String projectId, DateTime localDate);
 

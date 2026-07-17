@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -240,10 +239,7 @@ class _WeeklyReviewScreenState extends ConsumerState<WeeklyReviewScreen> {
             ),
           );
       if (mounted) {
-        if (!MediaQuery.disableAnimationsOf(context)) {
-          await HapticFeedback.mediumImpact();
-        }
-        if (mounted) context.pop();
+        context.pop();
       }
     } on AppException catch (error) {
       if (mounted) setState(() => _saveError = error.message);

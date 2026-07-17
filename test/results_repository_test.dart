@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' hide isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:satu_dulu/core/database/app_database.dart';
+import 'package:satu_dulu/core/errors/app_exception.dart';
 import 'package:satu_dulu/features/results/data/repositories/drift_results_repository.dart';
 import 'package:satu_dulu/features/results/domain/entities/result_models.dart';
 import 'package:satu_dulu/features/results/domain/services/money_units.dart';
@@ -66,6 +67,64 @@ void main() {
       expect(summary.revenuePerHourMinor, 2500000);
     },
   );
+
+  test('summary date range includes both boundaries', () async {
+    for (final (day, outputs) in [(13, 1), (14, 2), (15, 3), (16, 4)]) {
+      await repository.saveMetric(
+        MetricInput(
+          projectId: 'project-1',
+          entryDate: DateTime(2026, 7, day),
+          outputsCount: outputs,
+        ),
+      );
+    }
+
+    final ranged = await repository
+        .watchSummary(
+          'project-1',
+          startDate: DateTime(2026, 7, 14, 23, 59),
+          endDate: DateTime(2026, 7, 15, 1),
+        )
+        .first;
+    final allTime = await repository.watchSummary('project-1').first;
+
+    expect(ranged.entries.map((entry) => entry.entryDate.day), [15, 14]);
+    expect(ranged.outputs, 5);
+    expect(allTime.outputs, 10);
+  });
+
+  test('summary supports a single inclusive date boundary', () async {
+    for (final day in [13, 14, 15]) {
+      await repository.saveMetric(
+        MetricInput(
+          projectId: 'project-1',
+          entryDate: DateTime(2026, 7, day),
+          outputsCount: 1,
+        ),
+      );
+    }
+
+    final fromDate = await repository
+        .watchSummary('project-1', startDate: DateTime(2026, 7, 14))
+        .first;
+    final throughDate = await repository
+        .watchSummary('project-1', endDate: DateTime(2026, 7, 14))
+        .first;
+
+    expect(fromDate.entries.map((entry) => entry.entryDate.day), [15, 14]);
+    expect(throughDate.entries.map((entry) => entry.entryDate.day), [14, 13]);
+  });
+
+  test('summary rejects a descending date range', () {
+    expect(
+      () => repository.watchSummary(
+        'project-1',
+        startDate: DateTime(2026, 7, 16),
+        endDate: DateTime(2026, 7, 15),
+      ),
+      throwsA(isA<ValidationException>()),
+    );
+  });
 
   test('derived divisions return null when denominator is zero', () async {
     await repository.saveMetric(

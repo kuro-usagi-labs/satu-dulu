@@ -95,39 +95,50 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           );
         }
 
-        if (_reviewIsDue(focus)) {
-          return EmptyStateCard(
-            icon: Icons.flag_outlined,
-            title: 'Putaran 30 harimu selesai',
-            description:
-                'Lihat bukti yang terkumpul sebelum memutuskan untuk lanjut, mengubah arah, atau menyimpan proyek ini dulu.',
-            actionLabel: 'Review fokus ini',
-            onAction: () => context.push('/results/review?project=${focus.id}'),
-          );
-        }
-
-        return EmptyStateCard(
-          icon: Icons.edit_calendar_outlined,
-          title: 'Hari ini belum punya hasil',
-          description:
-              'Mulai bersih. Tentukan satu hasil yang benar-benar bisa kamu selesaikan atau terbitkan hari ini.',
-          footnote: 'Tidak ada utang tugas yang dibawa dari kemarin.',
-          actionLabel: 'Tentukan hasil hari ini',
-          onAction: () => context.push('/today/plan'),
+        final query = (projectId: focus.id, localDate: _today);
+        final cycle = ref.watch(cycleReviewTargetProvider(query));
+        return cycle.when(
+          loading: () => const AppLoadingBlock(height: 168),
+          error: (error, stackTrace) => TodayErrorCard(
+            onRetry: () => ref.invalidate(cycleReviewTargetProvider(query)),
+          ),
+          data: (target) {
+            if (target?.availability == CycleReviewAvailability.due) {
+              return EmptyStateCard(
+                icon: Icons.flag_outlined,
+                title: 'Putaran 30 harimu selesai',
+                description:
+                    'Lihat bukti putaran ini sebelum memilih untuk lanjut, mengubah pendekatan, atau menyimpannya dulu.',
+                actionLabel: 'Tutup putaran ini',
+                onAction: () =>
+                    context.push('/projects/${focus.id}/cycle-review'),
+              );
+            }
+            if (target == null ||
+                target.availability == CycleReviewAvailability.closed ||
+                target.availability == CycleReviewAvailability.unavailable) {
+              return EmptyStateCard(
+                icon: Icons.route_outlined,
+                title: 'Fokus ini belum punya putaran aktif',
+                description:
+                    'Buka detail proyek untuk memeriksa arahnya atau pilih fokus lain yang siap dijalankan.',
+                actionLabel: 'Lihat proyek',
+                onAction: () => context.push('/projects/${focus.id}'),
+              );
+            }
+            return EmptyStateCard(
+              icon: Icons.edit_calendar_outlined,
+              title: 'Hari ini belum punya hasil',
+              description:
+                  'Mulai bersih. Tentukan satu hasil yang benar-benar bisa kamu selesaikan atau terbitkan hari ini.',
+              footnote: 'Tidak ada utang tugas yang dibawa dari kemarin.',
+              actionLabel: 'Tentukan hasil hari ini',
+              onAction: () => context.push('/today/plan'),
+            );
+          },
         );
       },
     );
-  }
-
-  bool _reviewIsDue(Project project) {
-    final reviewDate = project.reviewDate?.toLocal();
-    if (reviewDate == null) return false;
-    final normalized = DateTime(
-      reviewDate.year,
-      reviewDate.month,
-      reviewDate.day,
-    );
-    return normalized.isBefore(_today);
   }
 
   Widget _buildToday(BuildContext context, TodayOverview today) {

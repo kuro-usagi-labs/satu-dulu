@@ -127,3 +127,24 @@ Review reminder
 → Generate next-week focus statement
 → Save review
 ```
+
+Weekly review adalah refleksi berkala. Keputusannya tidak menutup sprint atau
+mengubah status proyek.
+
+## Flow I — Close a 30-day cycle
+
+```text
+Today or Results detects the cycle is due
+→ Open dedicated cycle review
+→ Read evidence limited to the cycle dates
+→ Choose one decision
+   ├─ Continue → close old sprint and create a fresh 30-day sprint
+   ├─ Pivot → write a new approach, close old sprint, create fresh sprint
+   └─ Park → park the project and optionally choose a replacement focus
+→ Return to Today or Projects
+→ Define a fresh daily outcome; old actions never roll over
+```
+
+Park selalu menyediakan pilihan eksplisit `Belum pilih sekarang`. Bila proyek
+pengganti dipilih, perubahan focus dan pembuatan putaran pengganti harus terjadi
+dalam satu transaction.

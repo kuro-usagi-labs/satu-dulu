@@ -2,6 +2,10 @@ enum ProjectStatus { focus, maintenance, parkingLot, archived }
 
 enum SprintStatus { active, completed, cancelled }
 
+enum CycleDecision { continueFocus, pivot, park }
+
+enum CycleReviewAvailability { due, notDue, closed, unavailable }
+
 class Project {
   const Project({
     required this.id,
@@ -56,6 +60,83 @@ class Sprint {
   final int? targetOutputs;
   final String? successCriteria;
   final SprintStatus status;
+}
+
+class CycleReviewTarget {
+  const CycleReviewTarget({
+    required this.project,
+    required this.availability,
+    this.sprint,
+  });
+
+  final Project project;
+  final Sprint? sprint;
+  final CycleReviewAvailability availability;
+
+  bool get canClose =>
+      availability == CycleReviewAvailability.due && sprint != null;
+}
+
+class SprintClosure {
+  const SprintClosure({
+    required this.id,
+    required this.sprintId,
+    required this.decision,
+    required this.closedAt,
+    this.evidenceSummary,
+    this.nextApproach,
+    this.nextSprintId,
+    this.replacementProjectId,
+  });
+
+  final String id;
+  final String sprintId;
+  final CycleDecision decision;
+  final String? evidenceSummary;
+  final String? nextApproach;
+  final String? nextSprintId;
+  final String? replacementProjectId;
+  final DateTime closedAt;
+}
+
+class CloseCycleInput {
+  const CloseCycleInput({
+    required this.projectId,
+    required this.sprintId,
+    required this.decision,
+    required this.decidedAt,
+    this.evidenceSummary,
+    this.nextApproach,
+    this.replacementProjectId,
+    this.durationDays = 30,
+  });
+
+  final String projectId;
+  final String sprintId;
+  final CycleDecision decision;
+  final DateTime decidedAt;
+  final String? evidenceSummary;
+  final String? nextApproach;
+  final String? replacementProjectId;
+  final int durationDays;
+}
+
+class CloseCycleResult {
+  const CloseCycleResult({
+    required this.closureId,
+    required this.closedSprintId,
+    required this.decision,
+    this.nextSprintId,
+    this.focusProjectId,
+    this.replacementProjectId,
+  });
+
+  final String closureId;
+  final String closedSprintId;
+  final CycleDecision decision;
+  final String? nextSprintId;
+  final String? focusProjectId;
+  final String? replacementProjectId;
 }
 
 class DailyAction {
