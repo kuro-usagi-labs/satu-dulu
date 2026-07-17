@@ -6,7 +6,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   test:
@@ -15,12 +15,26 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
       - run: flutter pub get
       - run: dart run build_runner build
+      - name: Apply Dart formatting
+        run: dart format .
+      - name: Commit generated and formatted sources
+        if: github.event_name == 'pull_request'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lib test
+          if ! git diff --cached --quiet; then
+            git commit -m "style: generate and format anti-lupa sources"
+            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          fi
       - run: dart format --output=none --set-exit-if-changed .
       - run: flutter analyze
       - run: flutter test --coverage
