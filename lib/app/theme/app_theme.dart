@@ -1,40 +1,40 @@
 import 'package:flutter/material.dart';
 
-/// Warm, editorial color system for a calm focus experience.
+/// Cool, precise color system for a clear focus experience.
 ///
 /// Keep all presentation colors here so every feature speaks the same visual
 /// language. Contextual colors are intentionally muted; [accent] is the only
-/// brand accent used for primary actions.
+/// high-salience brand color used for primary actions and focus markers.
 abstract final class AppColors {
-  static const canvas = Color(0xFFF5F2EC);
-  static const canvasDeep = Color(0xFFECE6DC);
-  static const surface = Color(0xFFFFFDF9);
-  static const surfaceSecondary = Color(0xFFF0ECE4);
-  static const surfaceWarm = Color(0xFFF8EDE5);
-  static const surfacePressed = Color(0xFFEAE4DA);
+  static const canvas = Color(0xFFF6F8FC);
+  static const canvasDeep = Color(0xFFEDF2F8);
+  static const surface = Color(0xFFFFFFFF);
+  static const surfaceSecondary = Color(0xFFF0F4FA);
+  static const surfaceWarm = Color(0xFFEAF1FF);
+  static const surfacePressed = Color(0xFFE3EAF4);
 
-  static const textPrimary = Color(0xFF20251F);
-  static const textSecondary = Color(0xFF646B63);
-  static const textTertiary = Color(0xFF686F67);
-  static const textInverse = Color(0xFFFFFBF6);
+  static const textPrimary = Color(0xFF101828);
+  static const textSecondary = Color(0xFF475467);
+  static const textTertiary = Color(0xFF586577);
+  static const textInverse = Color(0xFFFFFFFF);
 
-  static const border = Color(0xFFE4DED3);
-  static const controlBorder = Color(0xFF868D85);
-  static const divider = Color(0xFFE9E3D9);
+  static const border = Color(0xFFDAE2ED);
+  static const controlBorder = Color(0xFF79879A);
+  static const divider = Color(0xFFE5EAF1);
 
-  static const accent = Color(0xFFBC482F);
-  static const accentDeep = Color(0xFF9C3B27);
-  static const accentSoft = Color(0xFFFBE7DE);
+  static const accent = Color(0xFF1D5BD8);
+  static const accentDeep = Color(0xFF1747A6);
+  static const accentSoft = Color(0xFFE8F0FF);
 
-  static const success = Color(0xFF3B735A);
-  static const successSoft = Color(0xFFE7F0EA);
-  static const warning = Color(0xFFA66D1E);
-  static const warningSoft = Color(0xFFF7EEDB);
-  static const danger = Color(0xFFA83F39);
-  static const dangerSoft = Color(0xFFF7E6E4);
+  static const success = Color(0xFF087A55);
+  static const successSoft = Color(0xFFE6F6EF);
+  static const warning = Color(0xFF8A5700);
+  static const warningSoft = Color(0xFFFFF2D1);
+  static const danger = Color(0xFFB42318);
+  static const dangerSoft = Color(0xFFFDECEA);
 
-  static const guide = Color(0xFF536A5B);
-  static const guideSoft = Color(0xFFE8EFEA);
+  static const guide = Color(0xFF3F5F90);
+  static const guideSoft = Color(0xFFEAF0F8);
 }
 
 abstract final class AppSpacing {
@@ -69,15 +69,15 @@ abstract final class AppDuration {
 
 abstract final class AppShadows {
   static const card = [
-    BoxShadow(color: Color(0x0D594536), blurRadius: 18, offset: Offset(0, 8)),
+    BoxShadow(color: Color(0x0D24466F), blurRadius: 18, offset: Offset(0, 8)),
   ];
 
   static const floating = [
-    BoxShadow(color: Color(0x18523B2E), blurRadius: 32, offset: Offset(0, 14)),
+    BoxShadow(color: Color(0x18132D52), blurRadius: 32, offset: Offset(0, 14)),
   ];
 
   static const focus = [
-    BoxShadow(color: Color(0x24BC482F), blurRadius: 28, offset: Offset(0, 14)),
+    BoxShadow(color: Color(0x241D5BD8), blurRadius: 28, offset: Offset(0, 14)),
   ];
 }
 

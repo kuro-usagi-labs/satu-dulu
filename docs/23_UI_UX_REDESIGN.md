@@ -37,8 +37,9 @@ empty/loading/error states, microcopy, serta hubungan antara Ship dan bukti hasi
    kehilangan arah.
 7. Hasil tampak seperti dashboard metrik generik sebelum menjelaskan keputusan
    apa yang dapat dibantu oleh datanya.
-8. Palette biru-putih, outline pada hampir semua kartu, radius seragam, spinner,
-   dan layout section yang berulang membuat produk terasa generik dan kaku.
+8. Palet biru-putih awal belum memiliki hierarchy semantik; outline pada hampir
+   semua kartu, radius seragam, spinner, dan layout section yang berulang membuat
+   produk terasa generik dan kaku.
 
 ## UX north star
 
@@ -123,8 +124,8 @@ analytics penuh.
 
 Nama arah: **calm editorial focus**.
 
-- Canvas warm paper, surface porcelain, teks ink kehijauan gelap.
-- Satu aksen terracotta sebagai penanda fokus dan primary action.
+- Canvas cool-white, surface putih bersih, dan teks navy dengan kontras tinggi.
+- Satu aksen cobalt sebagai penanda fokus dan primary action.
 - Semantic success/warning/danger tetap tersedia dengan saturasi rendah.
 - Typography memakai system font iOS dengan display lebih tegas, tracking rapat,
   dan body yang lapang.
@@ -199,8 +200,8 @@ presentation layer. Domain, repository, file service, dan migration dipertahanka
 - `tool/visual_qa.py` menjalankan alur first use nyata dan menghasilkan 13
   screenshot untuk onboarding, setup tiga langkah, Today, Proyek, Panduan,
   Hasil, serta compact `320 px`, tanpa browser error.
-- Audit kontras memverifikasi inverse/accent `4,96:1`, tertiary/canvas `4,63:1`,
-  danger/danger-soft `5,06:1`, dan batas control minimal `3:1`.
+- Audit kontras memverifikasi inverse/accent `5,93:1`, tertiary/canvas `5,58:1`,
+  danger/danger-soft `5,75:1`, dan batas control minimal `3:1`.
 - Audit source tidak menemukan literal warna presentasi di luar token theme,
   mojibake, whitespace error, dependency produksi baru, atau perubahan schema.
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1 — Focus Blue
+
+- Replaced the warm paper, terracotta, and green-ink palette with cool-white
+  surfaces, navy text, and one cobalt focus accent.
+- Recolored the app icon, launch screen, and web chrome to use the same palette.
+- Preserved every layout, interaction, route, data rule, and feature behavior.
+- Revalidated text, control, status, and CTA contrast against WCAG targets.
+
 ## 1.0.0 — Versi 1
 
 - A guided three-stage onboarding and focus setup flow that explains the daily

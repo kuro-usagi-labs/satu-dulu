@@ -22,8 +22,8 @@ APPLE_TEAM_ID=<replace>
 ## App version
 
 ```text
-VERSION_NAME=0.1.0
-BUILD_NUMBER=1
+VERSION_NAME=1.0.1
+BUILD_NUMBER=2
 ```
 
 ## Signing secrets
@@ -41,10 +41,10 @@ EXPORT_OPTIONS_PLIST_BASE64
 ## Decisions
 
 - minimum iOS version: iOS 16+;
-- app icon: cobalt focus mark di atas off-white;
-- primary accent: `#4468F2`;
+- app icon: cobalt focus mark di atas cool-white;
+- primary accent: `#1D5BD8`;
 - reminder defaults: tersimpan lokal dan dapat diubah pengguna;
-- distribusi `v0.1.0`: IPA unsigned untuk ditandatangani ulang oleh tooling sideload;
+- distribusi `v1.0.1`: IPA unsigned untuk ditandatangani ulang oleh tooling sideload;
 - signed GitHub workflow dan App Store distribution tidak digunakan untuk rilis ini;
 - widget tidak termasuk MVP.
 
