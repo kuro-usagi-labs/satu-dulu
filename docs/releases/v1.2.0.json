@@ -1,0 +1,22 @@
+{
+  "assets": [
+    {
+      "apiUrl": "https://api.github.com/repos/kuro-usagi-labs/satu-dulu/releases/assets/480641065",
+      "contentType": "application/octet-stream",
+      "createdAt": "2026-07-17T17:41:47Z",
+      "digest": "sha256:0d0650e0803aee3324f14da6e1232878d390d2819ccf46ad31d35cf448708543",
+      "downloadCount": 0,
+      "id": "RA_kwDOTafnEs4cpgAp",
+      "label": "",
+      "name": "SatuDulu-v1.2.0-build-4-unsigned.ipa",
+      "size": 13621559,
+      "state": "uploaded",
+      "updatedAt": "2026-07-17T17:41:48Z",
+      "url": "https://github.com/kuro-usagi-labs/satu-dulu/releases/download/v1.2.0/SatuDulu-v1.2.0-build-4-unsigned.ipa"
+    }
+  ],
+  "isDraft": false,
+  "isPrerelease": false,
+  "tagName": "v1.2.0",
+  "url": "https://github.com/kuro-usagi-labs/satu-dulu/releases/tag/v1.2.0"
+}
