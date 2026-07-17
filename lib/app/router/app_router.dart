@@ -3,23 +3,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:satu_dulu/app/router/app_shell.dart';
 import 'package:satu_dulu/app/theme/app_theme.dart';
-import 'package:satu_dulu/features/guides/presentation/screens/guides_screen.dart';
+import 'package:satu_dulu/features/anti_forget/presentation/screens/daily_check_in_screen.dart';
+import 'package:satu_dulu/features/anti_forget/presentation/screens/idea_inbox_screen.dart';
+import 'package:satu_dulu/features/anti_forget/presentation/screens/restart_capsule_screen.dart';
 import 'package:satu_dulu/features/guides/domain/entities/guide_models.dart';
 import 'package:satu_dulu/features/guides/presentation/screens/guide_detail_screen.dart';
 import 'package:satu_dulu/features/guides/presentation/screens/guide_edit_screen.dart';
 import 'package:satu_dulu/features/guides/presentation/screens/guide_import_screen.dart';
 import 'package:satu_dulu/features/guides/presentation/screens/guide_reader_screen.dart';
+import 'package:satu_dulu/features/guides/presentation/screens/guides_screen.dart';
 import 'package:satu_dulu/features/onboarding/presentation/screens/startup_screen.dart';
 import 'package:satu_dulu/features/projects/presentation/screens/create_project_screen.dart';
 import 'package:satu_dulu/features/projects/presentation/screens/edit_project_screen.dart';
 import 'package:satu_dulu/features/projects/presentation/screens/project_detail_screen.dart';
 import 'package:satu_dulu/features/projects/presentation/screens/projects_screen.dart';
-import 'package:satu_dulu/features/results/presentation/screens/results_screen.dart';
 import 'package:satu_dulu/features/results/presentation/screens/metric_entry_screen.dart';
+import 'package:satu_dulu/features/results/presentation/screens/results_screen.dart';
 import 'package:satu_dulu/features/results/presentation/screens/weekly_review_screen.dart';
-import 'package:satu_dulu/features/today/presentation/screens/today_screen.dart';
 import 'package:satu_dulu/features/settings/presentation/screens/settings_screen.dart';
 import 'package:satu_dulu/features/today/presentation/screens/create_daily_plan_screen.dart';
+import 'package:satu_dulu/features/today/presentation/screens/today_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -39,10 +42,27 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const StartupScreen(),
       ),
       GoRoute(
+        path: '/ideas',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const IdeaInboxScreen(),
+      ),
+      GoRoute(
+        path: '/check-in',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const DailyCheckInScreen(),
+      ),
+      GoRoute(
         path: '/projects/new',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => CreateProjectScreen(
           onboarding: state.uri.queryParameters['onboarding'] == 'true',
+        ),
+      ),
+      GoRoute(
+        path: '/projects/:projectId/restart',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => RestartCapsuleScreen(
+          projectId: state.pathParameters['projectId']!,
         ),
       ),
       GoRoute(
