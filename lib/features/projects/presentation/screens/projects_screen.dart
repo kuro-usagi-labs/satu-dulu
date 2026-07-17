@@ -6,6 +6,7 @@ import 'package:satu_dulu/core/errors/app_exception.dart';
 import 'package:satu_dulu/core/widgets/app_primitives.dart';
 import 'package:satu_dulu/core/widgets/empty_state_card.dart';
 import 'package:satu_dulu/core/widgets/screen_frame.dart';
+import 'package:satu_dulu/features/anti_forget/presentation/controllers/anti_forget_providers.dart';
 import 'package:satu_dulu/features/projects/domain/entities/tracker_models.dart';
 import 'package:satu_dulu/features/projects/presentation/controllers/tracker_providers.dart';
 import 'package:satu_dulu/features/projects/presentation/widgets/project_overview_widgets.dart';
@@ -16,40 +17,64 @@ class ProjectsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final projects = ref.watch(projectsProvider);
+    final ideaCount = ref.watch(activeIdeasProvider).value?.length ?? 0;
 
     return ScreenFrame(
       eyebrow: 'Atur perhatianmu',
       title: 'Proyek',
       subtitle:
-          'Satu fokus memimpin. Satu boleh tetap dijaga. Ide lain aman disimpan dulu.',
-      trailing: IconButton.filled(
-        onPressed: () => context.push('/projects/new'),
-        tooltip: 'Tambah proyek',
-        icon: const Icon(Icons.add_rounded),
+          'Satu fokus memimpin. Satu boleh tetap dijaga. Ide lain aman ditangkap tanpa menjadi tugas.',
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton.filledTonal(
+            onPressed: () => context.push('/ideas'),
+            tooltip: 'Buka Idea Inbox',
+            icon: Badge(
+              isLabelVisible: ideaCount > 0,
+              label: Text('$ideaCount'),
+              child: const Icon(Icons.lightbulb_outline_rounded),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.compact),
+          IconButton.filled(
+            onPressed: () => context.push('/projects/new'),
+            tooltip: 'Tambah proyek',
+            icon: const Icon(Icons.add_rounded),
+          ),
+        ],
       ),
       child: projects.when(
         loading: () => const ProjectsLoading(),
         error: (error, stackTrace) =>
             ProjectsError(onRetry: () => ref.invalidate(projectsProvider)),
         data: (items) => items.isEmpty
-            ? EmptyStateCard(
-                icon: Icons.folder_copy_outlined,
-                title: 'Belum ada proyek',
-                description:
-                    'Buat satu fokus untuk 30 hari. Hari Ini akan membantumu bergerak dari sana.',
-                actionLabel: 'Buat fokus pertama',
-                onAction: () => context.push('/projects/new'),
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _IdeaInboxShortcut(count: ideaCount),
+                  const SizedBox(height: AppSpacing.standard),
+                  EmptyStateCard(
+                    icon: Icons.folder_copy_outlined,
+                    title: 'Belum ada proyek',
+                    description:
+                        'Buat satu fokus untuk 30 hari. Hari Ini akan membantumu bergerak dari sana.',
+                    actionLabel: 'Buat fokus pertama',
+                    onAction: () => context.push('/projects/new'),
+                  ),
+                ],
               )
-            : _ProjectsContent(items: items),
+            : _ProjectsContent(items: items, ideaCount: ideaCount),
       ),
     );
   }
 }
 
 class _ProjectsContent extends ConsumerWidget {
-  const _ProjectsContent({required this.items});
+  const _ProjectsContent({required this.items, required this.ideaCount});
 
   final List<Project> items;
+  final int ideaCount;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -60,6 +85,8 @@ class _ProjectsContent extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        _IdeaInboxShortcut(count: ideaCount),
+        const SizedBox(height: AppSpacing.major),
         if (focus == null)
           NoFocusBanner(onChoose: () => _chooseFocus(context, ref))
         else
@@ -81,7 +108,7 @@ class _ProjectsContent extends ConsumerWidget {
         const SizedBox(height: AppSpacing.major),
         AppSectionHeader(
           title: 'Disimpan dulu',
-          description: 'Ide tetap aman tanpa memecah fokusmu sekarang.',
+          description: 'Proyek tetap aman tanpa memecah fokusmu sekarang.',
           trailing: DecoratedBox(
             decoration: BoxDecoration(
               color: AppColors.surfaceSecondary,
@@ -103,7 +130,7 @@ class _ProjectsContent extends ConsumerWidget {
         ),
         const SizedBox(height: AppSpacing.innerCompact),
         if (parked.isEmpty)
-          const QuietProjectEmpty(label: 'Belum ada ide yang disimpan dulu.')
+          const QuietProjectEmpty(label: 'Belum ada proyek yang disimpan dulu.')
         else
           for (final project in parked) ...[
             ProjectOverviewRow(project: project, quiet: true),
@@ -153,7 +180,7 @@ class _ProjectsContent extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.compact),
               Text(
-                'Proyek ini akan muncul di Hari Ini. Kamu bisa menggantinya nanti.',
+                'Proyek ini akan muncul di Hari Ini. Restart Capsule akan membantu mengembalikan konteksnya.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -210,6 +237,7 @@ class _ProjectsContent extends ConsumerWidget {
           );
       ref.invalidate(projectsProvider);
       ref.invalidate(todayProvider);
+      ref.invalidate(antiForgetTodaySupportProvider);
       if (context.mounted) context.go('/today');
     } on AppException catch (error) {
       if (context.mounted) {
@@ -255,9 +283,61 @@ class _ProjectsContent extends ConsumerWidget {
                 number: 3,
                 title: 'Disimpan dulu',
                 description:
-                    'Semua ide lain. Aman untuk nanti dan tidak hilang.',
+                    'Proyek siap dilanjutkan nanti dengan konteks dari Restart Capsule.',
                 isLast: true,
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _IdeaInboxShortcut extends StatelessWidget {
+  const _IdeaInboxShortcut({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.accentSoft,
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      child: InkWell(
+        onTap: () => context.push('/ideas'),
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.standard),
+          child: Row(
+            children: [
+              const AppIconBadge(
+                icon: Icons.lightbulb_outline_rounded,
+                foreground: AppColors.accentDeep,
+                background: AppColors.surface,
+              ),
+              const SizedBox(width: AppSpacing.innerCompact),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Idea Inbox',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.micro),
+                    Text(
+                      count == 0
+                          ? 'Tangkap ide tanpa menjadikannya tugas.'
+                          : '$count ide menunggu keputusan, bukan pengerjaan.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right_rounded),
             ],
           ),
         ),
