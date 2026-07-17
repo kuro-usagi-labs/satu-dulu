@@ -67,12 +67,9 @@ class DriftTrackerRepository implements TrackerRepository {
       await _database.transaction(() async {
         if (input.status == ProjectStatus.focus ||
             input.status == ProjectStatus.maintenance) {
-          final displaced =
-              await (_database.select(_database.projects)
-                    ..where(
-                      (table) => table.status.equals(input.status.name),
-                    ))
-                  .get();
+          final displaced = await (_database.select(
+            _database.projects,
+          )..where((table) => table.status.equals(input.status.name))).get();
           await _parkProjects(displaced, now);
           if (input.status == ProjectStatus.focus) {
             await _cancelActiveSprints(
@@ -528,9 +525,7 @@ class DriftTrackerRepository implements TrackerRepository {
       if (templatePlan != null) {
         templateActions =
             await (_database.select(_database.dailyActions)
-                  ..where(
-                    (table) => table.dailyPlanId.equals(templatePlan!.id),
-                  )
+                  ..where((table) => table.dailyPlanId.equals(templatePlan!.id))
                   ..orderBy([(table) => OrderingTerm.asc(table.position)]))
                 .get();
       }

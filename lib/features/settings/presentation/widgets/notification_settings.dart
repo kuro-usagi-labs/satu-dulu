@@ -292,7 +292,10 @@ class _NotificationSettingsState extends ConsumerState<NotificationSettings> {
     setState(() {
       _value = switch (kind) {
         'morning' => _value.copyWith(morningEnabled: enabled),
-        'afterWork' => _value.copyWith(afterWorkMinutes: _value.afterWorkMinutes, afterWorkEnabled: enabled),
+        'afterWork' => _value.copyWith(
+          afterWorkMinutes: _value.afterWorkMinutes,
+          afterWorkEnabled: enabled,
+        ),
         _ => _value.copyWith(eveningEnabled: enabled),
       };
       _saveError = null;

@@ -40,9 +40,9 @@ void main() {
         ProjectStatus.parkingLot,
       );
 
-      final firstSprints = await (database.select(database.sprints)
-            ..where((table) => table.projectId.equals(firstId)))
-          .get();
+      final firstSprints = await (database.select(
+        database.sprints,
+      )..where((table) => table.projectId.equals(firstId))).get();
       expect(
         firstSprints.where(
           (sprint) => sprint.status == SprintStatus.active.name,
@@ -89,9 +89,9 @@ void main() {
       ),
     );
 
-    final sprint = await (database.select(database.sprints)
-          ..where((table) => table.projectId.equals(projectId)))
-        .getSingle();
+    final sprint = await (database.select(
+      database.sprints,
+    )..where((table) => table.projectId.equals(projectId))).getSingle();
     expect(sprint.status, SprintStatus.cancelled.name);
   });
 
@@ -196,64 +196,70 @@ void main() {
     },
   );
 
-  test('reactivating a parked project starts a fresh sprint and plan', () async {
-    final oldFocusId = await repository.createProject(
-      _input(name: 'Old focus', day: day),
-    );
-    final parkedId = await repository.createProject(
-      _input(
-        name: 'Parked project',
-        day: day.subtract(const Duration(days: 60)),
-        status: ProjectStatus.parkingLot,
-        actions: const ['Riset', 'Terbitkan'],
-      ),
-    );
+  test(
+    'reactivating a parked project starts a fresh sprint and plan',
+    () async {
+      final oldFocusId = await repository.createProject(
+        _input(name: 'Old focus', day: day),
+      );
+      final parkedId = await repository.createProject(
+        _input(
+          name: 'Parked project',
+          day: day.subtract(const Duration(days: 60)),
+          status: ProjectStatus.parkingLot,
+          actions: const ['Riset', 'Terbitkan'],
+        ),
+      );
 
-    await repository.updateProject(
-      parkedId,
-      const UpdateProjectInput(
-        name: 'Parked project',
-        shortGoal: 'Mulai lagi dengan konteks lama',
-        status: ProjectStatus.focus,
-      ),
-    );
+      await repository.updateProject(
+        parkedId,
+        const UpdateProjectInput(
+          name: 'Parked project',
+          shortGoal: 'Mulai lagi dengan konteks lama',
+          status: ProjectStatus.focus,
+        ),
+      );
 
-    final activeSprint = await (database.select(database.sprints)
-          ..where(
-            (table) =>
-                table.projectId.equals(parkedId) &
-                table.status.equals(SprintStatus.active.name),
-          ))
-        .getSingle();
-    final today = await repository.loadToday(activeSprint.startDate);
+      final activeSprint =
+          await (database.select(database.sprints)..where(
+                (table) =>
+                    table.projectId.equals(parkedId) &
+                    table.status.equals(SprintStatus.active.name),
+              ))
+              .getSingle();
+      final today = await repository.loadToday(activeSprint.startDate);
 
-    expect(today, isNotNull);
-    expect(today!.requiredOutcome, 'Terbitkan hasil pertama');
-    expect(today.actions.map((action) => action.label), ['Riset', 'Terbitkan']);
-    expect(today.actions.every((action) => !action.isCompleted), isTrue);
+      expect(today, isNotNull);
+      expect(today!.requiredOutcome, 'Terbitkan hasil pertama');
+      expect(today.actions.map((action) => action.label), [
+        'Riset',
+        'Terbitkan',
+      ]);
+      expect(today.actions.every((action) => !action.isCompleted), isTrue);
 
-    final oldFocusActive = await (database.select(database.sprints)
-          ..where(
-            (table) =>
-                table.projectId.equals(oldFocusId) &
-                table.status.equals(SprintStatus.active.name),
-          ))
-        .get();
-    expect(oldFocusActive, isEmpty);
-  });
+      final oldFocusActive =
+          await (database.select(database.sprints)..where(
+                (table) =>
+                    table.projectId.equals(oldFocusId) &
+                    table.status.equals(SprintStatus.active.name),
+              ))
+              .get();
+      expect(oldFocusActive, isEmpty);
+    },
+  );
 
   test('archived project is removed from the main project stream', () async {
     final id = await repository.createProject(_input(name: 'Focus', day: day));
     await repository.archiveProject(id);
 
     expect(await repository.watchProjects().first, isEmpty);
-    final activeSprints = await (database.select(database.sprints)
-          ..where(
-            (table) =>
-                table.projectId.equals(id) &
-                table.status.equals(SprintStatus.active.name),
-          ))
-        .get();
+    final activeSprints =
+        await (database.select(database.sprints)..where(
+              (table) =>
+                  table.projectId.equals(id) &
+                  table.status.equals(SprintStatus.active.name),
+            ))
+            .get();
     expect(activeSprints, isEmpty);
   });
 }
