@@ -27,3 +27,7 @@ final class PdfReadException extends AppException {
 final class PermissionException extends AppException {
   const PermissionException(super.message, [super.cause]);
 }
+
+final class BackupException extends AppException {
+  const BackupException(super.message, [super.cause]);
+}

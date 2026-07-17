@@ -13,6 +13,7 @@
 - flutter_local_notifications for reminders;
 - uuid for identifiers;
 - crypto for optional checksum;
+- archive for deterministic local backup ZIP;
 - intl for localized formatting;
 - share_plus for export/share later.
 
@@ -127,6 +128,10 @@ Components tidak boleh memakai hex random langsung kecuali token definition.
 - clean orphan files.
 
 Repository transaction mengkoordinasikan file + database dengan compensating cleanup.
+
+`LocalBackupCoordinator` mengoordinasikan snapshot repository, archive codec,
+native file picker, staging PDF, dan compensating rollback. Presentation tidak
+menyentuh database atau path sandbox secara langsung.
 
 ## Error model
 

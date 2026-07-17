@@ -5,6 +5,7 @@ import 'package:satu_dulu/app/theme/app_theme.dart';
 import 'package:satu_dulu/core/widgets/app_primitives.dart';
 import 'package:satu_dulu/features/settings/domain/notification_preferences.dart';
 import 'package:satu_dulu/features/settings/presentation/controllers/settings_providers.dart';
+import 'package:satu_dulu/features/settings/presentation/widgets/local_backup_section.dart';
 
 class NotificationSettings extends ConsumerStatefulWidget {
   const NotificationSettings({required this.preferences, super.key});
@@ -166,6 +167,8 @@ class _NotificationSettingsState extends ConsumerState<NotificationSettings> {
               description:
                   'Tidak ada akun, iklan, cloud sync, atau analytics eksternal.',
             ),
+            const SizedBox(height: AppSpacing.major),
+            const LocalBackupSection(),
             const SizedBox(height: AppSpacing.screen),
             const AppSectionHeader(title: 'Tentang Satu Dulu'),
             const SizedBox(height: AppSpacing.standard),

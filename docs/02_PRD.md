@@ -96,6 +96,9 @@
 - export JSON/CSV;
 - database backup file.
 
+Database backup file sudah diimplementasikan sebagai ZIP lokal v1 yang selalu
+menyertakan seluruh PDF. Export JSON/CSV terpisah tetap P1 berikutnya.
+
 ## P2
 
 - OCR;

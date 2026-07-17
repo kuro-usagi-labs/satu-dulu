@@ -14,6 +14,8 @@ class SelectedResultsProject extends Notifier<String?> {
   String? build() => null;
 
   void select(String projectId) => state = projectId;
+
+  void clear() => state = null;
 }
 
 final selectedResultsProjectProvider =

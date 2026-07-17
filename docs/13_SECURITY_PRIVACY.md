@@ -66,13 +66,19 @@ Debug logs may contain IDs but should avoid:
 
 ## Backup/export
 
-Future export should:
+Backup lokal v1:
 
-- require explicit user action;
-- clearly state included files;
-- optionally omit PDFs;
-- produce a deterministic manifest;
-- never upload automatically.
+- hanya berjalan setelah tindakan eksplisit pengguna;
+- selalu menyertakan PDF agar relasi metadata tetap utuh;
+- memakai manifest deterministik dengan checksum data dan setiap PDF;
+- menolak path traversal, entry asing/ganda, schema yang tidak didukung, dan
+  archive di atas batas aman;
+- tidak pernah mengunggah otomatis;
+- mengganti database dalam satu transaction dan mengembalikan directory PDF
+  lama bila transaction gagal.
+
+Export JSON/CSV dan pilihan untuk sengaja menghilangkan PDF tetap fitur terpisah
+agar tidak disalahartikan sebagai backup penuh.
 
 ## Threat cases
 

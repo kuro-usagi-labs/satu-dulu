@@ -46,6 +46,15 @@
 - daily plan/action tidak rollover;
 - migration v1 → v2 menjaga seluruh data lama.
 
+### Local backup
+
+- round-trip menjaga seluruh 12 tabel schema v2;
+- manifest, hitungan record, dan checksum konsisten;
+- PDF hilang/rusak, entry asing, dan traversal ditolak;
+- constraint failure me-rollback seluruh replacement database;
+- kegagalan database setelah file swap mengaktifkan PDF rollback;
+- cleanup setelah commit menjadi warning, bukan laporan restore gagal.
+
 ## Widget tests
 
 - Today with focus;
@@ -59,6 +68,8 @@
 - cycle review Continue/Pivot/Park pada 320×640 dan text scale 1,3;
 - cycle review invalid/not-due/already-closed state;
 - notification permission explanation.
+- backup create/error serta restore preview/cancel/confirm pada 320×640 dan text
+  scale 1,3.
 
 ## Integration tests
 
@@ -97,6 +108,18 @@ Create focus A
 → A parking lot
 ```
 
+### Critical path 4
+
+```text
+Create backup ke Files
+→ ubah data dan PDF
+→ pilih backup
+→ periksa preview
+→ konfirmasi restore
+→ restart
+→ verifikasi proyek, hasil, pengingat, dan PDF
+```
+
 ## Manual QA matrix
 
 - small iPhone screen;
@@ -114,6 +137,8 @@ Create focus A
 - zero metrics;
 - Indonesian currency formatting;
 - app force close during import.
+- backup dari Files/iCloud, archive rusak, low storage, dan force close saat
+  restore.
 
 ## Performance checks
 

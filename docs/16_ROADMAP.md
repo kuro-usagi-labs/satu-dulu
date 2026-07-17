@@ -45,7 +45,8 @@ Outcome: pengguna dapat kembali ke panduan saat kehilangan arah.
 - motion;
 - accessibility;
 - widget P1;
-- export/backup P1.
+- export/backup P1 (backup ZIP lokal lengkap sudah diimplementasikan; export
+  JSON/CSV terpisah belum).
 
 ## Milestone 6 — Build distribution
 

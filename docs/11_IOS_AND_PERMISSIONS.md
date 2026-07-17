@@ -42,6 +42,15 @@ Requirements:
 - relative path disimpan di database;
 - jangan hardcode absolute sandbox path karena dapat berubah.
 
+## Local backup files
+
+- save/open memakai native document picker tanpa permission storage luas;
+- format v1 adalah satu ZIP berisi manifest, snapshot JSON, dan seluruh PDF;
+- restore menulis PDF ke staging di Application Documents sebelum directory
+  aktif ditukar;
+- archive dibatasi 256 MB untuk menjaga penggunaan memori pada alur save iOS;
+- backup tidak pernah dikirim otomatis atau disimpan sebagai source reference.
+
 ## Notifications
 
 Permission flow:
@@ -89,3 +98,5 @@ Minimum manual matrix:
 - notification denied and allowed;
 - low storage simulation where possible;
 - file from iCloud provider.
+- save backup ke Files lalu restore dari provider lokal/iCloud;
+- low storage dan force-close ketika restore sebagai release gate.

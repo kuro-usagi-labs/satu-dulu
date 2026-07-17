@@ -64,6 +64,17 @@ Status diperbarui 17 Juli 2026 berdasarkan test otomatis dan inspeksi source. It
 - [x] Resumes after restart.
 - [x] Corrupt PDF shows recoverable error.
 
+## Local backup and restore
+
+- [x] Backup includes every schema v2 table and all guide PDFs.
+- [x] Manifest and file checksums are verified before confirmation.
+- [x] Restore requires explicit destructive confirmation.
+- [x] Database replacement is atomic and constraint failure preserves old data.
+- [x] PDF swap rolls back when database restore fails.
+- [x] Web preview disables native file operations gracefully.
+- [ ] Save/open through Files and iCloud provider verified on physical iPhone.
+- [ ] Force-close and low-storage restore recovery verified on physical iPhone.
+
 ## Design
 
 - [x] White minimalist theme used consistently.

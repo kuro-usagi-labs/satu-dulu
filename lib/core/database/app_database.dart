@@ -290,6 +290,8 @@ class SprintClosures extends Table {
   ],
 )
 class AppDatabase extends _$AppDatabase {
+  static const currentSchemaVersion = 2;
+
   AppDatabase()
     : super(
         driftDatabase(
@@ -304,7 +306,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => currentSchemaVersion;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

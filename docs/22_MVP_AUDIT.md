@@ -22,6 +22,7 @@ Tanggal audit lokal: 17 Juli 2026.
 | CI and IPA definitions | PR CI, unsigned macOS workflow, protected manual signed workflow |
 | Identity | Bundle ID `com.kurogi.satudulu`; repository remote configured |
 | Database migration | Drift schema v1 baseline plus migration/data-preservation verification |
+| Local backup/restore | ZIP v1 manifest/checksum, all schema v2 tables, full PDF staging, database transaction, and rollback tests |
 | Release assets | 19 opaque iOS icons, web icons, branded launch screen, and deterministic generator |
 | Privacy | Runner privacy manifest declares no tracking or off-device collection |
 
@@ -54,6 +55,9 @@ Tanggal audit lokal: 17 Juli 2026.
 - Test PDF import from Files/iCloud provider and source removal.
 - Inspect smallest supported iPhone, Dynamic Type, Reduce Motion, and PDF landscape.
 - Re-sign the released unsigned IPA with the selected sideload tool and smoke-test it on the intended iPhone.
+- Save a full backup through Files/iCloud, restore it, and verify every PDF.
+- Exercise low storage and force-close during restore; process-kill recovery
+  remains a release gate beyond the tested compensating rollback.
 
 These items remain release gates; Windows cannot provide credible evidence for them.
 

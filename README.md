@@ -16,6 +16,7 @@ Isi paket mencakup:
 - spesifikasi seluruh layar utama;
 - tracker proyek, sprint, daily action, dan metrik;
 - PDF Library: import, rename, kategori, reader, bookmark, progress, dan catatan;
+- backup ZIP lokal dan restore lengkap termasuk seluruh PDF;
 - arsitektur Flutter dan struktur folder;
 - database lokal dan data model;
 - integrasi iOS, izin, file handling, serta notifikasi;

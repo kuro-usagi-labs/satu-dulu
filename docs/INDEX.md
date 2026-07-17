@@ -27,4 +27,5 @@
 | `23_UI_UX_REDESIGN.md` | ExecPlan redesign terpandu, user flow, visual direction, dan validasi |
 | `24_WARM_EDITORIAL_REDESIGN.md` | Iterasi orange–ink: semantic roles, motion, implementasi, dan QA |
 | `25_CLOSE_30_DAY_CYCLE.md` | ExecPlan penutupan putaran 30 hari, migration v2, transaksi keputusan, dan QA |
+| `26_LOCAL_BACKUP_RESTORE.md` | ExecPlan backup ZIP lokal, restore transaksional, file staging, dan QA |
 | `REFERENCES.md` | Referensi teknis resmi |

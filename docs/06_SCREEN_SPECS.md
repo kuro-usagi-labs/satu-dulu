@@ -240,3 +240,13 @@ boleh ada fixed-height spacer atau panel kosong tinggi.
 - privacy;
 - about;
 - destructive reset data.
+
+### Backup lokal
+
+- card compact menjelaskan bahwa backup mencakup data dan seluruh PDF;
+- `Buat backup sekarang` membuka save picker Files;
+- `Pulihkan dari backup` memvalidasi file sebelum konfirmasi;
+- confirmation menampilkan tanggal, jumlah proyek, jumlah PDF, dan peringatan
+  bahwa data saat ini akan diganti;
+- loading, cancel, success, warning cleanup, dan recoverable error ditangani
+  tanpa fixed-height spacer.
