@@ -217,7 +217,7 @@ abstract class AppLocalizations {
   /// No description provided for @resultsSubtitle.
   ///
   /// In id, this message translates to:
-  /// **'Lihat bukti eksperimen, bukan sekadar kesibukan.'**
+  /// **'Bukti untuk menentukan langkah berikutnya.'**
   String get resultsSubtitle;
 
   /// No description provided for @noResultsTitle.

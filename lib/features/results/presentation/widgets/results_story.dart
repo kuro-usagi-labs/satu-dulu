@@ -8,6 +8,7 @@ import 'package:satu_dulu/features/projects/domain/entities/tracker_models.dart'
 import 'package:satu_dulu/features/results/domain/entities/result_models.dart';
 import 'package:satu_dulu/features/results/domain/services/money_units.dart';
 import 'package:satu_dulu/features/results/presentation/controllers/results_providers.dart';
+import 'package:satu_dulu/features/results/presentation/widgets/evidence_sparkline.dart';
 import 'package:satu_dulu/features/results/presentation/widgets/results_decision_section.dart';
 
 class ResultsStory extends StatelessWidget {
@@ -34,9 +35,9 @@ class ResultsStory extends StatelessWidget {
             icon: Icons.fact_check_outlined,
             title: 'Belum ada hasil tercatat',
             description:
-                'Gunakan tombol Catat bukti di atas. Mulai dari angka yang kamu tahu; tidak perlu menunggu hasil besar.',
+                'Catat angka yang kamu tahu. Tidak perlu menunggu hasil besar.',
           ),
-          const SizedBox(height: AppSpacing.major),
+          const SizedBox(height: AppSpacing.section),
           ResultsDecisionSection(projectId: projectId, reviews: reviews),
         ],
       );
@@ -45,7 +46,7 @@ class ResultsStory extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _EvidenceSection(summary: summary),
+        AppEntrance(child: _EvidenceSection(summary: summary)),
         const SizedBox(height: AppSpacing.screen),
         _LearningSection(summary: summary),
         if (projects.length > 1) ...[
@@ -72,53 +73,95 @@ class _EvidenceSection extends StatelessWidget {
       children: [
         const AppSectionHeader(
           title: 'Bukti yang terkumpul',
-          description: 'Apa yang sudah dikirim, dikerjakan, dan menghasilkan.',
+          description: 'Apa yang benar-benar sudah keluar dan terjadi.',
         ),
         const SizedBox(height: AppSpacing.standard),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.section),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const AppEyebrow('Eksperimen ini'),
-                const SizedBox(height: AppSpacing.compact),
-                Text(
-                  '${summary.outputs}',
-                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                    color: AppColors.accentDeep,
-                    fontFeatures: const [FontFeature.tabularFigures()],
+        AppEvidenceCard(
+          padding: const EdgeInsets.all(AppSpacing.section),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const AppEyebrow('Putaran ini', color: AppColors.evidenceMuted),
+              const SizedBox(height: AppSpacing.compact),
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.end,
+                spacing: AppSpacing.innerCompact,
+                runSpacing: AppSpacing.micro,
+                children: [
+                  Text(
+                    '${summary.outputs}',
+                    style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                      color: AppColors.onEvidence,
+                      fontSize: 52,
+                      height: 1,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
                   ),
-                ),
-                Text(
-                  'output tercatat',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: AppSpacing.section),
-                const Divider(),
-                const SizedBox(height: AppSpacing.compact),
-                _FactRow(
-                  icon: Icons.schedule_outlined,
-                  label: 'Waktu yang dicatat',
-                  value: _formatDuration(summary.workMinutes),
-                ),
-                const SizedBox(height: AppSpacing.innerCompact),
-                _FactRow(
-                  icon: Icons.payments_outlined,
-                  label: 'Pendapatan yang dicatat',
-                  value: MoneyUnits.formatMinor(summary.revenueMinor),
-                ),
+                  Text(
+                    'hasil terbit',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: AppColors.onEvidence,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.section),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final itemWidth = constraints.maxWidth < 320
+                      ? constraints.maxWidth
+                      : (constraints.maxWidth - AppSpacing.standard) / 2;
+                  return Wrap(
+                    spacing: AppSpacing.standard,
+                    runSpacing: AppSpacing.standard,
+                    children: [
+                      SizedBox(
+                        width: itemWidth,
+                        child: _FactRow(
+                          icon: Icons.schedule_outlined,
+                          label: 'Waktu kerja',
+                          value: _formatDuration(summary.workMinutes),
+                          inverse: true,
+                        ),
+                      ),
+                      SizedBox(
+                        width: itemWidth,
+                        child: _FactRow(
+                          icon: Icons.payments_outlined,
+                          label: 'Nilai tercatat',
+                          value: MoneyUnits.formatMinor(summary.revenueMinor),
+                          inverse: true,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: AppSpacing.section),
+              EvidenceSparkline(entries: summary.entries),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.section),
+        Text('Bukti terbaru', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: AppSpacing.compact),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppRadius.card),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.standard),
+            child: Column(
+              children: [
+                for (var index = 0; index < recent.length; index++) ...[
+                  _EvidenceEntry(entry: recent[index]),
+                  if (index != recent.length - 1) const Divider(height: 25),
+                ],
               ],
             ),
           ),
         ),
-        const SizedBox(height: AppSpacing.section),
-        Text('Catatan terbaru', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: AppSpacing.compact),
-        for (var index = 0; index < recent.length; index++) ...[
-          _EvidenceEntry(entry: recent[index]),
-          if (index != recent.length - 1) const Divider(height: 25),
-        ],
       ],
     );
   }
@@ -136,18 +179,24 @@ class _FactRow extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.value,
+    this.inverse = false,
   });
 
   final IconData icon;
   final String label;
   final String value;
+  final bool inverse;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 20, color: AppColors.textSecondary),
+        Icon(
+          icon,
+          size: 20,
+          color: inverse ? AppColors.evidenceMuted : AppColors.textSecondary,
+        ),
         const SizedBox(width: AppSpacing.innerCompact),
         Expanded(
           child: Column(
@@ -155,12 +204,20 @@ class _FactRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: inverse
+                      ? AppColors.evidenceMuted
+                      : AppColors.textSecondary,
+                ),
               ),
               const SizedBox(height: AppSpacing.micro),
-              Text(value, style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                value,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: inverse ? AppColors.onEvidence : AppColors.textPrimary,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
             ],
           ),
         ),
@@ -183,36 +240,53 @@ class _EvidenceEntry extends StatelessWidget {
     ];
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.compact),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            DateFormat(
-              'EEEE, d MMM',
-              'id_ID',
-            ).format(entry.entryDate.toLocal()),
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: AppSpacing.micro),
-          Text(
-            '${entry.outputsCount} output',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          if (details.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.micro),
-            Text(
-              details.join(' · '),
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+          Container(
+            width: 10,
+            height: 10,
+            margin: const EdgeInsets.only(top: 5),
+            decoration: const BoxDecoration(
+              color: AppColors.action,
+              shape: BoxShape.circle,
             ),
-          ],
-          if (entry.note case final note?) ...[
-            const SizedBox(height: AppSpacing.compact),
-            Text(note, style: Theme.of(context).textTheme.bodyMedium),
-          ],
+          ),
+          const SizedBox(width: AppSpacing.innerCompact),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  DateFormat(
+                    'EEEE, d MMM',
+                    'id_ID',
+                  ).format(entry.entryDate.toLocal()),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.micro),
+                Text(
+                  '${entry.outputsCount} output',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                if (details.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.micro),
+                  Text(
+                    details.join(' · '),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+                if (entry.note case final note?) ...[
+                  const SizedBox(height: AppSpacing.compact),
+                  Text(note, style: Theme.of(context).textTheme.bodyMedium),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -230,7 +304,7 @@ class _LearningSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const AppSectionHeader(
-          title: 'Apa yang mulai terlihat',
+          title: 'Apa yang datanya katakan?',
           description: 'Baca pola perlahan. Angka kecil belum menjadi vonis.',
         ),
         const SizedBox(height: AppSpacing.standard),
@@ -243,26 +317,38 @@ class _LearningSection extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.standard),
         ],
-        _InsightRow(
-          title: 'Ritme pengiriman',
-          value: '${summary.outputsPerWeek.toStringAsFixed(1)} output/minggu',
-          description: 'Rata-rata berdasarkan rentang hari yang sudah dicatat.',
-        ),
-        const Divider(height: 33),
-        _InsightRow(
-          title: 'Hari dengan output',
-          value: '${(summary.shipConsistency * 100).round()}%',
-          description: 'Dari hari yang memiliki catatan hasil.',
-        ),
-        const Divider(height: 33),
-        _InsightRow(
-          title: 'Respons yang tercatat',
-          value: summary.views == 0
-              ? 'Belum ada data respons'
-              : '${summary.views} tayangan → ${summary.clicks} klik → ${summary.orders} order',
-          description: summary.views == 0
-              ? 'Tambahkan tayangan atau respons saat angkanya tersedia.'
-              : 'Lihat urutannya; jangan menilai dari satu angka saja.',
+        AppFocusCard(
+          padding: const EdgeInsets.all(AppSpacing.standard),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const AppEyebrow('Petunjuk sementara'),
+              const SizedBox(height: AppSpacing.standard),
+              _InsightRow(
+                title: 'Ritme pengiriman',
+                value:
+                    '${summary.outputsPerWeek.toStringAsFixed(1)} output/minggu',
+                description:
+                    'Rata-rata berdasarkan rentang hari yang sudah dicatat.',
+              ),
+              const Divider(height: 33),
+              _InsightRow(
+                title: 'Hari dengan output',
+                value: '${(summary.shipConsistency * 100).round()}%',
+                description: 'Dari hari yang memiliki catatan hasil.',
+              ),
+              const Divider(height: 33),
+              _InsightRow(
+                title: 'Respons yang tercatat',
+                value: summary.views == 0
+                    ? 'Belum ada data respons'
+                    : '${summary.views} tayangan → ${summary.clicks} klik → ${summary.orders} order',
+                description: summary.views == 0
+                    ? 'Tambahkan tayangan atau respons saat angkanya tersedia.'
+                    : 'Lihat urutannya; jangan menilai dari satu angka saja.',
+              ),
+            ],
+          ),
         ),
       ],
     );

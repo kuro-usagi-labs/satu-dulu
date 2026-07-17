@@ -26,9 +26,13 @@ class ProjectIdentityCard extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: switch (project.status) {
+          ProjectStatus.focus => AppColors.actionSoft,
+          ProjectStatus.maintenance => AppColors.maintenanceSoft,
+          ProjectStatus.parkingLot => AppColors.parkingSoft,
+          ProjectStatus.archived => AppColors.surfaceSecondary,
+        },
         borderRadius: BorderRadius.circular(AppRadius.hero),
-        boxShadow: AppShadows.card,
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.section),
@@ -127,9 +131,7 @@ class ProjectDirectionItem extends StatelessWidget {
           child: Text(
             number,
             style: AppTextStyles.number.copyWith(
-              color: emphasized
-                  ? AppColors.textInverse
-                  : AppColors.textSecondary,
+              color: emphasized ? AppColors.onAction : AppColors.textSecondary,
             ),
           ),
         ),
@@ -309,8 +311,8 @@ _statusPresentation(ProjectStatus status) => switch (status) {
   ProjectStatus.parkingLot => (
     label: 'Disimpan dulu',
     icon: Icons.inventory_2_outlined,
-    foreground: AppColors.textSecondary,
-    background: AppColors.surfaceSecondary,
+    foreground: AppColors.parking,
+    background: AppColors.parkingSoft,
   ),
   ProjectStatus.archived => (
     label: 'Diarsipkan',

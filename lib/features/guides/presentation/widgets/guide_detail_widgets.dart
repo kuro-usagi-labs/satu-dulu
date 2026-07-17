@@ -120,8 +120,8 @@ class GuideRecoveryPrompt extends StatelessWidget {
       icon: Icons.lightbulb_outline_rounded,
       title: 'Buka panduan ini ketika…',
       description: message,
-      background: AppColors.surfaceWarm,
-      foreground: AppColors.textPrimary,
+      background: AppColors.guideSoft,
+      foreground: AppColors.guide,
     );
   }
 }
@@ -359,7 +359,14 @@ class GuideDetailMessageState extends StatelessWidget {
           foreground: AppColors.guide,
         ),
         const SizedBox(height: AppSpacing.standard),
-        FilledButton(onPressed: onAction, child: Text(actionLabel)),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: AppColors.guide,
+            foregroundColor: AppColors.textInverse,
+          ),
+          onPressed: onAction,
+          child: Text(actionLabel),
+        ),
       ],
     );
   }

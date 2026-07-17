@@ -236,9 +236,7 @@ class _ActionField extends StatelessWidget {
           child: Text(
             '${index + 1}',
             style: AppTextStyles.number.copyWith(
-              color: index == 0
-                  ? AppColors.textInverse
-                  : AppColors.textSecondary,
+              color: index == 0 ? AppColors.onAction : AppColors.textSecondary,
             ),
           ),
         ),
@@ -331,6 +329,28 @@ class _StatusOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSelected = value == selected;
+    final palette = switch (value) {
+      ProjectStatus.focus => (
+        soft: AppColors.actionSoft,
+        strong: AppColors.actionDeep,
+        accent: AppColors.actionDeep,
+      ),
+      ProjectStatus.maintenance => (
+        soft: AppColors.maintenanceSoft,
+        strong: AppColors.maintenance,
+        accent: AppColors.maintenance,
+      ),
+      ProjectStatus.parkingLot => (
+        soft: AppColors.parkingSoft,
+        strong: AppColors.parking,
+        accent: AppColors.parking,
+      ),
+      ProjectStatus.archived => (
+        soft: AppColors.surfaceSecondary,
+        strong: AppColors.textSecondary,
+        accent: AppColors.controlBorder,
+      ),
+    };
     return Semantics(
       selected: isSelected,
       button: true,
@@ -343,10 +363,10 @@ class _StatusOption extends StatelessWidget {
               : AppDuration.stateChange,
           padding: const EdgeInsets.all(AppSpacing.standard),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.accentSoft : AppColors.surface,
+            color: isSelected ? palette.soft : AppColors.surface,
             borderRadius: BorderRadius.circular(AppRadius.input),
             border: Border.all(
-              color: isSelected ? AppColors.accent : AppColors.border,
+              color: isSelected ? palette.accent : AppColors.border,
             ),
           ),
           child: Row(
@@ -354,9 +374,7 @@ class _StatusOption extends StatelessWidget {
             children: [
               Icon(
                 icon,
-                color: isSelected
-                    ? AppColors.accentDeep
-                    : AppColors.textSecondary,
+                color: isSelected ? palette.strong : AppColors.textSecondary,
               ),
               const SizedBox(width: AppSpacing.innerCompact),
               Expanded(
@@ -379,7 +397,7 @@ class _StatusOption extends StatelessWidget {
                 isSelected
                     ? Icons.radio_button_checked_rounded
                     : Icons.radio_button_off_rounded,
-                color: isSelected ? AppColors.accent : AppColors.textTertiary,
+                color: isSelected ? palette.accent : AppColors.textTertiary,
               ),
             ],
           ),

@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:satu_dulu/app/theme/app_theme.dart';
 import 'package:satu_dulu/core/widgets/app_primitives.dart';
+import 'package:satu_dulu/core/widgets/one_focus_sticker.dart';
 
 class OnboardingPromisePage extends StatelessWidget {
   const OnboardingPromisePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final compactHeight = MediaQuery.sizeOf(context).height < 700;
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         AppSpacing.generous,
-        AppSpacing.screen,
+        compactHeight ? AppSpacing.generous : AppSpacing.screen,
         AppSpacing.generous,
         AppSpacing.section,
       ),
@@ -30,94 +32,10 @@ class OnboardingPromisePage extends StatelessWidget {
               context,
             ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
           ),
-          const SizedBox(height: AppSpacing.major),
-          const _FocusComposition(),
-        ],
-      ),
-    );
-  }
-}
-
-class _FocusComposition extends StatelessWidget {
-  const _FocusComposition();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 184,
-      child: Stack(
-        children: [
-          Positioned(
-            left: 30,
-            right: 8,
-            top: 8,
-            child: Container(
-              height: 116,
-              decoration: BoxDecoration(
-                color: AppColors.canvasDeep,
-                borderRadius: BorderRadius.circular(AppRadius.card),
-              ),
-            ),
+          SizedBox(
+            height: compactHeight ? AppSpacing.standard : AppSpacing.major,
           ),
-          Positioned(
-            left: 16,
-            right: 20,
-            top: 28,
-            child: Container(
-              height: 116,
-              decoration: BoxDecoration(
-                color: AppColors.guideSoft,
-                borderRadius: BorderRadius.circular(AppRadius.card),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 34,
-            top: 48,
-            child: Container(
-              padding: const EdgeInsets.all(AppSpacing.standard),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(AppRadius.hero),
-                boxShadow: AppShadows.card,
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 46,
-                    height: 70,
-                    alignment: Alignment.topCenter,
-                    padding: const EdgeInsets.only(top: AppSpacing.compact),
-                    decoration: BoxDecoration(
-                      color: AppColors.accent,
-                      borderRadius: BorderRadius.circular(AppRadius.input),
-                    ),
-                    child: Text(
-                      '01',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: AppColors.textInverse,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.standard),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const AppEyebrow('Hari ini'),
-                        const SizedBox(height: AppSpacing.micro),
-                        Text(
-                          'Satu hasil yang benar-benar dikirim',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          Center(child: OneFocusSticker(size: compactHeight ? 88 : 184)),
         ],
       ),
     );
@@ -247,11 +165,9 @@ class _SpaceRow extends StatelessWidget {
           AppIconBadge(
             icon: icon,
             size: 46,
-            foreground: emphasized
-                ? AppColors.textInverse
-                : AppColors.textPrimary,
+            foreground: emphasized ? AppColors.onAction : AppColors.textPrimary,
             background: emphasized
-                ? AppColors.accent
+                ? AppColors.action
                 : AppColors.surfaceSecondary,
           ),
           const SizedBox(width: AppSpacing.standard),

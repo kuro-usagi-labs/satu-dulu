@@ -58,7 +58,6 @@ class GuideCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.card),
-          boxShadow: AppShadows.card,
         ),
         child: Material(
           color: Colors.transparent,
@@ -151,7 +150,7 @@ class _PinnedLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.guideSoft,
+        color: AppColors.actionSoft,
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
       child: Padding(
@@ -165,7 +164,7 @@ class _PinnedLabel extends StatelessWidget {
             const Icon(
               Icons.push_pin_outlined,
               size: 14,
-              color: AppColors.guide,
+              color: AppColors.actionDeep,
             ),
             const SizedBox(width: AppSpacing.micro),
             Flexible(
@@ -175,7 +174,7 @@ class _PinnedLabel extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(
                   context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.guide),
+                ).textTheme.bodySmall?.copyWith(color: AppColors.actionDeep),
               ),
             ),
           ],
@@ -252,6 +251,7 @@ class GuideMessagePanel extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton(
+                  style: TextButton.styleFrom(foregroundColor: AppColors.guide),
                   onPressed: onAction,
                   child: Text(actionLabel!),
                 ),

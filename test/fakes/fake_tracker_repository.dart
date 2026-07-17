@@ -6,6 +6,7 @@ class FakeTrackerRepository implements TrackerRepository {
 
   final List<Project> projects;
   TodayOverview? today;
+  FakeShipCall? lastShipCall;
 
   @override
   Stream<List<Project>> watchProjects() => Stream.value(projects);
@@ -61,5 +62,32 @@ class FakeTrackerRepository implements TrackerRepository {
     String outputType = 'other',
     String? externalUrl,
     String? evidenceNote,
-  }) async {}
+  }) async {
+    lastShipCall = FakeShipCall(
+      dailyPlanId: dailyPlanId,
+      outputTitle: outputTitle,
+      isPartial: isPartial,
+      outputType: outputType,
+      externalUrl: externalUrl,
+      evidenceNote: evidenceNote,
+    );
+  }
+}
+
+class FakeShipCall {
+  const FakeShipCall({
+    required this.dailyPlanId,
+    required this.outputTitle,
+    required this.isPartial,
+    required this.outputType,
+    this.externalUrl,
+    this.evidenceNote,
+  });
+
+  final String dailyPlanId;
+  final String outputTitle;
+  final bool isPartial;
+  final String outputType;
+  final String? externalUrl;
+  final String? evidenceNote;
 }

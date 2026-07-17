@@ -49,8 +49,7 @@ class _GuidesScreenState extends ConsumerState<GuidesScreen> {
     return ScreenFrame(
       eyebrow: 'Pustaka pemulihan',
       title: strings.guidesTitle,
-      subtitle:
-          'Simpan petunjuk yang mengembalikanmu ke tindakan saat arah mulai kabur.',
+      subtitle: 'Panduan yang membantumu kembali bergerak.',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -85,6 +84,12 @@ class _GuidesScreenState extends ConsumerState<GuidesScreen> {
               labelText: 'Cari panduan',
               hintText: 'Judul, kategori, atau proyek',
               prefixIcon: const Icon(Icons.search_rounded),
+              focusedBorder: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(AppRadius.input),
+                ),
+                borderSide: BorderSide(color: AppColors.guide, width: 1.5),
+              ),
               suffixIcon: hasQuery
                   ? IconButton(
                       onPressed: _clearSearch,

@@ -28,28 +28,51 @@ class EmptyStateCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.hero),
-          boxShadow: AppShadows.card,
         ),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.section),
+          padding: const EdgeInsets.all(AppSpacing.standard),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: AppIconBadge(icon: icon, size: 54),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Transform.rotate(
+                    angle: -0.035,
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: AppColors.actionSoft,
+                        borderRadius: BorderRadius.circular(AppRadius.small),
+                        border: Border.all(
+                          color: AppColors.textPrimary,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Icon(icon, color: AppColors.actionDeep, size: 20),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.innerCompact),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: AppSpacing.section),
-              Text(title, style: Theme.of(context).textTheme.headlineMedium),
               const SizedBox(height: AppSpacing.compact),
               Text(
                 description,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
               if (footnote case final footnote?) ...[
-                const SizedBox(height: AppSpacing.standard),
+                const SizedBox(height: AppSpacing.innerCompact),
                 Text(
                   footnote,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -58,8 +81,8 @@ class EmptyStateCard extends StatelessWidget {
                 ),
               ],
               if (actionLabel != null && onAction != null) ...[
-                const SizedBox(height: AppSpacing.section),
-                FilledButton(onPressed: onAction, child: Text(actionLabel!)),
+                const SizedBox(height: AppSpacing.standard),
+                AppActionButton(onPressed: onAction, label: actionLabel!),
               ],
             ],
           ),

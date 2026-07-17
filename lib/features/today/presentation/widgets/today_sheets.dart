@@ -205,11 +205,28 @@ class ShipSuccessSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const AppIconBadge(
-              icon: Icons.check_rounded,
-              foreground: AppColors.textInverse,
-              background: AppColors.success,
-              size: 58,
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: 1),
+                duration: MediaQuery.disableAnimationsOf(context)
+                    ? Duration.zero
+                    : AppDuration.success,
+                curve: Curves.easeOutCubic,
+                builder: (context, progress, child) => Opacity(
+                  opacity: progress,
+                  child: Transform.scale(
+                    scale: 0.84 + (0.16 * progress),
+                    child: child,
+                  ),
+                ),
+                child: const AppIconBadge(
+                  icon: Icons.check_rounded,
+                  foreground: AppColors.textInverse,
+                  background: AppColors.success,
+                  size: 58,
+                ),
+              ),
             ),
             const SizedBox(height: AppSpacing.section),
             Text(
@@ -279,7 +296,7 @@ class RecoverySheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const AppEyebrow('Kembali ke arah'),
+            const AppEyebrow('Kembali ke arah', color: AppColors.guide),
             const SizedBox(height: AppSpacing.compact),
             Text(
               today.project.name,
@@ -306,14 +323,24 @@ class RecoverySheet extends StatelessWidget {
               emphasized: true,
             ),
             const SizedBox(height: AppSpacing.section),
-            FilledButton.icon(
-              onPressed: () => Navigator.pop(context, RecoveryChoice.start),
-              icon: const Icon(Icons.arrow_downward_rounded),
-              label: const Text('Kerjakan sekarang'),
+            AppPressScale(
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.guide,
+                  foregroundColor: AppColors.textInverse,
+                ),
+                onPressed: () => Navigator.pop(context, RecoveryChoice.start),
+                icon: const Icon(Icons.arrow_downward_rounded),
+                label: const Text('Kerjakan sekarang'),
+              ),
             ),
             if (hasGuide) ...[
               const SizedBox(height: AppSpacing.compact),
               OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.guide,
+                  side: const BorderSide(color: AppColors.guide),
+                ),
                 onPressed: () => Navigator.pop(context, RecoveryChoice.guide),
                 icon: const Icon(Icons.menu_book_rounded),
                 label: const Text('Buka panduan arah'),

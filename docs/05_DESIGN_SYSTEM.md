@@ -1,4 +1,4 @@
-# Design System — Calm Editorial Focus
+# Design System — Warm Editorial Focus
 
 ## Design direction
 
@@ -15,50 +15,68 @@ Aplikasi harus terasa:
 
 Hindari tampilan dashboard gelap, kartu terlalu padat, gradient neon, atau visual produktivitas korporat.
 
-Motif visual utama adalah **satu penanda fokus**: rail, angka `01`, atau satu
-surface beraksen di antara surface netral. Hierarchy dibuat lewat typography,
-whitespace, dan komposisi—bukan border pada setiap blok.
+Motif visual utama adalah **banyak arah menuju satu fokus**: angka `01`, satu
+titik tujuan, atau satu surface beraksen di antara surface netral. Hierarchy
+dibuat lewat typography, whitespace, dan komposisi—bukan border pada setiap
+blok.
+
+Referensi orange–black diterjemahkan secara semantik, bukan disalin sebagai
+dashboard gelap. White theme tetap dominan; near-black hanya menjadi surface
+bukti/keputusan yang disengaja.
 
 ## Color tokens
 
 ```text
-Background / Canvas      #F6F8FC
-Canvas Deep              #EDF2F8
+Background / Canvas      #F7F5F2
+Canvas Deep              #EFECE8
 Surface Primary          #FFFFFF
-Surface Secondary        #F0F4FA
-Surface Focus            #EAF1FF
-Surface Pressed          #E3EAF4
-Text Primary             #101828
-Text Secondary           #475467
-Text Tertiary            #586577
+Surface Secondary        #F2EFEB
+Surface Pressed          #E8E4DF
+Text Primary / Evidence  #171717
+Text Secondary           #5D5652
+Text Tertiary            #6B645F
 Text Inverse             #FFFFFF
-Border Subtle            #DAE2ED
-Control Border           #79879A
-Divider                  #E5EAF1
-Accent Primary           #1D5BD8
-Accent Deep              #1747A6
-Accent Soft              #E8F0FF
+Border Subtle            #DEDAD4
+Control Border           #827A74
+Divider                  #E7E3DE
+Action Orange            #F25926
+On Action                #171717
+Action Pressed           #DF5122
+Action Deep              #B63812
+Action Soft              #F8DCCF
+Evidence                 #171717
+On Evidence              #FFFFFF
+Evidence Muted           #C9C2BC
+Guide Blue               #1D5BD8
+Guide Deep               #1747A6
+Guide Soft               #E8F0FF
 Success                  #087A55
 Success Soft             #E6F6EF
+Parking                  #625D59
+Parking Soft             #ECE9E5
 Warning                  #8A5700
 Warning Soft             #FFF2D1
 Danger                   #B42318
 Danger Soft              #FDECEA
-Guide Context            #3F5F90
-Guide Soft               #EAF0F8
 ```
 
-Gunakan cobalt sebagai satu-satunya warna dengan salience tinggi untuk CTA,
-selected state, focus marker, dan progress. Guide slate-blue hanya digunakan
-dalam konteks membaca/recovery. Green, amber, dan red tetap khusus untuk status
-semantik. Jangan memberi warna pada setiap kartu.
+Peran warna wajib konsisten:
+
+- orange = tindakan, fokus aktif, Ship, pinned, dan data mark;
+- near-black = bukti serta keputusan, bukan dashboard penuh;
+- blue = Panduan, reader, dan recovery;
+- green = berhasil dan proyek Tetap dijaga;
+- gray = Disimpan dulu;
+- amber/red = warning dan destructive state.
 
 Teks dan batas control harus tetap terbaca pada canvas terang. Kombinasi utama
-memenuhi WCAG AA untuk teks normal: inverse/accent 5,93:1, tertiary/canvas
-5,58:1, danger/danger-soft 5,75:1. `Control Border` dipakai untuk field dan
-outlined control karena kontrasnya tetap minimal 3:1 pada seluruh neutral
-surface; `Border Subtle` hanya untuk divider atau pemisah dekoratif. Jangan
-menurunkan opacity teks informatif.
+memenuhi WCAG AA untuk teks normal: ink/action 5,32:1, guide/white 5,93:1,
+success/success-soft 4,79:1, parking/parking-soft 5,37:1, dan
+inverse/evidence 17,93:1. `Control Border` terhadap white adalah 4,21:1.
+`Action Deep` terhadap `Action Soft` minimal 4,5:1 agar label orange-soft tetap
+terbaca.
+`Border Subtle` hanya untuk divider atau pemisah dekoratif. Jangan menurunkan
+opacity teks informatif.
 
 ## Typography
 
@@ -113,13 +131,13 @@ Gunakan sangat lembut.
 
 ```text
 Card default:
-0 8 18 rgba(36, 70, 111, 0.05)
+0 8 18 rgba(59, 46, 40, 0.05)
 
 Floating primary:
-0 14 32 rgba(19, 45, 82, 0.09)
+0 12 28 rgba(59, 46, 40, 0.08)
 
 Focus hero:
-0 14 28 rgba(29, 91, 216, 0.14)
+0 14 28 rgba(242, 89, 38, 0.14)
 ```
 
 Border halus atau perubahan surface lebih disukai daripada shadow tebal. Jangan
@@ -132,10 +150,10 @@ memberi border yang sama pada semua kartu.
 - height 54;
 - radius 16;
 - full width pada action utama;
-- accent background;
-- white label 16/650;
+- action orange background;
+- near-black label 16/650;
 - pressed scale 0.985;
-- haptic light.
+- tanpa haptic kecuali event kunci.
 
 ### Secondary button
 
@@ -146,13 +164,37 @@ memberi border yang sama pada semua kartu.
 
 ### Focus hero card
 
-- white surface;
+- action-soft surface;
 - 24 radius;
 - title focus;
 - sprint progress;
 - required outcome;
 - one dominant CTA;
 - optional small guide shortcut.
+
+### Evidence card
+
+- satu near-black surface per konteks Hasil;
+- angka besar memakai tabular figures;
+- label putih dan evidence-muted;
+- data mark/garis chart memakai action orange;
+- jangan mengubah seluruh layar menjadi dark dashboard.
+
+### Status pill
+
+- selalu menampilkan label, bukan warna saja;
+- Fokus utama orange, Tetap dijaga green, Disimpan dulu gray;
+- tetap dapat wrap pada Dynamic Type tanpa overflow.
+
+### Empty state
+
+- tinggi selalu mengikuti isi, tanpa fixed height atau spacer dekoratif;
+- padding 16 dan ikon stiker 40;
+- ikon sejajar dengan judul pada baris pertama;
+- deskripsi memakai lebar penuh agar tidak menjadi kolom teks sempit;
+- action, bila ada, berada 16 px setelah copy;
+- pada layar 320 px, komponen harus tetap compact dan boleh bertambah tinggi
+  hanya karena Dynamic Type.
 
 ### Project card
 
@@ -177,6 +219,8 @@ memberi border yang sama pada semua kartu.
 - drag handle;
 - max height adaptive;
 - respect keyboard and safe area.
+- memakai `AppMotion.sheet(context)` agar timing konsisten dan menjadi nol saat
+  Reduce Motion aktif.
 
 ## Motion system
 
@@ -190,7 +234,7 @@ memberi border yang sama pada semua kartu.
 ### Durations
 
 ```text
-Tap feedback          100–140 ms
+Tap feedback          120–200 ms
 Small state change    180–220 ms
 Card transition       240–300 ms
 Bottom sheet          300–360 ms
@@ -212,6 +256,8 @@ Success emphasis      450–650 ms
 - tab switch uses preserved state and short fade;
 - PDF cards use shared-axis-like transition into reader;
 - low energy mode morphs action card instead of replacing whole screen.
+- onboarding sticker dan evidence sparkline memakai vector `CustomPainter`
+  yang bergerak satu kali lalu berhenti; tidak menambah dependency SVG.
 
 ## Accessibility
 
@@ -219,6 +265,8 @@ Success emphasis      450–650 ms
 - contrast text memenuhi standar normal;
 - Dynamic Type-friendly layout;
 - semantic labels for icon-only button;
+- progress bar dekoratif tidak boleh menggabungkan seluruh semantic tree;
+- card action memakai semantic container agar label tombol tidak menelan sibling;
 - do not encode status by color only;
 - support Reduce Motion;
 - reader controls remain usable in landscape.

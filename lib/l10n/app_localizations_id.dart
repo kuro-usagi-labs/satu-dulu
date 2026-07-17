@@ -73,8 +73,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get resultsTitle => 'Hasil';
 
   @override
-  String get resultsSubtitle =>
-      'Lihat bukti eksperimen, bukan sekadar kesibukan.';
+  String get resultsSubtitle => 'Bukti untuk menentukan langkah berikutnya.';
 
   @override
   String get noResultsTitle => 'Belum ada hasil tercatat';

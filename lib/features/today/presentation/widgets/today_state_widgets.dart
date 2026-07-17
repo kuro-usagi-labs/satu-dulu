@@ -83,9 +83,11 @@ class RecoveryShortcut extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
+      container: true,
       button: true,
       label: 'Aku Lupa Arah',
       hint: 'Lihat tujuan dan satu tindakan berikutnya',
+      excludeSemantics: true,
       child: InkWell(
         borderRadius: BorderRadius.circular(AppRadius.card),
         onTap: onTap,

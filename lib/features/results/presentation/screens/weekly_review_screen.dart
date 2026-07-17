@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -238,7 +239,12 @@ class _WeeklyReviewScreenState extends ConsumerState<WeeklyReviewScreen> {
               nextWeekFocus: _next.text,
             ),
           );
-      if (mounted) context.pop();
+      if (mounted) {
+        if (!MediaQuery.disableAnimationsOf(context)) {
+          await HapticFeedback.mediumImpact();
+        }
+        if (mounted) context.pop();
+      }
     } on AppException catch (error) {
       if (mounted) setState(() => _saveError = error.message);
     } catch (_) {
@@ -342,7 +348,7 @@ class _DecisionOption extends StatelessWidget {
       button: true,
       selected: selected,
       child: Material(
-        color: selected ? AppColors.accentSoft : AppColors.surface,
+        color: selected ? AppColors.evidence : AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.input),
         child: InkWell(
           onTap: onTap,
@@ -351,7 +357,7 @@ class _DecisionOption extends StatelessWidget {
             padding: const EdgeInsets.all(AppSpacing.standard),
             decoration: BoxDecoration(
               border: Border.all(
-                color: selected ? AppColors.accent : AppColors.border,
+                color: selected ? AppColors.evidence : AppColors.border,
               ),
               borderRadius: BorderRadius.circular(AppRadius.input),
             ),
@@ -360,9 +366,7 @@ class _DecisionOption extends StatelessWidget {
               children: [
                 Icon(
                   icon,
-                  color: selected
-                      ? AppColors.accentDeep
-                      : AppColors.textSecondary,
+                  color: selected ? AppColors.action : AppColors.textSecondary,
                 ),
                 const SizedBox(width: AppSpacing.innerCompact),
                 Expanded(
@@ -371,13 +375,20 @@ class _DecisionOption extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: selected
+                                  ? AppColors.onEvidence
+                                  : AppColors.textPrimary,
+                            ),
                       ),
                       const SizedBox(height: AppSpacing.micro),
                       Text(
                         description,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: selected
+                              ? AppColors.evidenceMuted
+                              : AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -386,7 +397,7 @@ class _DecisionOption extends StatelessWidget {
                 const SizedBox(width: AppSpacing.compact),
                 Icon(
                   selected ? Icons.check_circle_rounded : Icons.circle_outlined,
-                  color: selected ? AppColors.accent : AppColors.border,
+                  color: selected ? AppColors.action : AppColors.border,
                 ),
               ],
             ),

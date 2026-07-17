@@ -171,7 +171,7 @@ class _NotificationSettingsState extends ConsumerState<NotificationSettings> {
             const SizedBox(height: AppSpacing.standard),
             const _InformationRow(
               icon: Icons.info_outline_rounded,
-              title: 'Versi 0.1.0',
+              title: 'Versi 1.0.1',
               description: 'com.kurogi.satudulu',
             ),
             if (_saveError case final error?) ...[

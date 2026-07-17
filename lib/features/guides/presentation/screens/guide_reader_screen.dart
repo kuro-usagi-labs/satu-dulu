@@ -227,6 +227,7 @@ class _GuideReaderState extends ConsumerState<_GuideReader>
   Future<void> _showThumbnails() async {
     final selectedPage = await showModalBottomSheet<int>(
       context: context,
+      sheetAnimationStyle: AppMotion.sheet(context),
       isScrollControlled: true,
       showDragHandle: true,
       builder: (context) => SizedBox(
@@ -309,6 +310,7 @@ class _GuideReaderState extends ConsumerState<_GuideReader>
     final controller = TextEditingController();
     final content = await showModalBottomSheet<String>(
       context: context,
+      sheetAnimationStyle: AppMotion.sheet(context),
       isScrollControlled: true,
       builder: (context) => Padding(
         padding: EdgeInsets.fromLTRB(

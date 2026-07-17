@@ -43,9 +43,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     return ScreenFrame(
       eyebrow: dateLabel,
       title: 'Hari Ini',
-      subtitle:
-          'Satu hasil. Maksimal tiga langkah. Ship ketika benar-benar selesai.',
-      trailing: IconButton.filledTonal(
+      subtitle: 'Satu hasil, satu langkah berikutnya.',
+      trailing: IconButton.filled(
+        style: IconButton.styleFrom(
+          backgroundColor: AppColors.surfaceSecondary,
+          foregroundColor: AppColors.textPrimary,
+        ),
         onPressed: () => context.push('/settings'),
         tooltip: 'Pengaturan',
         icon: const Icon(Icons.tune_rounded),
@@ -142,15 +145,17 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TodayFocusHero(
-          projectName: today.project.name,
-          sprintDay: today.sprintDay,
-          sprintLength: today.sprintLength,
-          requiredOutcome: today.requiredOutcome,
-          nextAction: nextAction?.label,
-          isShipped: isShipped,
-          isBusy: _mutating,
-          onShip: () => _ship(today),
+        AppEntrance(
+          child: TodayFocusHero(
+            projectName: today.project.name,
+            sprintDay: today.sprintDay,
+            sprintLength: today.sprintLength,
+            requiredOutcome: today.requiredOutcome,
+            nextAction: nextAction?.label,
+            isShipped: isShipped,
+            isBusy: _mutating,
+            onShip: () => _ship(today),
+          ),
         ),
         if (isShipped) ...[
           const SizedBox(height: AppSpacing.standard),
@@ -200,6 +205,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         Align(
           alignment: Alignment.centerLeft,
           child: TextButton.icon(
+            style: TextButton.styleFrom(foregroundColor: AppColors.guide),
             onPressed: isShipped
                 ? null
                 : () => setState(() => _lowEnergy = !_lowEnergy),
@@ -239,6 +245,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
   Future<void> _ship(TodayOverview today) async {
     final draft = await showModalBottomSheet<ShipDraft>(
       context: context,
+      sheetAnimationStyle: AppMotion.sheet(context),
+      useRootNavigator: true,
       isScrollControlled: true,
       useSafeArea: true,
       builder: (context) => ShipSheet(
@@ -267,6 +275,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       if (!mounted) return;
       final addEvidence = await showModalBottomSheet<bool>(
         context: context,
+        sheetAnimationStyle: AppMotion.sheet(context),
+        useRootNavigator: true,
         isScrollControlled: true,
         isDismissible: false,
         enableDrag: false,
@@ -289,6 +299,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final choice = await showModalBottomSheet<RecoveryChoice>(
       context: context,
+      sheetAnimationStyle: AppMotion.sheet(context),
+      useRootNavigator: true,
       isScrollControlled: true,
       useSafeArea: true,
       builder: (context) => RecoverySheet(today: today, lowEnergy: _lowEnergy),

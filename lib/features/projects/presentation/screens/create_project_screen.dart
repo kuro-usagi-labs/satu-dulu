@@ -96,7 +96,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
                           dimension: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: AppColors.textInverse,
+                            color: AppColors.onAction,
                           ),
                         )
                       : Icon(

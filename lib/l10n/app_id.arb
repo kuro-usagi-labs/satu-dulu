@@ -20,7 +20,7 @@
   "noGuidesDescription": "PDF yang diimpor nanti akan tersimpan lokal dan tetap bisa dibaca offline.",
   "addGuide": "Tambahkan panduan",
   "resultsTitle": "Hasil",
-  "resultsSubtitle": "Lihat bukti eksperimen, bukan sekadar kesibukan.",
+  "resultsSubtitle": "Bukti untuk menentukan langkah berikutnya.",
   "noResultsTitle": "Belum ada hasil tercatat",
   "noResultsDescription": "Setelah kamu ship, output dan metrik sederhana akan muncul di sini.",
   "recordResult": "Catat hasil hari ini"

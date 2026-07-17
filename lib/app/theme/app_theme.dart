@@ -1,40 +1,58 @@
 import 'package:flutter/material.dart';
 
-/// Cool, precise color system for a clear focus experience.
+/// Warm semantic color system for a calm, single-focus experience.
 ///
-/// Keep all presentation colors here so every feature speaks the same visual
-/// language. Contextual colors are intentionally muted; [accent] is the only
-/// high-salience brand color used for primary actions and focus markers.
+/// Color communicates role rather than decoration: orange moves work forward,
+/// near-black holds evidence and decisions, blue restores direction, green
+/// marks maintenance or success, and gray keeps parked work quiet.
 abstract final class AppColors {
-  static const canvas = Color(0xFFF6F8FC);
-  static const canvasDeep = Color(0xFFEDF2F8);
+  static const canvas = Color(0xFFF7F5F2);
+  static const canvasDeep = Color(0xFFEFECE8);
   static const surface = Color(0xFFFFFFFF);
-  static const surfaceSecondary = Color(0xFFF0F4FA);
-  static const surfaceWarm = Color(0xFFEAF1FF);
-  static const surfacePressed = Color(0xFFE3EAF4);
+  static const surfaceSecondary = Color(0xFFF2EFEB);
+  static const surfaceWarm = Color(0xFFF8DCCF);
+  static const surfacePressed = Color(0xFFE8E4DF);
 
-  static const textPrimary = Color(0xFF101828);
-  static const textSecondary = Color(0xFF475467);
-  static const textTertiary = Color(0xFF586577);
+  static const textPrimary = Color(0xFF171717);
+  static const textSecondary = Color(0xFF5D5652);
+  static const textTertiary = Color(0xFF6B645F);
   static const textInverse = Color(0xFFFFFFFF);
 
-  static const border = Color(0xFFDAE2ED);
-  static const controlBorder = Color(0xFF79879A);
-  static const divider = Color(0xFFE5EAF1);
+  static const border = Color(0xFFDEDAD4);
+  static const controlBorder = Color(0xFF827A74);
+  static const divider = Color(0xFFE7E3DE);
 
-  static const accent = Color(0xFF1D5BD8);
-  static const accentDeep = Color(0xFF1747A6);
-  static const accentSoft = Color(0xFFE8F0FF);
+  static const action = Color(0xFFF25926);
+  static const onAction = Color(0xFF171717);
+  static const actionPressed = Color(0xFFDF5122);
+  static const actionDeep = Color(0xFFB63812);
+  static const actionSoft = Color(0xFFF8DCCF);
+
+  static const evidence = Color(0xFF171717);
+  static const onEvidence = Color(0xFFFFFFFF);
+  static const evidenceMuted = Color(0xFFC9C2BC);
+
+  // Compatibility aliases while presentation modules migrate to role names.
+  static const accent = action;
+  static const accentDeep = actionDeep;
+  static const accentSoft = actionSoft;
 
   static const success = Color(0xFF087A55);
   static const successSoft = Color(0xFFE6F6EF);
+  static const maintenance = success;
+  static const maintenanceSoft = successSoft;
+
+  static const parking = Color(0xFF625D59);
+  static const parkingSoft = Color(0xFFECE9E5);
+
   static const warning = Color(0xFF8A5700);
   static const warningSoft = Color(0xFFFFF2D1);
   static const danger = Color(0xFFB42318);
   static const dangerSoft = Color(0xFFFDECEA);
 
-  static const guide = Color(0xFF3F5F90);
-  static const guideSoft = Color(0xFFEAF0F8);
+  static const guide = Color(0xFF1D5BD8);
+  static const guideDeep = Color(0xFF1747A6);
+  static const guideSoft = Color(0xFFE8F0FF);
 }
 
 abstract final class AppSpacing {
@@ -67,17 +85,27 @@ abstract final class AppDuration {
   static const success = Duration(milliseconds: 560);
 }
 
+abstract final class AppMotion {
+  static AnimationStyle sheet(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    return AnimationStyle(
+      duration: reduceMotion ? Duration.zero : AppDuration.sheet,
+      reverseDuration: reduceMotion ? Duration.zero : AppDuration.card,
+    );
+  }
+}
+
 abstract final class AppShadows {
   static const card = [
-    BoxShadow(color: Color(0x0D24466F), blurRadius: 18, offset: Offset(0, 8)),
+    BoxShadow(color: Color(0x0D3B2E28), blurRadius: 18, offset: Offset(0, 8)),
   ];
 
   static const floating = [
-    BoxShadow(color: Color(0x18132D52), blurRadius: 32, offset: Offset(0, 14)),
+    BoxShadow(color: Color(0x143B2E28), blurRadius: 28, offset: Offset(0, 12)),
   ];
 
   static const focus = [
-    BoxShadow(color: Color(0x241D5BD8), blurRadius: 28, offset: Offset(0, 14)),
+    BoxShadow(color: Color(0x24F25926), blurRadius: 28, offset: Offset(0, 14)),
   ];
 }
 
@@ -100,10 +128,10 @@ abstract final class AppTextStyles {
 abstract final class AppTheme {
   static ThemeData light() {
     const colorScheme = ColorScheme.light(
-      primary: AppColors.accent,
-      onPrimary: AppColors.textInverse,
-      primaryContainer: AppColors.accentSoft,
-      onPrimaryContainer: AppColors.accentDeep,
+      primary: AppColors.action,
+      onPrimary: AppColors.onAction,
+      primaryContainer: AppColors.actionSoft,
+      onPrimaryContainer: AppColors.textPrimary,
       secondary: AppColors.guide,
       onSecondary: AppColors.textInverse,
       secondaryContainer: AppColors.guideSoft,
@@ -212,6 +240,7 @@ abstract final class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: ButtonStyle(
+          animationDuration: AppDuration.tap,
           minimumSize: const WidgetStatePropertyAll(Size(44, 56)),
           padding: const WidgetStatePropertyAll(
             EdgeInsets.symmetric(horizontal: AppSpacing.generous),
@@ -227,33 +256,44 @@ abstract final class AppTheme {
               return AppColors.border;
             }
             if (states.contains(WidgetState.pressed)) {
-              return AppColors.accentDeep;
+              return AppColors.actionPressed;
             }
-            return AppColors.accent;
+            return AppColors.action;
           }),
           foregroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.disabled)) {
               return AppColors.textTertiary;
             }
-            return AppColors.textInverse;
+            return AppColors.onAction;
           }),
           elevation: const WidgetStatePropertyAll(0),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          minimumSize: const Size(44, 54),
-          foregroundColor: AppColors.textPrimary,
-          side: const BorderSide(color: AppColors.controlBorder),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.button),
+        style: ButtonStyle(
+          animationDuration: AppDuration.tap,
+          minimumSize: const WidgetStatePropertyAll(Size(44, 54)),
+          foregroundColor: const WidgetStatePropertyAll(AppColors.textPrimary),
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return AppColors.surfacePressed;
+            }
+            return AppColors.surface;
+          }),
+          side: const WidgetStatePropertyAll(
+            BorderSide(color: AppColors.controlBorder),
           ),
-          textStyle: textTheme.labelLarge,
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.button),
+            ),
+          ),
+          textStyle: WidgetStatePropertyAll(textTheme.labelLarge),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.accentDeep,
+          foregroundColor: AppColors.actionDeep,
           minimumSize: const Size(44, 44),
           textStyle: textTheme.labelMedium,
           shape: RoundedRectangleBorder(
@@ -271,18 +311,18 @@ abstract final class AppTheme {
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        height: 68,
+        height: 72,
         elevation: 0,
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.surface,
         surfaceTintColor: Colors.transparent,
-        indicatorColor: AppColors.accentSoft,
+        indicatorColor: Colors.transparent,
         indicatorShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
         ),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           return IconThemeData(
             color: states.contains(WidgetState.selected)
-                ? AppColors.accentDeep
+                ? AppColors.action
                 : AppColors.textTertiary,
             size: 23,
           );
@@ -290,7 +330,7 @@ abstract final class AppTheme {
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           return textTheme.bodySmall?.copyWith(
             color: states.contains(WidgetState.selected)
-                ? AppColors.textPrimary
+                ? AppColors.actionDeep
                 : AppColors.textTertiary,
             fontWeight: states.contains(WidgetState.selected)
                 ? FontWeight.w700
@@ -321,7 +361,7 @@ abstract final class AppTheme {
         ),
         focusedBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(AppRadius.input)),
-          borderSide: BorderSide(color: AppColors.accent, width: 1.5),
+          borderSide: BorderSide(color: AppColors.action, width: 1.5),
         ),
         errorBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(AppRadius.input)),
@@ -334,7 +374,7 @@ abstract final class AppTheme {
       ),
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return AppColors.accent;
+          if (states.contains(WidgetState.selected)) return AppColors.action;
           return Colors.transparent;
         }),
         side: const BorderSide(color: AppColors.textTertiary, width: 1.5),
@@ -342,7 +382,7 @@ abstract final class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.surfaceSecondary,
-        selectedColor: AppColors.accentSoft,
+        selectedColor: AppColors.actionSoft,
         side: BorderSide.none,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.small),
@@ -378,7 +418,7 @@ abstract final class AppTheme {
         ),
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: AppColors.accent,
+        color: AppColors.action,
         linearTrackColor: AppColors.surfaceSecondary,
         circularTrackColor: AppColors.surfaceSecondary,
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:satu_dulu/app/theme/app_theme.dart';
@@ -20,9 +21,12 @@ class ProjectsScreen extends ConsumerWidget {
     return ScreenFrame(
       eyebrow: 'Atur perhatianmu',
       title: 'Proyek',
-      subtitle:
-          'Satu fokus memimpin. Satu boleh tetap dijaga. Ide lain aman disimpan dulu.',
+      subtitle: 'Satu fokus aktif, ide lain tetap aman.',
       trailing: IconButton.filled(
+        style: IconButton.styleFrom(
+          backgroundColor: AppColors.surfaceSecondary,
+          foregroundColor: AppColors.textPrimary,
+        ),
         onPressed: () => context.push('/projects/new'),
         tooltip: 'Tambah proyek',
         icon: const Icon(Icons.add_rounded),
@@ -63,7 +67,7 @@ class _ProjectsContent extends ConsumerWidget {
         if (focus == null)
           NoFocusBanner(onChoose: () => _chooseFocus(context, ref))
         else
-          FocusProjectCard(project: focus),
+          AppEntrance(child: FocusProjectCard(project: focus)),
         const SizedBox(height: AppSpacing.major),
         const AppSectionHeader(
           title: 'Tetap dijaga',
@@ -112,6 +116,7 @@ class _ProjectsContent extends ConsumerWidget {
           ],
         const SizedBox(height: AppSpacing.section),
         TextButton.icon(
+          style: TextButton.styleFrom(foregroundColor: AppColors.guide),
           onPressed: () => _showStatusGuide(context),
           icon: const Icon(Icons.help_outline_rounded),
           label: const Text('Apa bedanya tiga tempat ini?'),
@@ -130,6 +135,8 @@ class _ProjectsContent extends ConsumerWidget {
         .toList(growable: false);
     final selected = await showModalBottomSheet<Project>(
       context: context,
+      sheetAnimationStyle: AppMotion.sheet(context),
+      useRootNavigator: true,
       isScrollControlled: true,
       useSafeArea: true,
       builder: (context) => SafeArea(
@@ -210,7 +217,12 @@ class _ProjectsContent extends ConsumerWidget {
           );
       ref.invalidate(projectsProvider);
       ref.invalidate(todayProvider);
-      if (context.mounted) context.go('/today');
+      if (context.mounted) {
+        if (!MediaQuery.disableAnimationsOf(context)) {
+          await HapticFeedback.mediumImpact();
+        }
+        if (context.mounted) context.go('/today');
+      }
     } on AppException catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(
@@ -223,6 +235,8 @@ class _ProjectsContent extends ConsumerWidget {
   void _showStatusGuide(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
+      sheetAnimationStyle: AppMotion.sheet(context),
+      useRootNavigator: true,
       useSafeArea: true,
       builder: (context) => const SafeArea(
         top: false,

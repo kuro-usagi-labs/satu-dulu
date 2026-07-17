@@ -13,57 +13,44 @@ class FocusProjectCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reviewDate = project.reviewDate?.toLocal();
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.surfaceWarm,
-        borderRadius: BorderRadius.circular(AppRadius.hero),
-        boxShadow: AppShadows.focus,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.section),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Row(
-              children: [
-                AppEyebrow('Fokus utama', color: AppColors.accentDeep),
-                Spacer(),
-                Icon(
-                  Icons.adjust_rounded,
-                  color: AppColors.accentDeep,
-                  size: 20,
-                ),
-              ],
+    return AppFocusCard(
+      padding: const EdgeInsets.all(AppSpacing.section),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: AppStatusPill(
+              label: 'Fokus utama',
+              tone: AppStatusTone.focus,
+              icon: Icons.adjust_rounded,
             ),
-            const SizedBox(height: AppSpacing.standard),
+          ),
+          const SizedBox(height: AppSpacing.standard),
+          Text(project.name, style: Theme.of(context).textTheme.headlineMedium),
+          const SizedBox(height: AppSpacing.compact),
+          Text(
+            project.shortGoal,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
+          ),
+          if (reviewDate != null) ...[
+            const SizedBox(height: AppSpacing.section),
             Text(
-              project.name,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: AppSpacing.compact),
-            Text(
-              project.shortGoal,
+              'Review ${DateFormat('d MMM y', 'id_ID').format(reviewDate)}',
               style: Theme.of(
                 context,
-              ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
-            ),
-            if (reviewDate != null) ...[
-              const SizedBox(height: AppSpacing.section),
-              Text(
-                'Review ${DateFormat('d MMM y', 'id_ID').format(reviewDate)}',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.textTertiary),
-              ),
-            ],
-            const SizedBox(height: AppSpacing.standard),
-            FilledButton.icon(
-              onPressed: () => context.push('/projects/${project.id}'),
-              icon: const Icon(Icons.arrow_forward_rounded),
-              label: const Text('Buka arah proyek'),
+              ).textTheme.bodySmall?.copyWith(color: AppColors.textTertiary),
             ),
           ],
-        ),
+          const SizedBox(height: AppSpacing.standard),
+          AppActionButton(
+            onPressed: () => context.push('/projects/${project.id}'),
+            icon: Icons.arrow_forward_rounded,
+            label: 'Buka arah proyek',
+          ),
+        ],
       ),
     );
   }
@@ -90,9 +77,7 @@ class ProjectOverviewRow extends StatelessWidget {
         child: Ink(
           padding: const EdgeInsets.all(AppSpacing.standard),
           decoration: BoxDecoration(
-            color: quiet
-                ? AppColors.surface.withValues(alpha: 0.56)
-                : AppColors.surface,
+            color: quiet ? AppColors.parkingSoft : AppColors.maintenanceSoft,
             borderRadius: BorderRadius.circular(AppRadius.card),
           ),
           child: Row(
@@ -101,9 +86,7 @@ class ProjectOverviewRow extends StatelessWidget {
               AppIconBadge(
                 icon: quiet ? Icons.inventory_2_outlined : Icons.spa_outlined,
                 foreground: quiet ? AppColors.textSecondary : AppColors.success,
-                background: quiet
-                    ? AppColors.surfaceSecondary
-                    : AppColors.successSoft,
+                background: quiet ? AppColors.surface : AppColors.surface,
                 size: 44,
               ),
               const SizedBox(width: AppSpacing.innerCompact),
@@ -123,6 +106,13 @@ class ProjectOverviewRow extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.textSecondary,
                       ),
+                    ),
+                    const SizedBox(height: AppSpacing.compact),
+                    AppStatusPill(
+                      label: quiet ? 'Disimpan dulu' : 'Tetap dijaga',
+                      tone: quiet
+                          ? AppStatusTone.parking
+                          : AppStatusTone.maintenance,
                     ),
                   ],
                 ),
@@ -149,7 +139,7 @@ class NoFocusBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.accentSoft,
+        color: AppColors.actionSoft,
         borderRadius: BorderRadius.circular(AppRadius.hero),
       ),
       child: Padding(
@@ -171,10 +161,7 @@ class NoFocusBanner extends StatelessWidget {
               ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: AppSpacing.section),
-            FilledButton(
-              onPressed: onChoose,
-              child: const Text('Pilih fokus utama'),
-            ),
+            AppActionButton(onPressed: onChoose, label: 'Pilih fokus utama'),
           ],
         ),
       ),

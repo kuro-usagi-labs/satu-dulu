@@ -137,6 +137,10 @@ class _GuideDetailState extends ConsumerState<_GuideDetail> {
           error: (error, stackTrace) => const GuideMissingFileNotice(),
           data: (available) => available
               ? FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.guide,
+                    foregroundColor: AppColors.textInverse,
+                  ),
                   onPressed: () => context.push('/guides/${document.id}/read'),
                   icon: const Icon(Icons.menu_book_rounded),
                   label: Text(

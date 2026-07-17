@@ -43,9 +43,13 @@ class ResultsDecisionSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.standard),
         OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.actionDeep,
+            side: const BorderSide(color: AppColors.actionDeep),
+          ),
           onPressed: () => context.push('/results/review?project=$projectId'),
           icon: const Icon(Icons.rate_review_outlined),
-          label: const Text('Tinjau minggu ini'),
+          label: const Text('Buka review mingguan'),
         ),
       ],
     );
@@ -64,36 +68,45 @@ class _ReviewCard extends StatelessWidget {
       ReviewDecision.pivot => 'Ubah pendekatan',
       ReviewDecision.park => 'Simpan dulu',
     };
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.guideSoft,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.section),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const AppEyebrow('Keputusan terakhir', color: AppColors.guide),
-            const SizedBox(height: AppSpacing.compact),
-            Text(decision, style: Theme.of(context).textTheme.headlineMedium),
-            if (review.importantResult case final result?) ...[
-              const SizedBox(height: AppSpacing.standard),
-              Text(result),
-            ],
-            if (review.nextWeekFocus case final focus?) ...[
-              const SizedBox(height: AppSpacing.standard),
-              Text(
-                'Satu fokus berikutnya',
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.micro),
-              Text(focus, style: Theme.of(context).textTheme.titleMedium),
-            ],
+    return AppEvidenceCard(
+      padding: const EdgeInsets.all(AppSpacing.section),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const AppEyebrow('Keputusan terakhir', color: AppColors.action),
+          const SizedBox(height: AppSpacing.compact),
+          Text(
+            decision,
+            style: Theme.of(
+              context,
+            ).textTheme.headlineMedium?.copyWith(color: AppColors.onEvidence),
+          ),
+          if (review.importantResult case final result?) ...[
+            const SizedBox(height: AppSpacing.standard),
+            Text(
+              result,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.evidenceMuted),
+            ),
           ],
-        ),
+          if (review.nextWeekFocus case final focus?) ...[
+            const SizedBox(height: AppSpacing.standard),
+            Text(
+              'Satu fokus berikutnya',
+              style: Theme.of(
+                context,
+              ).textTheme.labelMedium?.copyWith(color: AppColors.evidenceMuted),
+            ),
+            const SizedBox(height: AppSpacing.micro),
+            Text(
+              focus,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: AppColors.onEvidence),
+            ),
+          ],
+        ],
       ),
     );
   }

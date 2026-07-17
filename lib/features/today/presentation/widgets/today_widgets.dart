@@ -28,152 +28,118 @@ class TodayFocusHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = (sprintDay / sprintLength).clamp(0.0, 1.0);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.hero),
-        boxShadow: AppShadows.focus,
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppRadius.hero),
-        child: Stack(
-          children: [
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              child: Container(width: 6, color: AppColors.accent),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.section + 2,
-                AppSpacing.section,
-                AppSpacing.section,
-                AppSpacing.section,
+    return AppFocusCard(
+      padding: const EdgeInsets.all(AppSpacing.section),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const AppEyebrow('Fokus utama'),
+                    const SizedBox(height: AppSpacing.micro),
+                    Text(
+                      projectName,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ],
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
+              const SizedBox(width: AppSpacing.innerCompact),
+              AppStatusPill(
+                label: 'Hari $sprintDay/$sprintLength',
+                tone: AppStatusTone.neutral,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.standard),
+          Semantics(
+            container: true,
+            label:
+                'Progres eksperimen 30 hari, hari $sprintDay dari $sprintLength',
+            child: ExcludeSemantics(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(999),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 5,
+                  backgroundColor: AppColors.surface.withValues(alpha: 0.68),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.section),
+          Text(
+            isShipped ? 'Yang kamu kirim hari ini' : 'Hasil wajib hari ini',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: AppColors.actionDeep,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.compact),
+          Text(
+            requiredOutcome,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          if (!isShipped && nextAction?.isNotEmpty == true) ...[
+            const SizedBox(height: AppSpacing.section),
+            const Divider(color: AppColors.actionPressed),
+            const SizedBox(height: AppSpacing.innerCompact),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const AppIconBadge(
+                  icon: Icons.arrow_forward_rounded,
+                  foreground: AppColors.onAction,
+                  background: AppColors.action,
+                  size: 44,
+                ),
+                const SizedBox(width: AppSpacing.innerCompact),
+                Expanded(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const AppEyebrow('Fokus utama'),
-                            const SizedBox(height: AppSpacing.micro),
-                            Text(
-                              projectName,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                          ],
-                        ),
+                      Text(
+                        'Langkah berikutnya',
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(color: AppColors.actionDeep),
                       ),
-                      const SizedBox(width: AppSpacing.innerCompact),
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceSecondary,
-                          borderRadius: BorderRadius.circular(AppRadius.small),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.innerCompact,
-                            vertical: AppSpacing.compact,
-                          ),
-                          child: Text(
-                            'Hari $sprintDay/$sprintLength',
-                            style: AppTextStyles.number.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ),
+                      const SizedBox(height: AppSpacing.micro),
+                      Text(
+                        nextAction!,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ],
                   ),
-                  const SizedBox(height: AppSpacing.standard),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(999),
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      minHeight: 5,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.section),
-                  Text(
-                    isShipped
-                        ? 'Yang kamu kirim hari ini'
-                        : 'Satu hasil hari ini',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.compact),
-                  Text(
-                    requiredOutcome,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  if (!isShipped && nextAction?.isNotEmpty == true) ...[
-                    const SizedBox(height: AppSpacing.section),
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: AppColors.accentSoft,
-                        borderRadius: BorderRadius.circular(AppRadius.input),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppSpacing.innerCompact),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.arrow_downward_rounded,
-                              color: AppColors.accentDeep,
-                              size: 20,
-                            ),
-                            const SizedBox(width: AppSpacing.compact),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Mulai dari sini',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelMedium
-                                        ?.copyWith(color: AppColors.accentDeep),
-                                  ),
-                                  Text(
-                                    nextAction!,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: AppSpacing.section),
-                  if (isShipped)
-                    OutlinedButton.icon(
-                      onPressed: null,
-                      icon: const Icon(Icons.check_circle_rounded),
-                      label: const Text('Sudah di-Ship'),
-                    )
-                  else
-                    FilledButton.icon(
-                      onPressed: isBusy ? null : onShip,
-                      icon: const Icon(Icons.arrow_outward_rounded),
-                      label: const Text('Ship Hari Ini'),
-                    ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
-        ),
+          const SizedBox(height: AppSpacing.section),
+          if (isShipped)
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: AppStatusPill(
+                label: 'Sudah di-Ship',
+                tone: AppStatusTone.success,
+                icon: Icons.check_circle_rounded,
+              ),
+            )
+          else
+            AppActionButton(
+              onPressed: isBusy ? null : onShip,
+              icon: Icons.arrow_outward_rounded,
+              label: 'Ship Hari Ini',
+            ),
+        ],
       ),
     );
   }
@@ -206,12 +172,11 @@ class TodayActionTile extends StatelessWidget {
             ? AppColors.surfaceSecondary
             : isNext
             ? AppColors.surface
-            : AppColors.surface.withValues(alpha: 0.62),
+            : AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.card),
         border: Border.all(
-          color: isNext && !completed ? AppColors.accent : AppColors.border,
+          color: isNext && !completed ? AppColors.action : AppColors.divider,
         ),
-        boxShadow: isNext && !completed ? AppShadows.card : null,
       ),
       child: Material(
         color: Colors.transparent,
@@ -235,7 +200,7 @@ class TodayActionTile extends StatelessWidget {
               ? Text(
                   'Langkah berikutnya',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.accentDeep,
+                    color: AppColors.actionDeep,
                     fontWeight: FontWeight.w600,
                   ),
                 )
@@ -259,7 +224,7 @@ class LowEnergyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.warningSoft,
+        color: AppColors.guideSoft,
         borderRadius: BorderRadius.circular(AppRadius.card),
       ),
       child: Padding(
@@ -272,7 +237,7 @@ class LowEnergyCard extends StatelessWidget {
               children: [
                 const AppIconBadge(
                   icon: Icons.battery_2_bar_rounded,
-                  foreground: AppColors.warning,
+                  foreground: AppColors.guide,
                   background: AppColors.surface,
                   size: 42,
                 ),
@@ -334,7 +299,7 @@ class RecoveryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: emphasized ? AppColors.accentSoft : Colors.transparent,
+        color: emphasized ? AppColors.guideSoft : Colors.transparent,
         borderRadius: BorderRadius.circular(AppRadius.input),
       ),
       child: Padding(
@@ -345,9 +310,7 @@ class RecoveryItem extends StatelessWidget {
             Text(
               label,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: emphasized
-                    ? AppColors.accentDeep
-                    : AppColors.textSecondary,
+                color: emphasized ? AppColors.guide : AppColors.textSecondary,
               ),
             ),
             const SizedBox(height: AppSpacing.micro),

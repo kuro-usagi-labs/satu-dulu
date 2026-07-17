@@ -106,7 +106,7 @@ class _CreateDailyPlanScreenState extends ConsumerState<CreateDailyPlanScreen> {
                       '${index + 1}',
                       style: AppTextStyles.number.copyWith(
                         color: index == 0
-                            ? AppColors.textInverse
+                            ? AppColors.onAction
                             : AppColors.textSecondary,
                       ),
                     ),
@@ -193,7 +193,7 @@ class _CreateDailyPlanScreenState extends ConsumerState<CreateDailyPlanScreen> {
                   dimension: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: AppColors.textInverse,
+                    color: AppColors.onAction,
                   ),
                 )
               : const Icon(Icons.arrow_forward_rounded),

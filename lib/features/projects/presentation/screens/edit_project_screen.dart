@@ -87,6 +87,7 @@ class _EditProjectFormState extends ConsumerState<_EditProjectForm> {
 
   @override
   Widget build(BuildContext context) {
+    final statusPalette = _statusPalette(_status);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Form(
@@ -184,12 +185,8 @@ class _EditProjectFormState extends ConsumerState<_EditProjectForm> {
               icon: _statusIcon(_status),
               title: _statusLabel(_status),
               description: _statusDescription(_status),
-              background: _status == ProjectStatus.focus
-                  ? AppColors.accentSoft
-                  : AppColors.surfaceSecondary,
-              foreground: _status == ProjectStatus.focus
-                  ? AppColors.accentDeep
-                  : AppColors.textPrimary,
+              background: statusPalette.soft,
+              foreground: statusPalette.strong,
             ),
           ],
         ),
@@ -202,7 +199,7 @@ class _EditProjectFormState extends ConsumerState<_EditProjectForm> {
                   dimension: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: AppColors.textInverse,
+                    color: AppColors.onAction,
                   ),
                 )
               : const Icon(Icons.check_rounded),
@@ -309,6 +306,26 @@ String _statusDescription(ProjectStatus status) => switch (status) {
     'Aman untuk nanti dan tidak memecah fokus sekarang.',
   ProjectStatus.archived => 'Tidak tampil di daftar utama.',
 };
+
+({Color soft, Color strong}) _statusPalette(ProjectStatus status) =>
+    switch (status) {
+      ProjectStatus.focus => (
+        soft: AppColors.actionSoft,
+        strong: AppColors.actionDeep,
+      ),
+      ProjectStatus.maintenance => (
+        soft: AppColors.maintenanceSoft,
+        strong: AppColors.maintenance,
+      ),
+      ProjectStatus.parkingLot => (
+        soft: AppColors.parkingSoft,
+        strong: AppColors.parking,
+      ),
+      ProjectStatus.archived => (
+        soft: AppColors.surfaceSecondary,
+        strong: AppColors.textSecondary,
+      ),
+    };
 
 class _EditLoadError extends StatelessWidget {
   const _EditLoadError({required this.onRetry});

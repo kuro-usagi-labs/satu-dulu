@@ -103,11 +103,11 @@ class ResultsScreen extends ConsumerWidget {
             },
           ),
           const SizedBox(height: AppSpacing.standard),
-          FilledButton.icon(
+          AppActionButton(
             onPressed: () =>
                 context.push('/results/metric?project=${selected.id}'),
-            icon: const Icon(Icons.add_rounded),
-            label: const Text('Catat bukti'),
+            icon: Icons.add_rounded,
+            label: 'Catat bukti',
           ),
           const SizedBox(height: AppSpacing.major),
           summary.when(

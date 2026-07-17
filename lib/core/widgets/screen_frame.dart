@@ -30,24 +30,13 @@ class ScreenFrame extends StatelessWidget {
               AppSpacing.generous,
               AppSpacing.section,
               AppSpacing.generous,
-              116,
+              AppSpacing.screen,
             ),
             sliver: SliverList.list(
               children: [
                 if (eyebrow case final eyebrow?) ...[
                   AppEyebrow(eyebrow),
                   const SizedBox(height: AppSpacing.compact),
-                ] else ...[
-                  Container(
-                    width: 32,
-                    height: 4,
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: AppColors.accent,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.innerCompact),
                 ],
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,

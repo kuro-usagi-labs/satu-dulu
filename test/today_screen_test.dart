@@ -30,12 +30,22 @@ void main() {
     expect(find.text('Terbitkan video pertama'), findsOneWidget);
     expect(find.byType(CheckboxListTile), findsNWidgets(3));
     expect(find.text('Hari 1/30'), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Semantics &&
+            widget.properties.label ==
+                'Progres eksperimen 30 hari, hari 1 dari 30',
+      ),
+      findsOneWidget,
+    );
 
     await tester.ensureVisible(find.text('Energi lagi rendah'));
     await tester.pump(const Duration(milliseconds: 200));
     await tester.tap(find.text('Energi lagi rendah'));
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
     expect(find.text('Tulis satu paragraf'), findsOneWidget);
+    expect(find.byType(CheckboxListTile), findsNothing);
 
     await tester.ensureVisible(find.text('Aku Lupa Arah'));
     await tester.pump(const Duration(milliseconds: 200));
@@ -43,6 +53,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('Menguji channel tutorial'), findsOneWidget);
     expect(find.text('Paling dekat dengan calon pengguna'), findsOneWidget);
+    expect(find.text('Tulis satu paragraf'), findsWidgets);
     expect(find.text('Kerjakan sekarang'), findsOneWidget);
   });
 
@@ -122,13 +133,15 @@ void main() {
   testWidgets('Ship hands off to evidence entry', (tester) async {
     _disableAnimations(tester);
     final fixture = _fixture();
+    final trackerRepository = FakeTrackerRepository(
+      projects: [fixture.project],
+      today: fixture,
+    );
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          trackerRepositoryProvider.overrideWithValue(
-            FakeTrackerRepository(projects: [fixture.project], today: fixture),
-          ),
+          trackerRepositoryProvider.overrideWithValue(trackerRepository),
           resultsRepositoryProvider.overrideWithValue(_FakeResultsRepository()),
         ],
         child: const SatuDuluApp(),
@@ -151,6 +164,13 @@ void main() {
     await tester.tap(saveShipButton);
     await tester.pumpAndSettle();
 
+    expect(trackerRepository.lastShipCall?.dailyPlanId, fixture.dailyPlanId);
+    expect(
+      trackerRepository.lastShipCall?.outputTitle,
+      fixture.requiredOutcome,
+    );
+    expect(trackerRepository.lastShipCall?.isPartial, isFalse);
+
     expect(find.text('Hari ini sudah punya bukti.'), findsOneWidget);
     expect(find.text('Catat angka hasil'), findsOneWidget);
 
@@ -169,6 +189,51 @@ void main() {
       find.byType(TextFormField).first,
     );
     expect(outputField.controller?.text, '1');
+  });
+
+  testWidgets('Low Energy preselects and saves a partial Ship', (tester) async {
+    _disableAnimations(tester);
+    final fixture = _fixture();
+    final trackerRepository = FakeTrackerRepository(
+      projects: [fixture.project],
+      today: fixture,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          trackerRepositoryProvider.overrideWithValue(trackerRepository),
+        ],
+        child: const SatuDuluApp(),
+      ),
+    );
+    await _pumpUntilFound(tester, find.text('Energi lagi rendah'));
+
+    await tester.ensureVisible(find.text('Energi lagi rendah'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Energi lagi rendah'));
+    await tester.pumpAndSettle();
+    final shipButton = find.widgetWithText(FilledButton, 'Ship Hari Ini');
+    await tester.ensureVisible(shipButton);
+    await tester.pumpAndSettle();
+    await tester.tap(shipButton);
+    await tester.pumpAndSettle();
+
+    final partialControl = tester.widget<CheckboxListTile>(
+      find.widgetWithText(CheckboxListTile, 'Ini versi kecil'),
+    );
+    expect(partialControl.value, isTrue);
+
+    final saveShipButton = find.widgetWithText(
+      FilledButton,
+      'Simpan Ship Hari Ini',
+    );
+    await tester.ensureVisible(saveShipButton);
+    await tester.tap(saveShipButton);
+    await tester.pumpAndSettle();
+
+    expect(trackerRepository.lastShipCall?.dailyPlanId, fixture.dailyPlanId);
+    expect(trackerRepository.lastShipCall?.isPartial, isTrue);
   });
 }
 

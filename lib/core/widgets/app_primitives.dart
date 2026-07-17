@@ -90,6 +90,260 @@ class AppIconBadge extends StatelessWidget {
   }
 }
 
+enum AppStatusTone {
+  focus,
+  maintenance,
+  parking,
+  guide,
+  success,
+  warning,
+  danger,
+  neutral,
+}
+
+class AppStatusPill extends StatelessWidget {
+  const AppStatusPill({
+    required this.label,
+    required this.tone,
+    this.icon,
+    super.key,
+  });
+
+  final String label;
+  final AppStatusTone tone;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = switch (tone) {
+      AppStatusTone.focus => const _StatusPalette(
+        background: AppColors.action,
+        foreground: AppColors.onAction,
+      ),
+      AppStatusTone.maintenance => const _StatusPalette(
+        background: AppColors.maintenanceSoft,
+        foreground: AppColors.maintenance,
+      ),
+      AppStatusTone.parking => const _StatusPalette(
+        background: AppColors.parkingSoft,
+        foreground: AppColors.parking,
+      ),
+      AppStatusTone.guide => const _StatusPalette(
+        background: AppColors.guideSoft,
+        foreground: AppColors.guide,
+      ),
+      AppStatusTone.success => const _StatusPalette(
+        background: AppColors.successSoft,
+        foreground: AppColors.success,
+      ),
+      AppStatusTone.warning => const _StatusPalette(
+        background: AppColors.warningSoft,
+        foreground: AppColors.warning,
+      ),
+      AppStatusTone.danger => const _StatusPalette(
+        background: AppColors.dangerSoft,
+        foreground: AppColors.danger,
+      ),
+      AppStatusTone.neutral => const _StatusPalette(
+        background: AppColors.surfaceSecondary,
+        foreground: AppColors.textSecondary,
+      ),
+    };
+
+    return Semantics(
+      label: label,
+      excludeSemantics: true,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: palette.background,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.innerCompact,
+            vertical: AppSpacing.micro,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon case final icon?) ...[
+                Icon(icon, size: 14, color: palette.foreground),
+                const SizedBox(width: AppSpacing.micro),
+              ],
+              Flexible(
+                fit: FlexFit.loose,
+                child: Text(
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: palette.foreground,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AppFocusCard extends StatelessWidget {
+  const AppFocusCard({
+    required this.child,
+    this.padding = const EdgeInsets.all(AppSpacing.generous),
+    super.key,
+  });
+
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColors.actionSoft,
+        borderRadius: BorderRadius.circular(AppRadius.hero),
+      ),
+      child: Padding(padding: padding, child: child),
+    );
+  }
+}
+
+class AppEvidenceCard extends StatelessWidget {
+  const AppEvidenceCard({
+    required this.child,
+    this.padding = const EdgeInsets.all(AppSpacing.generous),
+    super.key,
+  });
+
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColors.evidence,
+        borderRadius: BorderRadius.circular(AppRadius.hero),
+      ),
+      child: DefaultTextStyle.merge(
+        style: const TextStyle(color: AppColors.onEvidence),
+        child: IconTheme.merge(
+          data: const IconThemeData(color: AppColors.onEvidence),
+          child: Padding(padding: padding, child: child),
+        ),
+      ),
+    );
+  }
+}
+
+class AppActionButton extends StatelessWidget {
+  const AppActionButton({
+    required this.label,
+    required this.onPressed,
+    this.icon,
+    this.isLoading = false,
+    super.key,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  final bool isLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    final callback = isLoading ? null : onPressed;
+    final button = icon == null
+        ? FilledButton(onPressed: callback, child: Text(label))
+        : FilledButton.icon(
+            onPressed: callback,
+            icon: Icon(icon),
+            label: Text(label),
+          );
+
+    return AppPressScale(enabled: callback != null, child: button);
+  }
+}
+
+class AppPressScale extends StatefulWidget {
+  const AppPressScale({required this.child, this.enabled = true, super.key});
+
+  final Widget child;
+  final bool enabled;
+
+  @override
+  State<AppPressScale> createState() => _AppPressScaleState();
+}
+
+class _AppPressScaleState extends State<AppPressScale> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+
+    return Listener(
+      onPointerDown: widget.enabled ? (_) => _setPressed(true) : null,
+      onPointerUp: widget.enabled ? (_) => _setPressed(false) : null,
+      onPointerCancel: widget.enabled ? (_) => _setPressed(false) : null,
+      child: AnimatedScale(
+        scale: _pressed ? 0.985 : 1,
+        duration: reduceMotion ? Duration.zero : AppDuration.tap,
+        curve: Curves.easeOutCubic,
+        child: widget.child,
+      ),
+    );
+  }
+
+  void _setPressed(bool value) {
+    if (_pressed == value) return;
+    setState(() => _pressed = value);
+  }
+}
+
+class AppEntrance extends StatelessWidget {
+  const AppEntrance({
+    required this.child,
+    this.offset = 8,
+    this.duration = AppDuration.card,
+    super.key,
+  });
+
+  final Widget child;
+  final double offset;
+  final Duration duration;
+
+  @override
+  Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: reduceMotion ? Duration.zero : duration,
+      curve: Curves.easeOutCubic,
+      builder: (context, progress, child) => Opacity(
+        opacity: progress,
+        child: Transform.translate(
+          offset: Offset(0, offset * (1 - progress)),
+          child: child,
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _StatusPalette {
+  const _StatusPalette({required this.background, required this.foreground});
+
+  final Color background;
+  final Color foreground;
+}
+
 class AppStepRow extends StatelessWidget {
   const AppStepRow({
     required this.number,
@@ -130,7 +384,7 @@ class AppStepRow extends StatelessWidget {
                     '$number',
                     style: AppTextStyles.number.copyWith(
                       color: highlighted
-                          ? AppColors.textInverse
+                          ? AppColors.onAction
                           : AppColors.textSecondary,
                     ),
                   ),

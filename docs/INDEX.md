@@ -25,4 +25,5 @@
 | `21_RELEASE_CHECKLIST.md` | Pemeriksaan manual, keamanan, dan distribusi sebelum rilis |
 | `22_MVP_AUDIT.md` | Pemetaan implementasi/test dan gate yang memerlukan macOS atau iPhone |
 | `23_UI_UX_REDESIGN.md` | ExecPlan redesign terpandu, user flow, visual direction, dan validasi |
+| `24_WARM_EDITORIAL_REDESIGN.md` | Iterasi orange–ink: semantic roles, motion, implementasi, dan QA |
 | `REFERENCES.md` | Referensi teknis resmi |
