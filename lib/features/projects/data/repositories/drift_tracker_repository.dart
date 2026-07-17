@@ -67,14 +67,16 @@ class DriftTrackerRepository implements TrackerRepository {
       await _database.transaction(() async {
         if (input.status == ProjectStatus.focus ||
             input.status == ProjectStatus.maintenance) {
-          await (_database.update(
+          final displaced = await (_database.select(
             _database.projects,
-          )..where((table) => table.status.equals(input.status.name))).write(
-            ProjectsCompanion(
-              status: Value(ProjectStatus.parkingLot.name),
-              updatedAt: Value(now),
-            ),
-          );
+          )..where((table) => table.status.equals(input.status.name))).get();
+          await _parkProjects(displaced, now);
+          if (input.status == ProjectStatus.focus) {
+            await _cancelActiveSprints(
+              displaced.map((project) => project.id),
+              now,
+            );
+          }
         }
 
         await _database
@@ -118,7 +120,9 @@ class DriftTrackerRepository implements TrackerRepository {
                     input.successDefinition,
                   ),
                 ),
-                status: SprintStatus.active.name,
+                status: input.status == ProjectStatus.focus
+                    ? SprintStatus.active.name
+                    : SprintStatus.cancelled.name,
                 createdAt: now,
                 updatedAt: now,
               ),
@@ -169,6 +173,8 @@ class DriftTrackerRepository implements TrackerRepository {
       throw const ValidationException('Nama dan tujuan proyek wajib diisi.');
     }
     final now = DateTime.now().toUtc();
+    final activationDay = TrackerRepositorySupport.utcDay(DateTime.now());
+
     try {
       await _database.transaction(() async {
         final existing =
@@ -179,20 +185,36 @@ class DriftTrackerRepository implements TrackerRepository {
         if (existing == null) {
           throw const DatabaseException('Proyek tidak ditemukan.');
         }
+
+        final becomingFocus =
+            input.status == ProjectStatus.focus &&
+            existing.status != ProjectStatus.focus.name;
+        final leavingFocus =
+            existing.status == ProjectStatus.focus.name &&
+            input.status != ProjectStatus.focus;
+
         if (input.status == ProjectStatus.focus ||
             input.status == ProjectStatus.maintenance) {
-          await (_database.update(_database.projects)..where(
-                (table) =>
-                    table.status.equals(input.status.name) &
-                    table.id.equals(projectId).not(),
-              ))
-              .write(
-                ProjectsCompanion(
-                  status: Value(ProjectStatus.parkingLot.name),
-                  updatedAt: Value(now),
-                ),
-              );
+          final displaced =
+              await (_database.select(_database.projects)..where(
+                    (table) =>
+                        table.status.equals(input.status.name) &
+                        table.id.equals(projectId).not(),
+                  ))
+                  .get();
+          await _parkProjects(displaced, now);
+          if (input.status == ProjectStatus.focus) {
+            await _cancelActiveSprints(
+              displaced.map((project) => project.id),
+              now,
+            );
+          }
         }
+
+        if (leavingFocus) {
+          await _cancelActiveSprints([projectId], now);
+        }
+
         await (_database.update(
           _database.projects,
         )..where((table) => table.id.equals(projectId))).write(
@@ -207,10 +229,25 @@ class DriftTrackerRepository implements TrackerRepository {
             ),
             targetRevenueMinor: Value(input.targetRevenueMinor),
             status: Value(input.status.name),
+            startDate: becomingFocus
+                ? Value(activationDay)
+                : const Value.absent(),
+            reviewDate: becomingFocus
+                ? Value(activationDay.add(const Duration(days: 29)))
+                : const Value.absent(),
             archivedAt: const Value(null),
             updatedAt: Value(now),
           ),
         );
+
+        if (becomingFocus) {
+          await _startFreshSprint(
+            projectId: projectId,
+            startDate: activationDay,
+            now: now,
+            successCriteria: input.successDefinition,
+          );
+        }
       });
     } on AppException {
       rethrow;
@@ -424,6 +461,131 @@ class DriftTrackerRepository implements TrackerRepository {
         );
     if (affected != 1) {
       throw const DatabaseException('Proyek tidak ditemukan.');
+    }
+    await _cancelActiveSprints([projectId], now);
+  }
+
+  Future<void> _parkProjects(
+    Iterable<ProjectRow> projects,
+    DateTime now,
+  ) async {
+    for (final project in projects) {
+      await (_database.update(
+        _database.projects,
+      )..where((table) => table.id.equals(project.id))).write(
+        ProjectsCompanion(
+          status: Value(ProjectStatus.parkingLot.name),
+          updatedAt: Value(now),
+        ),
+      );
+    }
+  }
+
+  Future<void> _cancelActiveSprints(
+    Iterable<String> projectIds,
+    DateTime now,
+  ) async {
+    for (final projectId in projectIds) {
+      await (_database.update(_database.sprints)..where(
+            (table) =>
+                table.projectId.equals(projectId) &
+                table.status.equals(SprintStatus.active.name),
+          ))
+          .write(
+            SprintsCompanion(
+              status: Value(SprintStatus.cancelled.name),
+              updatedAt: Value(now),
+            ),
+          );
+    }
+  }
+
+  Future<void> _startFreshSprint({
+    required String projectId,
+    required DateTime startDate,
+    required DateTime now,
+    required String? successCriteria,
+  }) async {
+    final latestSprint =
+        await (_database.select(_database.sprints)
+              ..where((table) => table.projectId.equals(projectId))
+              ..orderBy([(table) => OrderingTerm.desc(table.updatedAt)])
+              ..limit(1))
+            .getSingleOrNull();
+
+    DailyPlanRow? templatePlan;
+    List<DailyActionRow> templateActions = const [];
+    if (latestSprint != null) {
+      templatePlan =
+          await (_database.select(_database.dailyPlans)
+                ..where((table) => table.sprintId.equals(latestSprint.id))
+                ..orderBy([(table) => OrderingTerm.desc(table.updatedAt)])
+                ..limit(1))
+              .getSingleOrNull();
+      if (templatePlan != null) {
+        templateActions =
+            await (_database.select(_database.dailyActions)
+                  ..where((table) => table.dailyPlanId.equals(templatePlan!.id))
+                  ..orderBy([(table) => OrderingTerm.asc(table.position)]))
+                .get();
+      }
+    }
+
+    await _cancelActiveSprints([projectId], now);
+
+    final sprintId = _uuid.v4();
+    await _database
+        .into(_database.sprints)
+        .insert(
+          SprintsCompanion.insert(
+            id: sprintId,
+            projectId: projectId,
+            name: 'Eksperimen 30 hari',
+            startDate: startDate,
+            endDate: startDate.add(const Duration(days: 29)),
+            targetOutputs: const Value(30),
+            successCriteria: Value(
+              TrackerRepositorySupport.nullableTrim(successCriteria),
+            ),
+            status: SprintStatus.active.name,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+
+    if (templatePlan == null) return;
+
+    final planId = _uuid.v4();
+    await _database
+        .into(_database.dailyPlans)
+        .insert(
+          DailyPlansCompanion.insert(
+            id: planId,
+            sprintId: sprintId,
+            planDate: startDate,
+            requiredOutcome: templatePlan.requiredOutcome,
+            lowEnergyAction: Value(templatePlan.lowEnergyAction),
+            linkedGuideDocumentId: Value(templatePlan.linkedGuideDocumentId),
+            linkedGuidePage: Value(templatePlan.linkedGuidePage),
+            note: Value(templatePlan.note),
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+
+    for (final action in templateActions) {
+      await _database
+          .into(_database.dailyActions)
+          .insert(
+            DailyActionsCompanion.insert(
+              id: _uuid.v4(),
+              dailyPlanId: planId,
+              position: action.position,
+              label: action.label,
+              createdAt: now,
+              updatedAt: now,
+            ),
+          );
     }
   }
 }

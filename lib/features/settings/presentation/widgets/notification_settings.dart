@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:satu_dulu/app/app_version.dart';
 import 'package:satu_dulu/app/theme/app_theme.dart';
 import 'package:satu_dulu/core/widgets/app_primitives.dart';
 import 'package:satu_dulu/features/settings/domain/notification_preferences.dart';
@@ -169,9 +170,9 @@ class _NotificationSettingsState extends ConsumerState<NotificationSettings> {
             const SizedBox(height: AppSpacing.screen),
             const AppSectionHeader(title: 'Tentang Satu Dulu'),
             const SizedBox(height: AppSpacing.standard),
-            const _InformationRow(
+            _InformationRow(
               icon: Icons.info_outline_rounded,
-              title: 'Versi 0.1.0',
+              title: 'Versi ${AppVersion.display}',
               description: 'com.kurogi.satudulu',
             ),
             if (_saveError case final error?) ...[
@@ -291,7 +292,10 @@ class _NotificationSettingsState extends ConsumerState<NotificationSettings> {
     setState(() {
       _value = switch (kind) {
         'morning' => _value.copyWith(morningEnabled: enabled),
-        'afterWork' => _value.copyWith(afterWorkEnabled: enabled),
+        'afterWork' => _value.copyWith(
+          afterWorkMinutes: _value.afterWorkMinutes,
+          afterWorkEnabled: enabled,
+        ),
         _ => _value.copyWith(eveningEnabled: enabled),
       };
       _saveError = null;

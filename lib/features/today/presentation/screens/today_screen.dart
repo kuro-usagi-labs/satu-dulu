@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,17 +23,34 @@ class TodayScreen extends ConsumerStatefulWidget {
   ConsumerState<TodayScreen> createState() => _TodayScreenState();
 }
 
-class _TodayScreenState extends ConsumerState<TodayScreen> {
-  late final DateTime _today;
+class _TodayScreenState extends ConsumerState<TodayScreen>
+    with WidgetsBindingObserver {
   final _actionsKey = GlobalKey();
+  late DateTime _today;
+  Timer? _midnightTimer;
   bool _lowEnergy = false;
   bool _mutating = false;
 
   @override
   void initState() {
     super.initState();
-    final now = DateTime.now();
-    _today = DateTime(now.year, now.month, now.day);
+    WidgetsBinding.instance.addObserver(this);
+    _today = _localDay(DateTime.now());
+    _scheduleMidnightRefresh();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _midnightTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshCurrentDay();
+    }
   }
 
   @override
@@ -316,6 +335,38 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       );
     }
   }
+
+  void _refreshCurrentDay() {
+    if (!mounted) return;
+    final nextDay = _localDay(DateTime.now());
+    if (_sameDay(nextDay, _today)) {
+      ref.invalidate(todayProvider(_today));
+      return;
+    }
+
+    setState(() {
+      _today = nextDay;
+      _lowEnergy = false;
+      _mutating = false;
+    });
+    _scheduleMidnightRefresh();
+  }
+
+  void _scheduleMidnightRefresh() {
+    _midnightTimer?.cancel();
+    final now = DateTime.now();
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    _midnightTimer = Timer(
+      tomorrow.difference(now) + const Duration(seconds: 1),
+      _refreshCurrentDay,
+    );
+  }
+
+  static DateTime _localDay(DateTime value) =>
+      DateTime(value.year, value.month, value.day);
+
+  static bool _sameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
 
   void _showError(String message) {
     if (!mounted) return;
