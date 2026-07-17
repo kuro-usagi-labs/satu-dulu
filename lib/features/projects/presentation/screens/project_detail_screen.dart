@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:satu_dulu/app/theme/app_theme.dart';
 import 'package:satu_dulu/core/errors/app_exception.dart';
+import 'package:satu_dulu/core/widgets/app_primitives.dart';
 import 'package:satu_dulu/features/projects/domain/entities/tracker_models.dart';
 import 'package:satu_dulu/features/projects/presentation/controllers/tracker_providers.dart';
+import 'package:satu_dulu/features/projects/presentation/widgets/project_detail_widgets.dart';
 
 class ProjectDetailScreen extends ConsumerWidget {
   const ProjectDetailScreen({required this.projectId, super.key});
@@ -22,15 +23,23 @@ class ProjectDetailScreen extends ConsumerWidget {
           tooltip: 'Kembali',
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
         ),
-        title: const Text('Detail proyek'),
+        title: const Text('Arah proyek'),
+        actions: [
+          IconButton(
+            onPressed: () => context.push('/projects/$projectId/edit'),
+            tooltip: 'Edit proyek',
+            icon: const Icon(Icons.edit_outlined),
+          ),
+          const SizedBox(width: AppSpacing.compact),
+        ],
       ),
       body: project.when(
-        loading: () =>
-            const Center(child: CircularProgressIndicator.adaptive()),
-        error: (error, stackTrace) =>
-            const Center(child: Text('Proyek belum dapat dimuat.')),
+        loading: () => const ProjectDetailLoading(),
+        error: (error, stackTrace) => ProjectDetailError(
+          onRetry: () => ref.invalidate(projectProvider(projectId)),
+        ),
         data: (value) => value == null
-            ? const Center(child: Text('Proyek tidak ditemukan.'))
+            ? const ProjectNotFound()
             : _ProjectContent(project: value),
       ),
     );
@@ -45,57 +54,74 @@ class _ProjectContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListView(
-      padding: const EdgeInsets.all(AppSpacing.generous),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.generous,
+        AppSpacing.standard,
+        AppSpacing.generous,
+        AppSpacing.screen,
+      ),
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _StatusChip(status: project.status),
-                  const SizedBox(height: AppSpacing.innerCompact),
-                  Text(
-                    project.name,
-                    style: Theme.of(context).textTheme.headlineLarge,
-                  ),
-                ],
-              ),
-            ),
-            IconButton.filledTonal(
-              onPressed: () => context.push('/projects/${project.id}/edit'),
-              tooltip: 'Edit proyek',
-              icon: const Icon(Icons.edit_outlined),
-            ),
-          ],
+        ProjectIdentityCard(project: project),
+        const SizedBox(height: AppSpacing.major),
+        const AppSectionHeader(
+          title: 'Arah yang kamu pilih',
+          description: 'Baca bagian ini lagi ketika perhatian mulai pecah.',
         ),
-        const SizedBox(height: AppSpacing.section),
-        _DetailCard(label: 'Tujuan', value: project.shortGoal),
+        const SizedBox(height: AppSpacing.standard),
+        ProjectDirectionItem(
+          number: '01',
+          label: 'Tujuan 30 hari',
+          value: project.shortGoal,
+          emphasized: true,
+        ),
         if (project.whyChosen?.isNotEmpty == true) ...[
-          const SizedBox(height: AppSpacing.innerCompact),
-          _DetailCard(label: 'Kenapa dipilih', value: project.whyChosen!),
+          const SizedBox(height: AppSpacing.standard),
+          ProjectDirectionItem(
+            number: '02',
+            label: 'Kenapa ini penting sekarang',
+            value: project.whyChosen!,
+          ),
         ],
         if (project.successDefinition?.isNotEmpty == true) ...[
-          const SizedBox(height: AppSpacing.innerCompact),
-          _DetailCard(
-            label: 'Definisi berhasil',
+          const SizedBox(height: AppSpacing.standard),
+          ProjectDirectionItem(
+            number: '03',
+            label: 'Bukti yang ingin dicari',
             value: project.successDefinition!,
           ),
         ],
-        if (project.reviewDate != null) ...[
-          const SizedBox(height: AppSpacing.innerCompact),
-          _DetailCard(
-            label: 'Review berikutnya',
-            value: DateFormat(
-              'd MMMM y',
-              'id',
-            ).format(project.reviewDate!.toLocal()),
-          ),
-        ],
-        const SizedBox(height: AppSpacing.section),
-        OutlinedButton.icon(
+        const SizedBox(height: AppSpacing.major),
+        const AppSectionHeader(
+          title: 'Lanjut dari sini',
+          description: 'Setiap ruang punya satu tugas yang berbeda.',
+        ),
+        const SizedBox(height: AppSpacing.innerCompact),
+        ProjectDestination(
+          icon: Icons.today_rounded,
+          title: 'Kerjakan di Hari Ini',
+          description: 'Lihat hasil dan langkah konkret berikutnya.',
+          emphasized: project.status == ProjectStatus.focus,
+          onTap: () => context.go('/today'),
+        ),
+        const SizedBox(height: AppSpacing.compact),
+        ProjectDestination(
+          icon: Icons.menu_book_rounded,
+          title: 'Buka Panduan',
+          description: 'Cari rujukan ketika kamu macet atau lupa arah.',
+          onTap: () => context.go('/guides'),
+        ),
+        const SizedBox(height: AppSpacing.compact),
+        ProjectDestination(
+          icon: Icons.insights_rounded,
+          title: 'Lihat Hasil',
+          description: 'Gunakan bukti untuk menentukan langkah berikutnya.',
+          onTap: () => context.go('/results'),
+        ),
+        const SizedBox(height: AppSpacing.major),
+        TextButton.icon(
           onPressed: () => _archive(context, ref),
+          style: TextButton.styleFrom(foregroundColor: AppColors.danger),
           icon: const Icon(Icons.archive_outlined),
           label: const Text('Arsipkan proyek'),
         ),
@@ -107,9 +133,10 @@ class _ProjectContent extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        icon: const Icon(Icons.archive_outlined),
         title: const Text('Arsipkan proyek?'),
         content: Text(
-          '“${project.name}” tidak lagi tampil di daftar utama. Data hasil tetap disimpan.',
+          '“${project.name}” tidak lagi muncul di daftar utama. Semua hasil dan data tetap disimpan.',
         ),
         actions: [
           TextButton(
@@ -136,63 +163,5 @@ class _ProjectContent extends ConsumerWidget {
         ).showSnackBar(SnackBar(content: Text(error.message)));
       }
     }
-  }
-}
-
-class _DetailCard extends StatelessWidget {
-  const _DetailCard({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.standard),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              label,
-              style: Theme.of(
-                context,
-              ).textTheme.labelMedium?.copyWith(color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: AppSpacing.compact),
-            Text(value, style: Theme.of(context).textTheme.bodyLarge),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.status});
-
-  final ProjectStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final label = switch (status) {
-      ProjectStatus.focus => 'Focus',
-      ProjectStatus.maintenance => 'Maintenance',
-      ProjectStatus.parkingLot => 'Parking Lot',
-      ProjectStatus.archived => 'Archived',
-    };
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.accentSoft,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.innerCompact,
-          vertical: AppSpacing.micro,
-        ),
-        child: Text(label, style: Theme.of(context).textTheme.labelMedium),
-      ),
-    );
   }
 }

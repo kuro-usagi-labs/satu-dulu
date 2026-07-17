@@ -23,6 +23,8 @@ Status diperbarui 17 Juli 2026 berdasarkan test otomatis dan inspeksi source. It
 - [x] Can record full or partial ship.
 - [x] Persists after restart.
 - [x] Duplicate ship is prevented or edited intentionally.
+- [x] Ship immediately appears as at least one output in Results.
+- [x] Numeric metric handoff remains optional.
 - [x] Success animation respects Reduce Motion.
 
 ## Lost Track

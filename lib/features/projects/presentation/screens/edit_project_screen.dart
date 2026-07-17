@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:satu_dulu/app/theme/app_theme.dart';
 import 'package:satu_dulu/core/errors/app_exception.dart';
+import 'package:satu_dulu/core/widgets/app_primitives.dart';
 import 'package:satu_dulu/features/projects/domain/entities/tracker_models.dart';
 import 'package:satu_dulu/features/projects/presentation/controllers/tracker_providers.dart';
 
@@ -21,13 +22,22 @@ class EditProjectScreen extends ConsumerWidget {
           tooltip: 'Kembali',
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
         ),
-        title: const Text('Edit proyek'),
+        title: const Text('Edit arah proyek'),
       ),
       body: project.when(
-        loading: () =>
-            const Center(child: CircularProgressIndicator.adaptive()),
-        error: (error, stackTrace) =>
-            const Center(child: Text('Proyek belum dapat dimuat.')),
+        loading: () => const Padding(
+          padding: EdgeInsets.all(AppSpacing.generous),
+          child: Column(
+            children: [
+              AppLoadingBlock(height: 128),
+              SizedBox(height: AppSpacing.standard),
+              AppLoadingBlock(height: 220),
+            ],
+          ),
+        ),
+        error: (error, stackTrace) => _EditLoadError(
+          onRetry: () => ref.invalidate(projectProvider(projectId)),
+        ),
         data: (value) => value == null
             ? const Center(child: Text('Proyek tidak ditemukan.'))
             : _EditProjectForm(project: value),
@@ -77,70 +87,127 @@ class _EditProjectFormState extends ConsumerState<_EditProjectForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: ListView(
-        padding: const EdgeInsets.all(AppSpacing.generous),
-        children: [
-          TextFormField(
-            controller: _nameController,
-            decoration: const InputDecoration(labelText: 'Nama proyek'),
-            validator: _required,
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.generous,
+            AppSpacing.standard,
+            AppSpacing.generous,
+            AppSpacing.screen,
           ),
-          const SizedBox(height: AppSpacing.innerCompact),
-          TextFormField(
-            controller: _goalController,
-            maxLines: 2,
-            decoration: const InputDecoration(labelText: 'Tujuan'),
-            validator: _required,
-          ),
-          const SizedBox(height: AppSpacing.innerCompact),
-          TextFormField(
-            controller: _whyController,
-            maxLines: 2,
-            decoration: const InputDecoration(labelText: 'Kenapa dipilih?'),
-          ),
-          const SizedBox(height: AppSpacing.innerCompact),
-          TextFormField(
-            controller: _successController,
-            maxLines: 2,
-            decoration: const InputDecoration(labelText: 'Definisi berhasil'),
-          ),
-          const SizedBox(height: AppSpacing.section),
-          Text('Status', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: AppSpacing.innerCompact),
-          SegmentedButton<ProjectStatus>(
-            showSelectedIcon: false,
-            segments: const [
-              ButtonSegment(value: ProjectStatus.focus, label: Text('Focus')),
-              ButtonSegment(
-                value: ProjectStatus.maintenance,
-                label: Text('Maintenance'),
+          children: [
+            const AppEyebrow('Perjelas, jangan perluas'),
+            const SizedBox(height: AppSpacing.compact),
+            Text(
+              'Ubah arah tanpa kehilangan buktinya.',
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
+            const SizedBox(height: AppSpacing.compact),
+            Text(
+              'Riwayat Ship, hasil, dan panduan tetap terhubung ke proyek ini.',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: AppSpacing.section),
+            TextFormField(
+              controller: _nameController,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(labelText: 'Nama proyek'),
+              validator: _required,
+            ),
+            const SizedBox(height: AppSpacing.innerCompact),
+            TextFormField(
+              controller: _goalController,
+              textCapitalization: TextCapitalization.sentences,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                labelText: 'Tujuan 30 hari',
+                alignLabelWithHint: true,
               ),
-              ButtonSegment(
-                value: ProjectStatus.parkingLot,
-                label: Text('Parking Lot'),
+              validator: _required,
+            ),
+            const SizedBox(height: AppSpacing.innerCompact),
+            TextFormField(
+              controller: _whyController,
+              textCapitalization: TextCapitalization.sentences,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                labelText: 'Kenapa ini penting sekarang?',
+                alignLabelWithHint: true,
               ),
-            ],
-            selected: {_status},
-            onSelectionChanged: (selection) {
-              setState(() => _status = selection.single);
-            },
-          ),
-          const SizedBox(height: AppSpacing.section),
-          FilledButton(
-            onPressed: _saving ? null : _save,
-            child: _saving
-                ? const SizedBox.square(
-                    dimension: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Text('Simpan perubahan'),
-          ),
-        ],
+            ),
+            const SizedBox(height: AppSpacing.innerCompact),
+            TextFormField(
+              controller: _successController,
+              textCapitalization: TextCapitalization.sentences,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                labelText: 'Bukti yang ingin dicari',
+                alignLabelWithHint: true,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.major),
+            const AppSectionHeader(
+              title: 'Tempat proyek',
+              description:
+                  'Status mengatur seberapa besar perhatian yang ia ambil.',
+            ),
+            const SizedBox(height: AppSpacing.innerCompact),
+            DropdownButtonFormField<ProjectStatus>(
+              initialValue: _status,
+              decoration: const InputDecoration(labelText: 'Peran proyek'),
+              items: const [
+                DropdownMenuItem(
+                  value: ProjectStatus.focus,
+                  child: Text('Fokus utama'),
+                ),
+                DropdownMenuItem(
+                  value: ProjectStatus.maintenance,
+                  child: Text('Tetap dijaga'),
+                ),
+                DropdownMenuItem(
+                  value: ProjectStatus.parkingLot,
+                  child: Text('Disimpan dulu'),
+                ),
+              ],
+              onChanged: (value) {
+                if (value != null) setState(() => _status = value);
+              },
+            ),
+            const SizedBox(height: AppSpacing.innerCompact),
+            AppNotice(
+              icon: _statusIcon(_status),
+              title: _statusLabel(_status),
+              description: _statusDescription(_status),
+              background: _status == ProjectStatus.focus
+                  ? AppColors.accentSoft
+                  : AppColors.surfaceSecondary,
+              foreground: _status == ProjectStatus.focus
+                  ? AppColors.accentDeep
+                  : AppColors.textPrimary,
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: AppBottomActionBar(
+        child: FilledButton.icon(
+          onPressed: _saving ? null : _save,
+          icon: _saving
+              ? const SizedBox.square(
+                  dimension: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.textInverse,
+                  ),
+                )
+              : const Icon(Icons.check_rounded),
+          label: Text(_saving ? 'Menyimpan…' : 'Simpan perubahan'),
+        ),
       ),
     );
   }
@@ -150,6 +217,7 @@ class _EditProjectFormState extends ConsumerState<_EditProjectForm> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    FocusScope.of(context).unfocus();
     setState(() => _saving = true);
     try {
       final repository = ref.read(trackerRepositoryProvider);
@@ -191,13 +259,14 @@ class _EditProjectFormState extends ConsumerState<_EditProjectForm> {
   }
 
   Future<bool?> _confirmReplacement(Project existing, ProjectStatus status) {
-    final label = status == ProjectStatus.focus ? 'focus' : 'maintenance';
+    final label = _statusLabel(status).toLowerCase();
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('${label[0].toUpperCase()}${label.substring(1)} sudah ada'),
+        icon: Icon(_statusIcon(status)),
+        title: Text('${_statusLabel(status)} sudah ada'),
         content: Text(
-          '“${existing.name}” akan dipindahkan ke Parking Lot jika proyek ini menjadi $label.',
+          '“${existing.name}” akan dipindahkan ke Disimpan dulu jika proyek ini menjadi $label.',
         ),
         actions: [
           TextButton(
@@ -206,11 +275,66 @@ class _EditProjectFormState extends ConsumerState<_EditProjectForm> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Simpan ke Parking Lot'),
+            child: const Text('Simpan proyek ini dulu'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Ganti'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+String _statusLabel(ProjectStatus status) => switch (status) {
+  ProjectStatus.focus => 'Fokus utama',
+  ProjectStatus.maintenance => 'Tetap dijaga',
+  ProjectStatus.parkingLot => 'Disimpan dulu',
+  ProjectStatus.archived => 'Diarsipkan',
+};
+
+IconData _statusIcon(ProjectStatus status) => switch (status) {
+  ProjectStatus.focus => Icons.adjust_rounded,
+  ProjectStatus.maintenance => Icons.spa_outlined,
+  ProjectStatus.parkingLot => Icons.inventory_2_outlined,
+  ProjectStatus.archived => Icons.archive_outlined,
+};
+
+String _statusDescription(ProjectStatus status) => switch (status) {
+  ProjectStatus.focus => 'Memimpin 30 hari dan muncul di Hari Ini.',
+  ProjectStatus.maintenance =>
+    'Tetap hidup, tetapi tidak mengambil alih Hari Ini.',
+  ProjectStatus.parkingLot =>
+    'Aman untuk nanti dan tidak memecah fokus sekarang.',
+  ProjectStatus.archived => 'Tidak tampil di daftar utama.',
+};
+
+class _EditLoadError extends StatelessWidget {
+  const _EditLoadError({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.generous),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const AppNotice(
+            icon: Icons.sync_problem_rounded,
+            title: 'Proyek belum dapat dimuat',
+            description: 'Data lokal tetap aman. Coba muat lagi.',
+            background: AppColors.dangerSoft,
+            foreground: AppColors.danger,
+          ),
+          const SizedBox(height: AppSpacing.innerCompact),
+          OutlinedButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('Muat lagi'),
           ),
         ],
       ),

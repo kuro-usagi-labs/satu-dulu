@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:satu_dulu/app/router/app_shell.dart';
+import 'package:satu_dulu/app/theme/app_theme.dart';
 import 'package:satu_dulu/features/guides/presentation/screens/guides_screen.dart';
 import 'package:satu_dulu/features/guides/domain/entities/guide_models.dart';
 import 'package:satu_dulu/features/guides/presentation/screens/guide_detail_screen.dart';
@@ -26,6 +27,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/',
+    errorBuilder: (context, state) => _RouteProblemScreen(
+      title: 'Halaman tidak ditemukan',
+      description:
+          'Tautan ini tidak lengkap atau sudah tidak berlaku. Kembali ke Hari Ini untuk melanjutkan.',
+    ),
     routes: [
       GoRoute(
         path: '/',
@@ -64,21 +70,47 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/results/metric',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) =>
-            MetricEntryScreen(projectId: state.uri.queryParameters['project']!),
+        builder: (context, state) {
+          final projectId = state.uri.queryParameters['project']?.trim();
+          return projectId == null || projectId.isEmpty
+              ? const _RouteProblemScreen(
+                  title: 'Proyek belum dipilih',
+                  description:
+                      'Buka Hasil lalu pilih proyek yang ingin diberi bukti.',
+                )
+              : MetricEntryScreen(
+                  projectId: projectId,
+                  fromShip: state.uri.queryParameters['source'] == 'ship',
+                );
+        },
       ),
       GoRoute(
         path: '/results/review',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => WeeklyReviewScreen(
-          projectId: state.uri.queryParameters['project']!,
-        ),
+        builder: (context, state) {
+          final projectId = state.uri.queryParameters['project']?.trim();
+          return projectId == null || projectId.isEmpty
+              ? const _RouteProblemScreen(
+                  title: 'Proyek belum dipilih',
+                  description:
+                      'Buka Hasil lalu pilih proyek yang ingin direview.',
+                )
+              : WeeklyReviewScreen(projectId: projectId);
+        },
       ),
       GoRoute(
         path: '/guides/import',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) =>
-            GuideImportScreen(staged: state.extra! as StagedGuideFile),
+        builder: (context, state) {
+          final staged = state.extra;
+          return staged is StagedGuideFile
+              ? GuideImportScreen(staged: staged)
+              : const _RouteProblemScreen(
+                  title: 'Pilih PDF dari Panduan',
+                  description:
+                      'File belum dipilih. Kembali ke Panduan lalu ketuk Impor PDF panduan.',
+                );
+        },
       ),
       GoRoute(
         path: '/guides/:documentId/edit',
@@ -143,3 +175,37 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   ref.onDispose(router.dispose);
   return router;
 });
+
+class _RouteProblemScreen extends StatelessWidget {
+  const _RouteProblemScreen({required this.title, required this.description});
+
+  final String title;
+  final String description;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.section),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Icon(Icons.explore_off_outlined, size: 48),
+              const SizedBox(height: AppSpacing.section),
+              Text(title, style: Theme.of(context).textTheme.headlineMedium),
+              const SizedBox(height: AppSpacing.compact),
+              Text(description),
+              const SizedBox(height: AppSpacing.section),
+              FilledButton(
+                onPressed: () => context.go('/today'),
+                child: const Text('Kembali ke Hari Ini'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

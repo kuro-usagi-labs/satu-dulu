@@ -69,7 +69,11 @@ Fields:
 - externalUrl optional;
 - evidenceNote optional;
 - isPartial;
-- createdMetricEntryId optional.
+
+Saat Ship disimpan, aplikasi secara atomik membuat atau memperbarui
+`metric_entries` pada project dan tanggal yang sama dengan `outputs_count`
+minimal `1`. Pengguna tetap bebas melewati pengisian angka respons; output yang
+sudah dikirim tidak boleh hilang dari Hasil.
 
 ## Low energy mode
 

@@ -5,10 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:satu_dulu/app/theme/app_theme.dart';
 import 'package:satu_dulu/core/errors/app_exception.dart';
+import 'package:satu_dulu/core/widgets/app_primitives.dart';
 import 'package:satu_dulu/core/widgets/empty_state_card.dart';
 import 'package:satu_dulu/core/widgets/screen_frame.dart';
 import 'package:satu_dulu/features/guides/domain/entities/guide_models.dart';
 import 'package:satu_dulu/features/guides/presentation/controllers/guide_providers.dart';
+import 'package:satu_dulu/features/guides/presentation/widgets/guide_library_widgets.dart';
 import 'package:satu_dulu/l10n/app_localizations.dart';
 
 class GuidesScreen extends ConsumerStatefulWidget {
@@ -19,9 +21,17 @@ class GuidesScreen extends ConsumerStatefulWidget {
 }
 
 class _GuidesScreenState extends ConsumerState<GuidesScreen> {
-  final _searchController = TextEditingController();
+  late final TextEditingController _searchController;
   Timer? _debounce;
   bool _importing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(
+      text: ref.read(guideSearchQueryProvider),
+    );
+  }
 
   @override
   void dispose() {
@@ -34,36 +44,67 @@ class _GuidesScreenState extends ConsumerState<GuidesScreen> {
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final documents = ref.watch(guideDocumentsProvider);
+    final hasQuery = _searchController.text.trim().isNotEmpty;
 
     return ScreenFrame(
+      eyebrow: 'Pustaka pemulihan',
       title: strings.guidesTitle,
-      subtitle: strings.guidesSubtitle,
+      subtitle:
+          'Simpan petunjuk yang mengembalikanmu ke tindakan saat arah mulai kabur.',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          const AppNotice(
+            icon: Icons.explore_outlined,
+            title: 'Bukan sekadar tempat menyimpan PDF',
+            description:
+                'Hubungkan panduan ke proyek dan tulis kapan dokumen perlu dibuka. Semuanya tetap tersedia offline.',
+            background: AppColors.guideSoft,
+            foreground: AppColors.guide,
+          ),
+          const SizedBox(height: AppSpacing.standard),
+          FilledButton.icon(
+            onPressed: _importing ? null : _import,
+            icon: _importing
+                ? const SizedBox.square(
+                    dimension: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.textTertiary,
+                    ),
+                  )
+                : const Icon(Icons.file_open_outlined),
+            label: Text(_importing ? 'Menyiapkan PDF…' : 'Impor PDF panduan'),
+          ),
+          const SizedBox(height: AppSpacing.section),
           TextField(
             controller: _searchController,
             onChanged: _onSearchChanged,
+            textInputAction: TextInputAction.search,
             decoration: InputDecoration(
-              hintText: 'Cari judul, kategori, proyek…',
+              labelText: 'Cari panduan',
+              hintText: 'Judul, kategori, atau proyek',
               prefixIcon: const Icon(Icons.search_rounded),
-              suffixIcon: IconButton(
-                onPressed: _importing ? null : _import,
-                tooltip: 'Tambah PDF',
-                icon: _importing
-                    ? const SizedBox.square(
-                        dimension: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.add_rounded),
-              ),
+              suffixIcon: hasQuery
+                  ? IconButton(
+                      onPressed: _clearSearch,
+                      tooltip: 'Hapus pencarian',
+                      icon: const Icon(Icons.close_rounded),
+                    )
+                  : null,
             ),
           ),
           const SizedBox(height: AppSpacing.section),
           documents.when(
-            loading: () =>
-                const Center(child: CircularProgressIndicator.adaptive()),
-            error: (error, stackTrace) => const _GuideLoadError(),
+            loading: () => const GuideLoadingState(),
+            error: (error, stackTrace) => GuideMessagePanel(
+              icon: Icons.cloud_off_outlined,
+              title: 'Pustaka belum dapat dibuka',
+              description:
+                  'Dokumenmu tetap aman di perangkat. Coba muat kembali pustaka.',
+              actionLabel: 'Muat kembali',
+              onAction: () => ref.invalidate(guideDocumentsProvider),
+            ),
             data: (items) => _buildDocuments(context, items, strings),
           ),
         ],
@@ -76,24 +117,34 @@ class _GuidesScreenState extends ConsumerState<GuidesScreen> {
     List<GuideDocument> items,
     AppLocalizations strings,
   ) {
-    if (items.isEmpty && _searchController.text.trim().isEmpty) {
+    final query = _searchController.text.trim();
+    if (items.isEmpty && query.isEmpty) {
       return EmptyStateCard(
-        icon: Icons.picture_as_pdf_outlined,
+        icon: Icons.auto_stories_outlined,
         title: strings.noGuidesTitle,
-        description: strings.noGuidesDescription,
-        actionLabel: strings.addGuide,
-        onAction: _import,
+        description:
+            'Impor satu PDF yang paling sering kamu butuhkan saat bingung harus mulai dari mana.',
+        footnote:
+            'Gunakan tombol Impor PDF panduan di atas. File disalin ke penyimpanan aplikasi dan dapat dibaca offline.',
       );
     }
     if (items.isEmpty) {
-      return const _GuideLoadError(
-        message: 'Tidak ada panduan yang cocok dengan pencarian.',
+      return GuideMessagePanel(
         icon: Icons.search_off_rounded,
+        title: 'Belum menemukan panduan',
+        description: 'Tidak ada dokumen yang cocok dengan “$query”.',
+        actionLabel: 'Hapus pencarian',
+        onAction: _clearSearch,
       );
     }
 
-    final searching = _searchController.text.trim().isNotEmpty;
-    if (searching) return _GuideSection(title: 'Hasil pencarian', items: items);
+    if (query.isNotEmpty) {
+      return GuideSection(
+        title: 'Hasil pencarian',
+        description: '${items.length} panduan ditemukan',
+        items: items,
+      );
+    }
 
     final pinned = items.where((item) => item.isPinned).toList();
     final continuing = items
@@ -102,31 +153,55 @@ class _GuidesScreenState extends ConsumerState<GuidesScreen> {
     final others = items
         .where((item) => !item.isPinned && item.lastReadPage <= 1)
         .toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (pinned.isNotEmpty) ...[
-          _GuideSection(title: 'Disematkan', items: pinned),
-          const SizedBox(height: AppSpacing.section),
+          GuideSection(
+            title: 'Disematkan',
+            description: 'Petunjuk yang ingin kamu jangkau lebih cepat',
+            items: pinned,
+          ),
+          const SizedBox(height: AppSpacing.major),
         ],
         if (continuing.isNotEmpty) ...[
-          _GuideSection(title: 'Lanjutkan membaca', items: continuing),
-          const SizedBox(height: AppSpacing.section),
+          GuideSection(
+            title: 'Lanjutkan membaca',
+            description: 'Kembali ke halaman terakhir tanpa mencari ulang',
+            items: continuing,
+          ),
+          const SizedBox(height: AppSpacing.major),
         ],
         if (others.isNotEmpty)
-          _GuideSection(title: 'Semua panduan', items: others),
+          GuideSection(
+            title: pinned.isEmpty && continuing.isEmpty
+                ? 'Semua panduan'
+                : 'Panduan lainnya',
+            description: 'Dokumen yang siap dibuka saat dibutuhkan',
+            items: others,
+          ),
       ],
     );
   }
 
   void _onSearchChanged(String value) {
+    setState(() {});
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 250), () {
       ref.read(guideSearchQueryProvider.notifier).setQuery(value);
     });
   }
 
+  void _clearSearch() {
+    _debounce?.cancel();
+    _searchController.clear();
+    ref.read(guideSearchQueryProvider.notifier).setQuery('');
+    setState(() {});
+  }
+
   Future<void> _import() async {
+    if (_importing) return;
     setState(() => _importing = true);
     try {
       final staged = await ref
@@ -144,137 +219,5 @@ class _GuidesScreenState extends ConsumerState<GuidesScreen> {
     } finally {
       if (mounted) setState(() => _importing = false);
     }
-  }
-}
-
-class _GuideSection extends StatelessWidget {
-  const _GuideSection({required this.title, required this.items});
-
-  final String title;
-  final List<GuideDocument> items;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(title, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: AppSpacing.innerCompact),
-        for (final document in items) ...[
-          _GuideCard(document: document),
-          if (document != items.last)
-            const SizedBox(height: AppSpacing.innerCompact),
-        ],
-      ],
-    );
-  }
-}
-
-class _GuideCard extends StatelessWidget {
-  const _GuideCard({required this.document});
-
-  final GuideDocument document;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: InkWell(
-        onTap: () => context.push('/guides/${document.id}'),
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.standard),
-          child: Row(
-            children: [
-              Container(
-                width: 52,
-                height: 68,
-                decoration: BoxDecoration(
-                  color: AppColors.guideSoft,
-                  borderRadius: BorderRadius.circular(AppRadius.small),
-                ),
-                child: const Icon(
-                  Icons.picture_as_pdf_outlined,
-                  color: AppColors.guide,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.innerCompact),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            document.displayTitle,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                        ),
-                        if (document.isPinned)
-                          const Icon(
-                            Icons.push_pin_rounded,
-                            size: 18,
-                            color: AppColors.guide,
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.micro),
-                    Text(
-                      [
-                        document.projectName,
-                        document.category,
-                      ].whereType<String>().join(' • '),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.compact),
-                    LinearProgressIndicator(
-                      value: document.progress.clamp(0, 1),
-                      minHeight: 4,
-                      borderRadius: BorderRadius.circular(999),
-                      backgroundColor: AppColors.surfaceSecondary,
-                      color: AppColors.guide,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppSpacing.compact),
-              const Icon(Icons.chevron_right_rounded),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _GuideLoadError extends StatelessWidget {
-  const _GuideLoadError({
-    this.message = 'Panduan belum dapat dimuat. Coba buka ulang aplikasi.',
-    this.icon = Icons.error_outline_rounded,
-  });
-
-  final String message;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.standard),
-        child: Row(
-          children: [
-            Icon(icon, color: AppColors.textSecondary),
-            const SizedBox(width: AppSpacing.innerCompact),
-            Expanded(child: Text(message)),
-          ],
-        ),
-      ),
-    );
   }
 }

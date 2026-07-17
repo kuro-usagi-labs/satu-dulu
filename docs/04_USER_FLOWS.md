@@ -5,28 +5,41 @@
 ```text
 Launch
 → Value proposition
-→ Explain one-focus rule
-→ Create first project
-→ Add goal and 30-day target
-→ Create today's required outcome
-→ Optional reminder setup
+→ Explain Pilih / Kerjakan / Ship
+→ Explain the job of Hari Ini / Proyek / Panduan / Hasil
+→ Create first focus in three guided steps
+   1. Name, goal, and why now
+   2. 30-day evidence and today's required outcome
+   3. Up to three actions and an optional low-energy version
 → Today screen
 ```
 
-Onboarding maksimal empat layar sebelum form proyek. Harus bisa dilewati setelah proyek pertama berhasil dibuat.
+Onboarding maksimal tiga layar penjelasan sebelum setup fokus. Pengguna boleh
+melewati penjelasan, tetapi tetap harus membuat fokus dan hasil hari pertama
+sebelum masuk ke Today.
 
 ## Flow B — Daily use
 
 ```text
 Open app
 → See focus and required outcome
-→ Review up to three actions
-→ Start focus session or work externally
+→ See the first incomplete action emphasized
+→ Work in the app or externally
 → Complete actions
 → Tap Ship Hari Ini
-→ Add optional evidence and metrics
+→ Add optional link/note evidence
+→ Save one shipped output into Hasil automatically
 → Success confirmation
+→ Optional numeric metric handoff or finish the day
 ```
+
+Today CTA rules:
+
+- no focus → `Buat fokus pertama` or `Pilih dari proyek`;
+- focus but no plan → `Tentukan hasil hari ini`;
+- active plan → `Ship Hari Ini`;
+- shipped → output evidence is already counted + optional `Catat angka hasil`;
+- review date passed → `Review fokus ini`.
 
 ## Flow C — Low energy
 
@@ -50,7 +63,8 @@ Today
 → Why this project card
 → Today's required outcome
 → Smallest next action
-→ Open primary guide or Start now
+→ Kerjakan sekarang scrolls back to the emphasized action
+→ Or open the primary guide
 ```
 
 Target: pengguna mencapai tindakan konkret dalam maksimal dua tap setelah membuka recovery sheet.

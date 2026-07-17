@@ -15,31 +15,28 @@ Duration hanya selama initialization. Jangan membuat splash animasi panjang.
 ### Screen 1 — Promise
 
 - Headline: `Banyak ide boleh. Hari ini tetap satu dulu.`
-- Supporting illustration abstrak minimal.
-- CTA: `Mulai`.
+- Supporting composition `01` abstrak minimal.
+- CTA: `Lanjut`; secondary: `Langsung pilih fokus`.
 
-### Screen 2 — One focus rule
+### Screen 2 — How it works
 
-- Visual tiga project cards, satu highlighted.
-- Copy singkat.
+- Alur vertikal `Pilih satu fokus → Kerjakan langkah berikutnya → Ship dan lihat bukti`.
+- CTA: `Lanjut`.
+
+### Screen 3 — Four spaces
+
+- Jelaskan satu fungsi untuk Hari Ini, Proyek, Panduan, dan Hasil.
 - CTA: `Pilih fokus`.
 
-### Screen 3 — Create first project
+### Guided setup — Create first project
+
+Gunakan tiga langkah dengan progress yang terlihat:
 
 Fields:
 
-- nama proyek;
-- tujuan;
-- kenapa dipilih;
-- target 30 hari;
-- tanggal mulai;
-- warna/icon optional.
-
-### Screen 4 — Today's outcome
-
-- hasil wajib hari ini;
-- maksimal tiga action;
-- optional reminder.
+1. nama proyek, tujuan, kenapa dipilih;
+2. definisi bukti 30 hari dan hasil wajib hari ini;
+3. maksimal tiga action dan versi energi rendah optional.
 
 ## 3. Today
 
