@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:satu_dulu/core/database/app_database.dart';
 import 'package:satu_dulu/core/errors/app_exception.dart';
+import 'package:satu_dulu/features/projects/domain/entities/tracker_models.dart';
 import 'package:satu_dulu/features/results/domain/entities/result_models.dart';
 import 'package:satu_dulu/features/results/domain/repositories/results_repository.dart';
 import 'package:uuid/uuid.dart';
@@ -73,9 +74,151 @@ class DriftResultsRepository implements ResultsRepository {
 
   @override
   Future<void> saveWeeklyReview(WeeklyReviewInput input) async {
-    if (input.weekEnd.isBefore(input.weekStart)) {
-      throw const ValidationException('Rentang minggu tidak valid.');
+    _validateReview(input, requireNextAction: false);
+    await _saveReview(input, decisionAppliedAt: null);
+  }
+
+  @override
+  Future<void> saveAndApplyWeeklyReview(WeeklyReviewInput input) async {
+    _validateReview(
+      input,
+      requireNextAction: input.decision == ReviewDecision.park,
+    );
+    final now = DateTime.now().toUtc();
+    final today = _dateOnlyUtc(DateTime.now());
+
+    try {
+      await _database.transaction(() async {
+        final project =
+            await (_database.select(_database.projects)
+                  ..where((table) => table.id.equals(input.projectId))
+                  ..limit(1))
+                .getSingleOrNull();
+        if (project == null) {
+          throw const DatabaseException('Proyek tidak ditemukan.');
+        }
+
+        final weekStart = _dateOnlyUtc(input.weekStart);
+        final existing =
+            await (_database.select(_database.weeklyReviews)..where(
+                  (table) =>
+                      table.projectId.equals(input.projectId) &
+                      table.weekStart.equals(weekStart),
+                ))
+                .getSingleOrNull();
+        if (existing?.decisionAppliedAt != null) {
+          throw const ValidationException(
+            'Keputusan review minggu ini sudah diterapkan.',
+          );
+        }
+
+        final activeSprint =
+            await (_database.select(_database.sprints)
+                  ..where(
+                    (table) =>
+                        table.projectId.equals(input.projectId) &
+                        table.status.equals(SprintStatus.active.name),
+                  )
+                  ..orderBy([(table) => OrderingTerm.desc(table.updatedAt)])
+                  ..limit(1))
+                .getSingleOrNull();
+
+        await _database.into(_database.weeklyReviews).insertOnConflictUpdate(
+              _reviewCompanion(
+                input,
+                existing: existing,
+                sprintId: input.sprintId ?? activeSprint?.id,
+                decisionAppliedAt: now,
+              ),
+            );
+
+        switch (input.decision) {
+          case ReviewDecision.continueFocus:
+            await _ensureFocus(input.projectId, now);
+            await _upsertCapsule(
+              input,
+              now,
+              lastKnownState: input.importantResult,
+              parkedReason: null,
+            );
+            final shouldRenew = activeSprint == null ||
+                !activeSprint.endDate.isAfter(
+                  today.add(const Duration(days: 7)),
+                );
+            if (shouldRenew) {
+              await _finishSprint(activeSprint, now, completed: true);
+              await _createSprintWithPlan(
+                projectId: input.projectId,
+                startDate: today,
+                hypothesis: input.nextWeekFocus,
+                outcome: _trim(input.nextWeekFocus) ?? project.shortGoal,
+                now: now,
+              );
+            }
+          case ReviewDecision.pivot:
+            final nextFocus = _trim(input.nextWeekFocus);
+            if (nextFocus == null) {
+              throw const ValidationException(
+                'Tulis pendekatan baru yang akan diuji.',
+              );
+            }
+            await _ensureFocus(input.projectId, now);
+            await _finishSprint(activeSprint, now, completed: true);
+            await _upsertCapsule(
+              input,
+              now,
+              lastKnownState:
+                  _trim(input.importantResult) ?? 'Pendekatan sebelumnya ditutup.',
+              parkedReason: null,
+            );
+            await _createSprintWithPlan(
+              projectId: input.projectId,
+              startDate: today,
+              hypothesis: nextFocus,
+              outcome: nextFocus,
+              now: now,
+            );
+          case ReviewDecision.park:
+            final nextAction = _trim(input.nextWeekFocus);
+            if (nextAction == null) {
+              throw const ValidationException(
+                'Simpan satu tindakan pertama untuk saat proyek dilanjutkan.',
+              );
+            }
+            await _finishSprint(activeSprint, now, completed: false);
+            await (_database.update(_database.projects)..where(
+                  (table) => table.id.equals(input.projectId),
+                ))
+                .write(
+                  ProjectsCompanion(
+                    status: Value(ProjectStatus.parkingLot.name),
+                    updatedAt: Value(now),
+                  ),
+                );
+            await _upsertCapsule(
+              input,
+              now,
+              lastKnownState:
+                  _trim(input.importantResult) ?? project.shortGoal,
+              parkedReason: _trim(input.wasteOrBlocker) ??
+                  'Diparkir melalui review mingguan.',
+            );
+        }
+      });
+    } on AppException {
+      rethrow;
+    } catch (error) {
+      throw DatabaseException(
+        'Review tersimpan, tetapi keputusan belum dapat diterapkan.',
+        error,
+      );
     }
+  }
+
+  Future<void> _saveReview(
+    WeeklyReviewInput input, {
+    required DateTime? decisionAppliedAt,
+  }) async {
     final weekStart = _dateOnlyUtc(input.weekStart);
     final existing =
         await (_database.select(_database.weeklyReviews)..where(
@@ -84,22 +227,180 @@ class DriftResultsRepository implements ResultsRepository {
                   table.weekStart.equals(weekStart),
             ))
             .getSingleOrNull();
+    await _database.into(_database.weeklyReviews).insertOnConflictUpdate(
+          _reviewCompanion(
+            input,
+            existing: existing,
+            sprintId: input.sprintId,
+            decisionAppliedAt: decisionAppliedAt,
+          ),
+        );
+  }
+
+  WeeklyReviewsCompanion _reviewCompanion(
+    WeeklyReviewInput input, {
+    required WeeklyReviewRow? existing,
+    required String? sprintId,
+    required DateTime? decisionAppliedAt,
+  }) {
     final now = DateTime.now().toUtc();
-    await _database
-        .into(_database.weeklyReviews)
-        .insertOnConflictUpdate(
-          WeeklyReviewsCompanion.insert(
+    return WeeklyReviewsCompanion.insert(
+      id: existing?.id ?? _uuid.v4(),
+      projectId: input.projectId,
+      sprintId: Value(sprintId),
+      weekStart: _dateOnlyUtc(input.weekStart),
+      weekEnd: _dateOnlyUtc(input.weekEnd),
+      shippedSummary: Value(_trim(input.shippedSummary)),
+      importantResult: Value(_trim(input.importantResult)),
+      workedWell: Value(_trim(input.workedWell)),
+      wasteOrBlocker: Value(_trim(input.wasteOrBlocker)),
+      decision: input.decision.name,
+      nextWeekFocus: Value(_trim(input.nextWeekFocus)),
+      decisionAppliedAt: Value(decisionAppliedAt),
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
+    );
+  }
+
+  Future<void> _ensureFocus(String projectId, DateTime now) async {
+    final displaced =
+        await (_database.select(_database.projects)..where(
+              (table) =>
+                  table.status.equals(ProjectStatus.focus.name) &
+                  table.id.equals(projectId).not(),
+            ))
+            .get();
+    for (final project in displaced) {
+      await (_database.update(_database.projects)..where(
+            (table) => table.id.equals(project.id),
+          ))
+          .write(
+            ProjectsCompanion(
+              status: Value(ProjectStatus.parkingLot.name),
+              updatedAt: Value(now),
+            ),
+          );
+      await (_database.update(_database.sprints)..where(
+            (table) =>
+                table.projectId.equals(project.id) &
+                table.status.equals(SprintStatus.active.name),
+          ))
+          .write(
+            SprintsCompanion(
+              status: Value(SprintStatus.cancelled.name),
+              updatedAt: Value(now),
+            ),
+          );
+    }
+    await (_database.update(_database.projects)..where(
+          (table) => table.id.equals(projectId),
+        ))
+        .write(
+          ProjectsCompanion(
+            status: Value(ProjectStatus.focus.name),
+            archivedAt: const Value(null),
+            updatedAt: Value(now),
+          ),
+        );
+  }
+
+  Future<void> _finishSprint(
+    SprintRow? sprint,
+    DateTime now, {
+    required bool completed,
+  }) async {
+    if (sprint == null) return;
+    await (_database.update(_database.sprints)..where(
+          (table) => table.id.equals(sprint.id),
+        ))
+        .write(
+          SprintsCompanion(
+            status: Value(
+              completed ? SprintStatus.completed.name : SprintStatus.cancelled.name,
+            ),
+            updatedAt: Value(now),
+          ),
+        );
+  }
+
+  Future<void> _createSprintWithPlan({
+    required String projectId,
+    required DateTime startDate,
+    required String? hypothesis,
+    required String outcome,
+    required DateTime now,
+  }) async {
+    final sprintId = _uuid.v4();
+    final planId = _uuid.v4();
+    final nextAction = _trim(hypothesis) ?? 'Mulai langkah pertama';
+    await _database.into(_database.sprints).insert(
+          SprintsCompanion.insert(
+            id: sprintId,
+            projectId: projectId,
+            name: 'Eksperimen 30 hari',
+            hypothesis: Value(_trim(hypothesis)),
+            startDate: startDate,
+            endDate: startDate.add(const Duration(days: 29)),
+            targetOutputs: const Value(30),
+            status: SprintStatus.active.name,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+    await (_database.update(_database.projects)..where(
+          (table) => table.id.equals(projectId),
+        ))
+        .write(
+          ProjectsCompanion(
+            startDate: Value(startDate),
+            reviewDate: Value(startDate.add(const Duration(days: 29))),
+            updatedAt: Value(now),
+          ),
+        );
+    await _database.into(_database.dailyPlans).insert(
+          DailyPlansCompanion.insert(
+            id: planId,
+            sprintId: sprintId,
+            planDate: startDate,
+            requiredOutcome: outcome,
+            lowEnergyAction: Value(nextAction),
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+    await _database.into(_database.dailyActions).insert(
+          DailyActionsCompanion.insert(
+            id: _uuid.v4(),
+            dailyPlanId: planId,
+            position: 0,
+            label: nextAction,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+  }
+
+  Future<void> _upsertCapsule(
+    WeeklyReviewInput input,
+    DateTime now, {
+    required String? lastKnownState,
+    required String? parkedReason,
+  }) async {
+    final existing =
+        await (_database.select(_database.restartCapsules)
+              ..where((table) => table.projectId.equals(input.projectId))
+              ..limit(1))
+            .getSingleOrNull();
+    await _database.into(_database.restartCapsules).insertOnConflictUpdate(
+          RestartCapsulesCompanion.insert(
             id: existing?.id ?? _uuid.v4(),
             projectId: input.projectId,
-            sprintId: Value(input.sprintId),
-            weekStart: weekStart,
-            weekEnd: _dateOnlyUtc(input.weekEnd),
-            shippedSummary: Value(_trim(input.shippedSummary)),
-            importantResult: Value(_trim(input.importantResult)),
-            workedWell: Value(_trim(input.workedWell)),
-            wasteOrBlocker: Value(_trim(input.wasteOrBlocker)),
-            decision: input.decision.name,
-            nextWeekFocus: Value(_trim(input.nextWeekFocus)),
+            lastKnownState: Value(_trim(lastKnownState)),
+            lastOutput: Value(_trim(input.shippedSummary)),
+            whatWorked: Value(_trim(input.workedWell)),
+            blocker: Value(_trim(input.wasteOrBlocker)),
+            nextAction: Value(_trim(input.nextWeekFocus)),
+            parkedReason: Value(_trim(parkedReason)),
             createdAt: existing?.createdAt ?? now,
             updatedAt: now,
           ),
@@ -157,6 +458,20 @@ class DriftResultsRepository implements ResultsRepository {
     }
   }
 
+  void _validateReview(
+    WeeklyReviewInput input, {
+    required bool requireNextAction,
+  }) {
+    if (input.weekEnd.isBefore(input.weekStart)) {
+      throw const ValidationException('Rentang minggu tidak valid.');
+    }
+    if (requireNextAction && _trim(input.nextWeekFocus) == null) {
+      throw const ValidationException(
+        'Simpan satu tindakan pertama sebelum memarkir proyek.',
+      );
+    }
+  }
+
   MetricEntry _metric(MetricEntryRow row) => MetricEntry(
     id: row.id,
     projectId: row.projectId,
@@ -184,15 +499,15 @@ class DriftResultsRepository implements ResultsRepository {
     wasteOrBlocker: row.wasteOrBlocker,
     decision: ReviewDecision.values.byName(row.decision),
     nextWeekFocus: row.nextWeekFocus,
+    decisionAppliedAt: row.decisionAppliedAt?.toUtc(),
     createdAt: row.createdAt.toUtc(),
     updatedAt: row.updatedAt.toUtc(),
   );
 
-  DateTime _dateOnlyUtc(DateTime value) => DateTime.utc(
-    value.toLocal().year,
-    value.toLocal().month,
-    value.toLocal().day,
-  );
+  DateTime _dateOnlyUtc(DateTime value) {
+    final local = value.toLocal();
+    return DateTime.utc(local.year, local.month, local.day);
+  }
 
   String? _trim(String? value) {
     final trimmed = value?.trim();
