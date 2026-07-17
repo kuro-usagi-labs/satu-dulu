@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:satu_dulu/app/theme/app_theme.dart';
 import 'package:satu_dulu/core/errors/app_exception.dart';
+import 'package:satu_dulu/core/widgets/app_primitives.dart';
 import 'package:satu_dulu/features/projects/domain/entities/tracker_models.dart';
 import 'package:satu_dulu/features/projects/presentation/controllers/tracker_providers.dart';
+import 'package:satu_dulu/features/projects/presentation/widgets/project_setup_steps.dart';
 
 class CreateProjectScreen extends ConsumerStatefulWidget {
   const CreateProjectScreen({required this.onboarding, super.key});
@@ -17,7 +19,7 @@ class CreateProjectScreen extends ConsumerStatefulWidget {
 }
 
 class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final _stepKeys = List.generate(3, (_) => GlobalKey<FormState>());
   final _nameController = TextEditingController();
   final _goalController = TextEditingController();
   final _whyController = TextEditingController();
@@ -27,7 +29,20 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
   final _actionControllers = List.generate(3, (_) => TextEditingController());
 
   ProjectStatus _status = ProjectStatus.focus;
+  int _step = 0;
   bool _saving = false;
+
+  static const _titles = [
+    'Pilih yang layak dikejar sekarang',
+    'Tentukan garis akhirnya',
+    'Buat jalur hari pertama',
+  ];
+
+  static const _descriptions = [
+    'Nama yang jelas dan alasan yang jujur akan memudahkanmu kembali saat perhatian mulai pecah.',
+    'Kamu tidak perlu menjamin sukses. Tentukan bukti yang ingin dicari dalam 30 hari.',
+    'Satu hasil, maksimal tiga langkah, plus versi kecil ketika energimu rendah.',
+  ];
 
   @override
   void dispose() {
@@ -45,163 +60,157 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.onboarding ? 'Fokus pertamamu' : 'Proyek baru'),
-        leading: widget.onboarding
-            ? null
-            : IconButton(
-                onPressed: context.pop,
-                tooltip: 'Kembali',
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
-              ),
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.generous,
-            AppSpacing.compact,
-            AppSpacing.generous,
-            AppSpacing.screen,
-          ),
-          children: [
-            _FormSection(
-              title: 'Identitas',
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'Nama proyek',
-                    hintText: 'Contoh: Channel tutorial Flutter',
-                  ),
-                  validator: _required('Nama proyek'),
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    return PopScope(
+      canPop: _step == 0 && !widget.onboarding,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _step > 0) _previousStep();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: _step > 0 || !widget.onboarding
+              ? IconButton(
+                  onPressed: _step > 0 ? _previousStep : context.pop,
+                  tooltip: _step > 0 ? 'Langkah sebelumnya' : 'Kembali',
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                )
+              : null,
+          title: Text(widget.onboarding ? 'Siapkan fokusmu' : 'Proyek baru'),
+        ),
+        body: _buildStep(reduceMotion),
+        bottomNavigationBar: AppBottomActionBar(
+          child: Row(
+            children: [
+              if (_step > 0) ...[
+                TextButton(
+                  onPressed: _saving ? null : _previousStep,
+                  child: const Text('Kembali'),
                 ),
-                const SizedBox(height: AppSpacing.innerCompact),
-                TextFormField(
-                  controller: _goalController,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'Tujuan',
-                    hintText: 'Apa yang ingin kamu buktikan?',
-                  ),
-                  validator: _required('Tujuan'),
-                ),
-                const SizedBox(height: AppSpacing.innerCompact),
-                TextFormField(
-                  controller: _whyController,
-                  textInputAction: TextInputAction.next,
-                  maxLines: 2,
-                  decoration: const InputDecoration(
-                    labelText: 'Kenapa dipilih?',
-                    hintText: 'Alasan proyek ini penting sekarang',
-                  ),
-                ),
+                const SizedBox(width: AppSpacing.compact),
               ],
-            ),
-            const SizedBox(height: AppSpacing.standard),
-            _FormSection(
-              title: 'Eksperimen 30 hari',
-              children: [
-                TextFormField(
-                  controller: _successController,
-                  maxLines: 2,
-                  decoration: const InputDecoration(
-                    labelText: 'Definisi berhasil',
-                    hintText:
-                        'Bukti apa yang membuat eksperimen ini layak dilanjutkan?',
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: _saving ? null : _continue,
+                  icon: _saving
+                      ? const SizedBox.square(
+                          dimension: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.textInverse,
+                          ),
+                        )
+                      : Icon(
+                          _step == 2
+                              ? Icons.flag_rounded
+                              : Icons.arrow_forward_rounded,
+                        ),
+                  label: Text(
+                    _saving
+                        ? 'Menyiapkan…'
+                        : _step == 2
+                        ? widget.onboarding
+                              ? 'Mulai 30 hari'
+                              : 'Simpan proyek'
+                        : 'Lanjut',
                   ),
                 ),
-                const SizedBox(height: AppSpacing.innerCompact),
-                TextFormField(
-                  controller: _outcomeController,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'Hasil wajib hari ini',
-                    hintText: 'Satu hasil yang bisa benar-benar di-ship',
-                  ),
-                  validator: _required('Hasil wajib hari ini'),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.standard),
-            _FormSection(
-              title: 'Maksimal tiga tindakan',
-              children: [
-                for (
-                  var index = 0;
-                  index < _actionControllers.length;
-                  index++
-                ) ...[
-                  TextFormField(
-                    controller: _actionControllers[index],
-                    textInputAction: index == 2
-                        ? TextInputAction.done
-                        : TextInputAction.next,
-                    decoration: InputDecoration(
-                      labelText:
-                          'Tindakan ${index + 1}${index == 0 ? '' : ' (opsional)'}',
-                    ),
-                    validator: index == 0
-                        ? _required('Tindakan pertama')
-                        : null,
-                  ),
-                  if (index < 2)
-                    const SizedBox(height: AppSpacing.innerCompact),
-                ],
-                const SizedBox(height: AppSpacing.innerCompact),
-                TextFormField(
-                  controller: _lowEnergyController,
-                  decoration: const InputDecoration(
-                    labelText: 'Langkah saat energi rendah',
-                    hintText: 'Kecilkan langkahnya, jangan hilangkan arahnya',
-                  ),
-                ),
-              ],
-            ),
-            if (!widget.onboarding) ...[
-              const SizedBox(height: AppSpacing.standard),
-              _FormSection(
-                title: 'Status',
-                children: [
-                  SegmentedButton<ProjectStatus>(
-                    showSelectedIcon: false,
-                    segments: const [
-                      ButtonSegment(
-                        value: ProjectStatus.focus,
-                        label: Text('Focus'),
-                      ),
-                      ButtonSegment(
-                        value: ProjectStatus.maintenance,
-                        label: Text('Maintenance'),
-                      ),
-                      ButtonSegment(
-                        value: ProjectStatus.parkingLot,
-                        label: Text('Parking Lot'),
-                      ),
-                    ],
-                    selected: {_status},
-                    onSelectionChanged: (selection) {
-                      setState(() => _status = selection.single);
-                    },
-                  ),
-                ],
               ),
             ],
-            const SizedBox(height: AppSpacing.section),
-            FilledButton(
-              onPressed: _saving ? null : _save,
-              child: _saving
-                  ? const SizedBox.square(
-                      dimension: 22,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStep(bool reduceMotion) {
+    final child = switch (_step) {
+      0 => ProjectIdentityStep(
+        nameController: _nameController,
+        goalController: _goalController,
+        whyController: _whyController,
+        nameValidator: _required('Nama fokus'),
+        goalValidator: _required('Tujuan'),
+      ),
+      1 => ProjectFinishLineStep(
+        successController: _successController,
+        outcomeController: _outcomeController,
+        outcomeValidator: _required('Hasil hari ini'),
+      ),
+      _ => ProjectFirstDayStep(
+        actionControllers: _actionControllers,
+        lowEnergyController: _lowEnergyController,
+        firstActionValidator: _required('Langkah pertama'),
+        showStatusOptions: !widget.onboarding,
+        selectedStatus: _status,
+        onStatusSelected: _selectStatus,
+      ),
+    };
+
+    return Form(
+      key: _stepKeys[_step],
+      child: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.generous,
+          AppSpacing.compact,
+          AppSpacing.generous,
+          AppSpacing.screen,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(child: AppEyebrow('Langkah ${_step + 1} dari 3')),
+                const SizedBox(width: AppSpacing.compact),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var index = 0; index < 3; index++) ...[
+                      AnimatedContainer(
+                        duration: reduceMotion
+                            ? Duration.zero
+                            : AppDuration.stateChange,
+                        width: index == _step ? 26 : 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: index <= _step
+                              ? AppColors.accent
+                              : AppColors.border,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
                       ),
-                    )
-                  : Text(widget.onboarding ? 'Mulai 30 hari' : 'Simpan proyek'),
+                      if (index < 2) const SizedBox(width: AppSpacing.compact),
+                    ],
+                  ],
+                ),
+              ],
             ),
+            const SizedBox(height: AppSpacing.innerCompact),
+            AnimatedSwitcher(
+              duration: reduceMotion ? Duration.zero : AppDuration.stateChange,
+              child: Column(
+                key: ValueKey(_step),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _titles[_step],
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.compact),
+                  Text(
+                    _descriptions[_step],
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.section),
+            const Divider(height: 1),
+            const SizedBox(height: AppSpacing.section),
+            child,
           ],
         ),
       ),
@@ -213,8 +222,24 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
     return null;
   };
 
+  void _selectStatus(ProjectStatus value) => setState(() => _status = value);
+
+  void _previousStep() {
+    FocusScope.of(context).unfocus();
+    if (_step > 0) setState(() => _step--);
+  }
+
+  void _continue() {
+    FocusScope.of(context).unfocus();
+    if (!(_stepKeys[_step].currentState?.validate() ?? false)) return;
+    if (_step < 2) {
+      setState(() => _step++);
+    } else {
+      _save();
+    }
+  }
+
   Future<void> _save() async {
-    if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
 
     try {
@@ -260,9 +285,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
         ).showSnackBar(SnackBar(content: Text(error.message)));
       }
     } finally {
-      if (mounted) {
-        setState(() => _saving = false);
-      }
+      if (mounted) setState(() => _saving = false);
     }
   }
 
@@ -271,16 +294,16 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
     ProjectStatus requested,
   ) {
     final isFocus = requested == ProjectStatus.focus;
+    final requestedLabel = isFocus ? 'fokus utama' : 'tetap dijaga';
     return showDialog<ProjectStatus>(
       context: context,
       builder: (context) => AlertDialog(
+        icon: Icon(isFocus ? Icons.adjust_rounded : Icons.spa_outlined),
         title: Text(
-          isFocus ? 'Fokus utama sudah ada' : 'Maintenance sudah ada',
+          '${isFocus ? 'Fokus utama' : 'Proyek yang dijaga'} sudah ada',
         ),
         content: Text(
-          isFocus
-              ? 'Jika proyek baru menjadi fokus, “${existing.name}” dipindahkan ke Parking Lot.'
-              : 'Jika proyek baru menjadi maintenance, “${existing.name}” dipindahkan ke Parking Lot.',
+          'Jika proyek baru menjadi $requestedLabel, “${existing.name}” akan dipindahkan ke Disimpan dulu.',
         ),
         actions: [
           TextButton(
@@ -289,37 +312,13 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, ProjectStatus.parkingLot),
-            child: const Text('Simpan ke Parking Lot'),
+            child: const Text('Simpan proyek baru dulu'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, requested),
-            child: Text(isFocus ? 'Ganti fokus' : 'Ganti maintenance'),
+            child: Text(isFocus ? 'Ganti fokus' : 'Ganti yang dijaga'),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _FormSection extends StatelessWidget {
-  const _FormSection({required this.title, required this.children});
-
-  final String title;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.standard),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: AppSpacing.standard),
-            ...children,
-          ],
-        ),
       ),
     );
   }

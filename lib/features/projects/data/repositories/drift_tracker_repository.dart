@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:satu_dulu/core/database/app_database.dart';
 import 'package:satu_dulu/core/errors/app_exception.dart';
+import 'package:satu_dulu/features/projects/data/repositories/ship_persistence.dart';
+import 'package:satu_dulu/features/projects/data/repositories/tracker_repository_support.dart';
 import 'package:satu_dulu/features/projects/domain/entities/tracker_models.dart';
 import 'package:satu_dulu/features/projects/domain/repositories/tracker_repository.dart';
 import 'package:uuid/uuid.dart';
@@ -20,7 +22,8 @@ class DriftTrackerRepository implements TrackerRepository {
         (table) => OrderingTerm.desc(table.updatedAt),
       ]);
     return query.watch().map(
-      (rows) => List.unmodifiable(rows.map(_projectFromRow)),
+      (rows) =>
+          List.unmodifiable(rows.map(TrackerRepositorySupport.projectFromRow)),
     );
   }
 
@@ -39,7 +42,7 @@ class DriftTrackerRepository implements TrackerRepository {
               ..where((table) => table.id.equals(projectId))
               ..limit(1))
             .getSingleOrNull();
-    return row == null ? null : _projectFromRow(row);
+    return row == null ? null : TrackerRepositorySupport.projectFromRow(row);
   }
 
   Future<Project?> _getProjectWithStatus(ProjectStatus status) async {
@@ -48,14 +51,14 @@ class DriftTrackerRepository implements TrackerRepository {
               ..where((table) => table.status.equals(status.name))
               ..limit(1))
             .getSingleOrNull();
-    return row == null ? null : _projectFromRow(row);
+    return row == null ? null : TrackerRepositorySupport.projectFromRow(row);
   }
 
   @override
   Future<String> createProject(CreateProjectInput input) async {
-    _validateCreateInput(input);
+    TrackerRepositorySupport.validateCreateInput(input);
     final now = DateTime.now().toUtc();
-    final startDate = _utcDay(input.startDate);
+    final startDate = TrackerRepositorySupport.utcDay(input.startDate);
     final projectId = _uuid.v4();
     final sprintId = _uuid.v4();
     final dailyPlanId = _uuid.v4();
@@ -81,9 +84,13 @@ class DriftTrackerRepository implements TrackerRepository {
                 id: projectId,
                 name: input.name.trim(),
                 shortGoal: input.shortGoal.trim(),
-                whyChosen: Value(_nullableTrim(input.whyChosen)),
+                whyChosen: Value(
+                  TrackerRepositorySupport.nullableTrim(input.whyChosen),
+                ),
                 successDefinition: Value(
-                  _nullableTrim(input.successDefinition),
+                  TrackerRepositorySupport.nullableTrim(
+                    input.successDefinition,
+                  ),
                 ),
                 targetRevenueMinor: Value(input.targetRevenueMinor),
                 status: input.status.name,
@@ -106,7 +113,11 @@ class DriftTrackerRepository implements TrackerRepository {
                 startDate: startDate,
                 endDate: startDate.add(Duration(days: input.sprintDays - 1)),
                 targetOutputs: Value(input.sprintDays),
-                successCriteria: Value(_nullableTrim(input.successDefinition)),
+                successCriteria: Value(
+                  TrackerRepositorySupport.nullableTrim(
+                    input.successDefinition,
+                  ),
+                ),
                 status: SprintStatus.active.name,
                 createdAt: now,
                 updatedAt: now,
@@ -121,7 +132,9 @@ class DriftTrackerRepository implements TrackerRepository {
                 sprintId: sprintId,
                 planDate: startDate,
                 requiredOutcome: input.requiredOutcome.trim(),
-                lowEnergyAction: Value(_nullableTrim(input.lowEnergyAction)),
+                lowEnergyAction: Value(
+                  TrackerRepositorySupport.nullableTrim(input.lowEnergyAction),
+                ),
                 createdAt: now,
                 updatedAt: now,
               ),
@@ -186,8 +199,12 @@ class DriftTrackerRepository implements TrackerRepository {
           ProjectsCompanion(
             name: Value(input.name.trim()),
             shortGoal: Value(input.shortGoal.trim()),
-            whyChosen: Value(_nullableTrim(input.whyChosen)),
-            successDefinition: Value(_nullableTrim(input.successDefinition)),
+            whyChosen: Value(
+              TrackerRepositorySupport.nullableTrim(input.whyChosen),
+            ),
+            successDefinition: Value(
+              TrackerRepositorySupport.nullableTrim(input.successDefinition),
+            ),
             targetRevenueMinor: Value(input.targetRevenueMinor),
             status: Value(input.status.name),
             archivedAt: const Value(null),
@@ -204,8 +221,11 @@ class DriftTrackerRepository implements TrackerRepository {
 
   @override
   Future<String> createDailyPlan(CreateDailyPlanInput input) async {
-    _validateDailyPlan(input.requiredOutcome, input.actions);
-    final day = _utcDay(input.planDate);
+    TrackerRepositorySupport.validateDailyPlan(
+      input.requiredOutcome,
+      input.actions,
+    );
+    final day = TrackerRepositorySupport.utcDay(input.planDate);
     final now = DateTime.now().toUtc();
     final planId = _uuid.v4();
     try {
@@ -258,7 +278,9 @@ class DriftTrackerRepository implements TrackerRepository {
                 sprintId: sprint.id,
                 planDate: day,
                 requiredOutcome: input.requiredOutcome.trim(),
-                lowEnergyAction: Value(_nullableTrim(input.lowEnergyAction)),
+                lowEnergyAction: Value(
+                  TrackerRepositorySupport.nullableTrim(input.lowEnergyAction),
+                ),
                 createdAt: now,
                 updatedAt: now,
               ),
@@ -288,7 +310,7 @@ class DriftTrackerRepository implements TrackerRepository {
 
   @override
   Future<TodayOverview?> loadToday(DateTime localDate) async {
-    final day = _utcDay(localDate);
+    final day = TrackerRepositorySupport.utcDay(localDate);
     final projectRow =
         await (_database.select(_database.projects)
               ..where((table) => table.status.equals(ProjectStatus.focus.name))
@@ -332,16 +354,20 @@ class DriftTrackerRepository implements TrackerRepository {
             .getSingleOrNull();
 
     return TodayOverview(
-      project: _projectFromRow(projectRow),
-      sprint: _sprintFromRow(sprintRow),
+      project: TrackerRepositorySupport.projectFromRow(projectRow),
+      sprint: TrackerRepositorySupport.sprintFromRow(sprintRow),
       dailyPlanId: planRow.id,
       planDate: planRow.planDate.toUtc(),
       requiredOutcome: planRow.requiredOutcome,
       lowEnergyAction: planRow.lowEnergyAction,
       linkedGuideDocumentId: planRow.linkedGuideDocumentId,
       linkedGuidePage: planRow.linkedGuidePage,
-      actions: List.unmodifiable(actionRows.map(_actionFromRow)),
-      shipRecord: shipRow == null ? null : _shipFromRow(shipRow),
+      actions: List.unmodifiable(
+        actionRows.map(TrackerRepositorySupport.actionFromRow),
+      ),
+      shipRecord: shipRow == null
+          ? null
+          : TrackerRepositorySupport.shipFromRow(shipRow),
     );
   }
 
@@ -374,37 +400,14 @@ class DriftTrackerRepository implements TrackerRepository {
     String outputType = 'other',
     String? externalUrl,
     String? evidenceNote,
-  }) async {
-    if (outputTitle.trim().isEmpty) {
-      throw const ValidationException('Judul hasil wajib diisi.');
-    }
-    final existing =
-        await (_database.select(_database.shipRecords)
-              ..where((table) => table.dailyPlanId.equals(dailyPlanId)))
-            .getSingleOrNull();
-    if (existing != null) {
-      throw const ValidationException('Hari ini sudah pernah di-ship.');
-    }
-
-    try {
-      await _database
-          .into(_database.shipRecords)
-          .insert(
-            ShipRecordsCompanion.insert(
-              id: _uuid.v4(),
-              dailyPlanId: dailyPlanId,
-              outputType: outputType,
-              outputTitle: outputTitle.trim(),
-              externalUrl: Value(_nullableTrim(externalUrl)),
-              evidenceNote: Value(_nullableTrim(evidenceNote)),
-              isPartial: Value(isPartial),
-              shippedAt: DateTime.now().toUtc(),
-            ),
-          );
-    } catch (error) {
-      throw DatabaseException('Hasil hari ini tidak dapat disimpan.', error);
-    }
-  }
+  }) => ShipPersistence(_database, _uuid).save(
+    dailyPlanId: dailyPlanId,
+    outputTitle: outputTitle,
+    isPartial: isPartial,
+    outputType: outputType,
+    externalUrl: externalUrl,
+    evidenceNote: evidenceNote,
+  );
 
   @override
   Future<void> archiveProject(String projectId) async {
@@ -422,87 +425,5 @@ class DriftTrackerRepository implements TrackerRepository {
     if (affected != 1) {
       throw const DatabaseException('Proyek tidak ditemukan.');
     }
-  }
-
-  void _validateCreateInput(CreateProjectInput input) {
-    if (input.name.trim().isEmpty) {
-      throw const ValidationException('Nama proyek wajib diisi.');
-    }
-    if (input.shortGoal.trim().isEmpty) {
-      throw const ValidationException('Tujuan proyek wajib diisi.');
-    }
-    _validateDailyPlan(input.requiredOutcome, input.actions);
-    if (input.sprintDays < 1) {
-      throw const ValidationException('Durasi sprint harus lebih dari nol.');
-    }
-  }
-
-  void _validateDailyPlan(String requiredOutcome, List<String> inputActions) {
-    if (requiredOutcome.trim().isEmpty) {
-      throw const ValidationException('Hasil wajib hari ini harus diisi.');
-    }
-    final actions = inputActions
-        .where((item) => item.trim().isNotEmpty)
-        .toList();
-    if (actions.length != inputActions.length) {
-      throw const ValidationException('Tindakan harian tidak boleh kosong.');
-    }
-    if (actions.length > 3) {
-      throw const ValidationException('Maksimal tiga tindakan per hari.');
-    }
-  }
-
-  Project _projectFromRow(ProjectRow row) => Project(
-    id: row.id,
-    name: row.name,
-    shortGoal: row.shortGoal,
-    whyChosen: row.whyChosen,
-    successDefinition: row.successDefinition,
-    targetRevenueMinor: row.targetRevenueMinor,
-    status: ProjectStatus.values.byName(row.status),
-    startDate: row.startDate?.toUtc(),
-    reviewDate: row.reviewDate?.toUtc(),
-    primaryGuideDocumentId: row.primaryGuideDocumentId,
-    createdAt: row.createdAt.toUtc(),
-    updatedAt: row.updatedAt.toUtc(),
-    archivedAt: row.archivedAt?.toUtc(),
-  );
-
-  Sprint _sprintFromRow(SprintRow row) => Sprint(
-    id: row.id,
-    projectId: row.projectId,
-    name: row.name,
-    hypothesis: row.hypothesis,
-    startDate: row.startDate.toUtc(),
-    endDate: row.endDate.toUtc(),
-    targetOutputs: row.targetOutputs,
-    successCriteria: row.successCriteria,
-    status: SprintStatus.values.byName(row.status),
-  );
-
-  DailyAction _actionFromRow(DailyActionRow row) => DailyAction(
-    id: row.id,
-    position: row.position,
-    label: row.label,
-    isCompleted: row.isCompleted,
-    completedAt: row.completedAt?.toUtc(),
-  );
-
-  ShipRecord _shipFromRow(ShipRecordRow row) => ShipRecord(
-    id: row.id,
-    outputType: row.outputType,
-    outputTitle: row.outputTitle,
-    externalUrl: row.externalUrl,
-    evidenceNote: row.evidenceNote,
-    isPartial: row.isPartial,
-    shippedAt: row.shippedAt.toUtc(),
-  );
-
-  DateTime _utcDay(DateTime value) =>
-      DateTime.utc(value.year, value.month, value.day);
-
-  String? _nullableTrim(String? value) {
-    final trimmed = value?.trim();
-    return trimmed == null || trimmed.isEmpty ? null : trimmed;
   }
 }

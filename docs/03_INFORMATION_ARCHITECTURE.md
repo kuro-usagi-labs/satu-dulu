@@ -11,6 +11,19 @@ Gunakan bottom navigation dengan empat tab:
 
 Tab harus tetap konsisten dan tidak berubah berdasarkan state.
 
+Setiap tab mempunyai satu job yang dijelaskan pada first launch dan empty state:
+
+- **Hari Ini** — mulai dan selesaikan satu hasil;
+- **Proyek** — pilih fokus dan simpan ide lain tanpa mengganggu Hari Ini;
+- **Panduan** — buka rujukan ketika macet atau kehilangan arah;
+- **Hasil** — gunakan bukti untuk mengambil keputusan.
+
+Label status yang tampil ke pengguna memakai Bahasa Indonesia:
+
+- `focus` → **Fokus utama**;
+- `maintenance` → **Tetap dijaga**;
+- `parkingLot` → **Disimpan dulu**.
+
 ## Hierarchy
 
 ```text

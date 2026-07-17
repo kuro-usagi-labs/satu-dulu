@@ -101,6 +101,9 @@ void main() {
       final saved = await repository.loadToday(day);
       expect(saved!.actions.first.isCompleted, isTrue);
       expect(saved.shipRecord?.outputTitle, 'Video pertama');
+      final metric = await database.select(database.metricEntries).getSingle();
+      expect(metric.outputsCount, 1);
+      expect(metric.note, 'Video pertama');
       expect(
         () => repository.shipToday(
           dailyPlanId: initial.dailyPlanId,

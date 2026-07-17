@@ -1,4 +1,4 @@
-# Design System — White Minimalist
+# Design System — Calm Editorial Focus
 
 ## Design direction
 
@@ -6,6 +6,7 @@ Aplikasi harus terasa:
 
 - modern;
 - tenang;
+- editorial dan personal, bukan dashboard korporat;
 - premium tetapi tidak mewah berlebihan;
 - ringan;
 - personal;
@@ -14,31 +15,46 @@ Aplikasi harus terasa:
 
 Hindari tampilan dashboard gelap, kartu terlalu padat, gradient neon, atau visual produktivitas korporat.
 
+Motif visual utama adalah **satu penanda fokus**: rail, angka `01`, atau satu
+surface beraksen di antara surface netral. Hierarchy dibuat lewat typography,
+whitespace, dan komposisi—bukan border pada setiap blok.
+
 ## Color tokens
 
 ```text
-Background / Canvas      #F6F7F9
-Surface Primary          #FFFFFF
-Surface Secondary        #F0F2F5
-Surface Elevated         #FFFFFF
-Text Primary             #111318
-Text Secondary           #676D78
-Text Tertiary            #9298A3
-Border Subtle            #E7E9EE
-Divider                   #ECEEF2
-Accent Primary           #4468F2
-Accent Soft              #EEF2FF
-Success                  #1F9D68
-Success Soft             #EAF8F1
-Warning                  #C98512
-Warning Soft             #FFF6DF
-Danger                   #D84A4A
-Danger Soft              #FFF0F0
-Purple Guide             #7157D9
-Purple Guide Soft        #F2EFFF
+Background / Canvas      #F5F2EC
+Canvas Deep              #ECE6DC
+Surface Primary          #FFFDF9
+Surface Secondary        #F0ECE4
+Surface Warm             #F8EDE5
+Text Primary             #20251F
+Text Secondary           #646B63
+Text Tertiary            #686F67
+Border Subtle            #E4DED3
+Control Border           #868D85
+Divider                  #E9E3D9
+Accent Primary           #BC482F
+Accent Deep              #9C3B27
+Accent Soft              #FBE7DE
+Success                  #3B735A
+Success Soft             #E7F0EA
+Warning                  #A66D1E
+Warning Soft             #F7EEDB
+Danger                   #A83F39
+Danger Soft              #F7E6E4
+Guide Context            #536A5B
+Guide Soft               #E8EFEA
 ```
 
-Gunakan accent biru secara hemat untuk CTA, selected state, dan progress. Jangan memberi warna pada setiap kartu.
+Gunakan accent terracotta secara hemat untuk CTA, selected state, focus marker,
+dan progress. Guide green hanya digunakan dalam konteks membaca/recovery. Jangan
+memberi warna pada setiap kartu.
+
+Teks dan batas control harus tetap terbaca pada canvas terang. Kombinasi utama
+memenuhi WCAG AA untuk teks normal: inverse/accent 4,96:1, tertiary/canvas
+4,63:1, danger/danger-soft 5,06:1. `Control Border` dipakai untuk field dan
+outlined control karena kontrasnya minimal 3:1; `Border Subtle` hanya untuk
+divider atau pemisah dekoratif. Jangan menurunkan opacity teks informatif.
 
 ## Typography
 
@@ -46,14 +62,15 @@ Gunakan system font. Jangan bundel font custom pada MVP.
 
 | Token | Size | Weight | Line height | Use |
 |---|---:|---:|---:|---|
-| Display | 34 | 700 | 40 | Angka/fokus utama tertentu |
-| H1 | 28 | 700 | 34 | Judul screen |
-| H2 | 22 | 650 | 28 | Section utama |
-| H3 | 18 | 650 | 24 | Card title |
-| Body Large | 17 | 400 | 24 | Copy penting |
+| Display | 40 | 800 | 44 | Promise dan fokus utama tertentu |
+| H1 | 31 | 800 | 36 | Judul screen |
+| H2 | 24 | 700 | 30 | Section utama |
+| H3 | 19 | 700 | 25 | Card title |
+| Body Large | 17 | 400 | 25 | Copy penting |
 | Body | 15 | 400 | 22 | Copy umum |
 | Label | 13 | 600 | 18 | Label dan metadata |
-| Caption | 12 | 400 | 16 | Detail sekunder |
+| Eyebrow | 12 | 700 | 16 | Context label dengan tracking positif |
+| Caption | 12 | 400 | 17 | Detail sekunder |
 
 Gunakan sentence case. Hindari semua huruf kapital kecuali label sangat pendek.
 
@@ -77,10 +94,10 @@ Screen horizontal padding: 20 px pada iPhone umum, minimum 16 px pada width keci
 ## Radius
 
 ```text
-Small control       12
-Input               14
-Button               16
-Card                 20
+Small control       10
+Input               16
+Button               18
+Card                 22
 Hero card            24
 Bottom sheet top     28
 Pill                 999
@@ -92,14 +109,17 @@ Gunakan sangat lembut.
 
 ```text
 Card default:
-0 1 2 rgba(17, 19, 24, 0.04)
-0 8 24 rgba(17, 19, 24, 0.04)
+0 8 18 rgba(89, 69, 54, 0.05)
 
 Floating primary:
-0 12 32 rgba(68, 104, 242, 0.18)
+0 14 32 rgba(82, 59, 46, 0.09)
+
+Focus hero:
+0 14 28 rgba(188, 72, 47, 0.14)
 ```
 
-Border halus lebih disukai daripada shadow tebal.
+Border halus atau perubahan surface lebih disukai daripada shadow tebal. Jangan
+memberi border yang sama pada semua kartu.
 
 ## Core components
 

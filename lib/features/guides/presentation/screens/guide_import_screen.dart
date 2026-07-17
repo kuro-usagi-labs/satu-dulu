@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:satu_dulu/app/theme/app_theme.dart';
 import 'package:satu_dulu/core/errors/app_exception.dart';
+import 'package:satu_dulu/core/widgets/app_primitives.dart';
 import 'package:satu_dulu/features/guides/domain/entities/guide_models.dart';
 import 'package:satu_dulu/features/guides/presentation/controllers/guide_providers.dart';
+import 'package:satu_dulu/features/guides/presentation/widgets/guide_import_widgets.dart';
 import 'package:satu_dulu/features/projects/presentation/controllers/tracker_providers.dart';
 
 class GuideImportScreen extends ConsumerStatefulWidget {
@@ -60,7 +62,12 @@ class _GuideImportScreenState extends ConsumerState<GuideImportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final projects = ref.watch(projectsProvider).value ?? const [];
+    final projectState = ref.watch(projectsProvider);
+    final projects = projectState.value ?? const [];
+    final fileDetails =
+        '${_formatBytes(widget.staged.fileSizeBytes)} • '
+        '${widget.staged.pageCount} halaman';
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -70,61 +77,75 @@ class _GuideImportScreenState extends ConsumerState<GuideImportScreen> {
         appBar: AppBar(
           leading: IconButton(
             onPressed: _saving ? null : _cancel,
-            tooltip: 'Batalkan import',
+            tooltip: 'Batalkan impor',
             icon: const Icon(Icons.close_rounded),
           ),
-          title: const Text('Detail panduan'),
+          title: const Text('Siapkan panduan'),
         ),
         body: Form(
           key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: ListView(
-            padding: const EdgeInsets.all(AppSpacing.generous),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.generous,
+              AppSpacing.compact,
+              AppSpacing.generous,
+              AppSpacing.major,
+            ),
             children: [
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.standard),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.picture_as_pdf_outlined,
-                        color: AppColors.guide,
-                        size: 38,
-                      ),
-                      const SizedBox(width: AppSpacing.innerCompact),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.staged.originalFileName,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: AppSpacing.micro),
-                            Text(
-                              '${_formatBytes(widget.staged.fileSizeBytes)} • ${widget.staged.pageCount} halaman',
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: AppColors.textSecondary),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              const AppEyebrow('PDF sudah siap', color: AppColors.guide),
+              const SizedBox(height: AppSpacing.compact),
+              Text(
+                'Beri konteks agar mudah ditemukan kembali.',
+                style: Theme.of(context).textTheme.headlineLarge,
               ),
-              const SizedBox(height: AppSpacing.standard),
+              const SizedBox(height: AppSpacing.compact),
+              Text(
+                'Judul yang jelas dan petunjuk kapan membaca akan membuat PDF ini berguna saat kamu kehilangan arah.',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: AppSpacing.section),
+              GuideStagedFileSummary(
+                fileName: widget.staged.originalFileName,
+                details: fileDetails,
+              ),
+              const SizedBox(height: AppSpacing.major),
+              const AppSectionHeader(
+                title: 'Mudah dikenali',
+                description:
+                    'Gunakan nama yang masuk akal ketika dilihat nanti',
+              ),
+              const SizedBox(height: AppSpacing.innerCompact),
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Judul tampilan'),
+                textInputAction: TextInputAction.next,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: const InputDecoration(
+                  labelText: 'Judul panduan',
+                  hintText: 'Contoh: Checklist sebelum menerbitkan',
+                  helperText: 'Nama file asli tidak akan berubah.',
+                  helperMaxLines: 2,
+                ),
                 validator: (value) => value == null || value.trim().isEmpty
                     ? 'Judul wajib diisi.'
                     : null,
               ),
+              const SizedBox(height: AppSpacing.major),
+              const AppSectionHeader(
+                title: 'Tempatkan dalam konteks',
+                description:
+                    'Proyek dan kategori membantu menemukan panduan yang tepat',
+              ),
               const SizedBox(height: AppSpacing.innerCompact),
               DropdownButtonFormField<String>(
                 initialValue: _projectId,
-                decoration: const InputDecoration(labelText: 'Proyek'),
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  labelText: 'Proyek terkait (opsional)',
+                ),
                 items: [
                   const DropdownMenuItem(
                     value: '',
@@ -135,58 +156,96 @@ class _GuideImportScreenState extends ConsumerState<GuideImportScreen> {
                       value: project.id,
                       child: Text(
                         project.name,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                 ],
-                onChanged: (value) => setState(() => _projectId = value ?? ''),
+                onChanged: _saving
+                    ? null
+                    : (value) => setState(() => _projectId = value ?? ''),
+              ),
+              const SizedBox(height: AppSpacing.compact),
+              GuideImportProjectAvailability(
+                loading: projectState.isLoading,
+                hasError: projectState.hasError,
+                isEmpty: projectState.hasValue && projects.isEmpty,
+                onRetry: () => ref.invalidate(projectsProvider),
               ),
               const SizedBox(height: AppSpacing.innerCompact),
               DropdownButtonFormField<String>(
                 initialValue: _category,
+                isExpanded: true,
                 decoration: const InputDecoration(labelText: 'Kategori'),
                 items: [
                   for (final category in categories)
                     DropdownMenuItem(value: category, child: Text(category)),
                 ],
-                onChanged: (value) => setState(() => _category = value!),
+                onChanged: _saving
+                    ? null
+                    : (value) => setState(() => _category = value!),
               ),
-              const SizedBox(height: AppSpacing.innerCompact),
-              TextFormField(
-                controller: _descriptionController,
-                maxLines: 2,
-                decoration: const InputDecoration(
-                  labelText: 'Deskripsi (opsional)',
-                ),
+              const SizedBox(height: AppSpacing.major),
+              const AppSectionHeader(
+                title: 'Beri petunjuk untuk dirimu nanti',
+                description:
+                    'Tulis secukupnya agar kamu tahu alasan membuka dokumen ini',
               ),
               const SizedBox(height: AppSpacing.innerCompact),
               TextFormField(
                 controller: _whenController,
-                maxLines: 2,
+                textInputAction: TextInputAction.next,
+                textCapitalization: TextCapitalization.sentences,
+                minLines: 2,
+                maxLines: 4,
                 decoration: const InputDecoration(
-                  labelText: 'Kapan perlu dibaca? (opsional)',
+                  labelText: 'Buka panduan ini ketika…',
+                  hintText: 'Contoh: bingung menentukan topik berikutnya',
+                  alignLabelWithHint: true,
                 ),
               ),
-              SwitchListTile.adaptive(
-                contentPadding: EdgeInsets.zero,
+              const SizedBox(height: AppSpacing.innerCompact),
+              TextFormField(
+                controller: _descriptionController,
+                textCapitalization: TextCapitalization.sentences,
+                minLines: 2,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  labelText: 'Catatan singkat (opsional)',
+                  hintText: 'Apa isi atau manfaat utama dokumen ini?',
+                  alignLabelWithHint: true,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.standard),
+              GuideImportPinPreference(
                 value: _pinned,
+                enabled: !_saving,
                 onChanged: (value) => setState(() => _pinned = value),
-                title: const Text('Sematkan panduan'),
               ),
               const SizedBox(height: AppSpacing.section),
-              FilledButton(
-                onPressed: _saving ? null : _save,
-                child: _saving
-                    ? const SizedBox.square(
-                        dimension: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text('Simpan panduan'),
+              const AppNotice(
+                icon: Icons.offline_pin_outlined,
+                title: 'Tersedia tanpa internet',
+                description:
+                    'PDF disalin ke penyimpanan aplikasi. Memindahkan file sumber tidak menghapus salinan ini.',
+                background: AppColors.guideSoft,
+                foreground: AppColors.guide,
               ),
             ],
+          ),
+        ),
+        bottomNavigationBar: AppBottomActionBar(
+          child: FilledButton(
+            onPressed: _saving ? null : _save,
+            child: _saving
+                ? const SizedBox.square(
+                    dimension: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.textTertiary,
+                    ),
+                  )
+                : const Text('Simpan sebagai panduan'),
           ),
         ),
       ),
@@ -236,7 +295,9 @@ class _GuideImportScreenState extends ConsumerState<GuideImportScreen> {
   }
 
   String _formatBytes(int bytes) {
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    if (bytes < 1024 * 1024) {
+      return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    }
     return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 }

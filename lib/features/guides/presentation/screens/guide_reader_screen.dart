@@ -7,6 +7,7 @@ import 'package:pdfrx/pdfrx.dart';
 import 'package:satu_dulu/app/theme/app_theme.dart';
 import 'package:satu_dulu/features/guides/domain/entities/guide_models.dart';
 import 'package:satu_dulu/features/guides/presentation/controllers/guide_providers.dart';
+import 'package:satu_dulu/features/guides/presentation/widgets/guide_reader_states.dart';
 
 class GuideReaderScreen extends ConsumerWidget {
   const GuideReaderScreen({
@@ -22,13 +23,11 @@ class GuideReaderScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final document = ref.watch(guideDocumentProvider(documentId));
     return document.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator.adaptive()),
-      ),
+      loading: () => const GuideReaderLoading(),
       error: (error, stackTrace) =>
-          const _ReaderUnavailable(message: 'Panduan belum dapat dimuat.'),
+          const GuideReaderUnavailable(message: 'Panduan belum dapat dimuat.'),
       data: (value) => value == null
-          ? const _ReaderUnavailable(message: 'Panduan tidak ditemukan.')
+          ? const GuideReaderUnavailable(message: 'Panduan tidak ditemukan.')
           : _ResolvedGuideReader(document: value, initialPage: initialPage),
     );
   }
@@ -45,16 +44,15 @@ class _ResolvedGuideReader extends ConsumerWidget {
     final path = ref.watch(guidePathProvider(document.storedRelativePath));
     final exists = ref.watch(guideExistsProvider(document.storedRelativePath));
     if (exists.hasValue && exists.value == false) {
-      return const _ReaderUnavailable(
+      return const GuideReaderUnavailable(
         message: 'File panduan tidak ditemukan di penyimpanan aplikasi.',
       );
     }
     return path.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator.adaptive()),
+      loading: () => const GuideReaderLoading(),
+      error: (error, stackTrace) => const GuideReaderUnavailable(
+        message: 'File panduan belum dapat dibuka.',
       ),
-      error: (error, stackTrace) =>
-          const _ReaderUnavailable(message: 'File panduan belum dapat dibuka.'),
       data: (absolutePath) => _GuideReader(
         document: document,
         absolutePath: absolutePath,
@@ -164,13 +162,12 @@ class _GuideReaderState extends ConsumerState<_GuideReader>
             params: PdfViewerParams(
               backgroundColor: AppColors.surfaceSecondary,
               onPageChanged: _onPageChanged,
-              loadingBannerBuilder: (context, downloaded, total) => Center(
-                child: CircularProgressIndicator.adaptive(
-                  value: total == null ? null : downloaded / total,
-                ),
-              ),
+              loadingBannerBuilder: (context, downloaded, total) =>
+                  GuideReaderProgress(
+                    value: total == null ? null : downloaded / total,
+                  ),
               errorBannerBuilder: (context, error, stackTrace, documentRef) {
-                return const _ReaderErrorCard();
+                return const GuideReaderErrorCard();
               },
             ),
           ),
@@ -191,9 +188,9 @@ class _GuideReaderState extends ConsumerState<_GuideReader>
                   ),
                   child: Text(
                     '$_currentPage / ${widget.document.pageCount}',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelMedium?.copyWith(color: Colors.white),
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: AppColors.textInverse,
+                    ),
                   ),
                 ),
               ),
@@ -236,13 +233,12 @@ class _GuideReaderState extends ConsumerState<_GuideReader>
         height: MediaQuery.sizeOf(context).height * 0.78,
         child: PdfDocumentViewBuilder.file(
           widget.absolutePath,
-          loadingBuilder: (context) =>
-              const Center(child: CircularProgressIndicator.adaptive()),
+          loadingBuilder: (context) => const GuideReaderProgress(),
           errorBuilder: (context, error, stackTrace) =>
-              const _ReaderErrorCard(),
+              const GuideReaderErrorCard(),
           builder: (context, document) {
             if (document == null) {
-              return const Center(child: CircularProgressIndicator.adaptive());
+              return const GuideReaderProgress();
             }
             return GridView.builder(
               padding: const EdgeInsets.fromLTRB(
@@ -360,49 +356,5 @@ class _GuideReaderState extends ConsumerState<_GuideReader>
         context,
       ).showSnackBar(const SnackBar(content: Text('Catatan disimpan.')));
     }
-  }
-}
-
-class _ReaderUnavailable extends StatelessWidget {
-  const _ReaderUnavailable({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: context.pop,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-        ),
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.generous),
-          child: Text(message, textAlign: TextAlign.center),
-        ),
-      ),
-    );
-  }
-}
-
-class _ReaderErrorCard extends StatelessWidget {
-  const _ReaderErrorCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Card(
-        margin: EdgeInsets.all(AppSpacing.generous),
-        child: Padding(
-          padding: EdgeInsets.all(AppSpacing.section),
-          child: Text(
-            'PDF tidak dapat dibaca. File mungkin rusak atau dilindungi password.',
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
-    );
   }
 }

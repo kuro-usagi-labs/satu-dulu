@@ -1,176 +1,190 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:satu_dulu/app/theme/app_theme.dart';
+import 'package:satu_dulu/core/errors/app_exception.dart';
+import 'package:satu_dulu/core/widgets/app_primitives.dart';
 import 'package:satu_dulu/core/widgets/empty_state_card.dart';
 import 'package:satu_dulu/core/widgets/screen_frame.dart';
 import 'package:satu_dulu/features/projects/domain/entities/tracker_models.dart';
 import 'package:satu_dulu/features/projects/presentation/controllers/tracker_providers.dart';
-import 'package:satu_dulu/l10n/app_localizations.dart';
+import 'package:satu_dulu/features/projects/presentation/widgets/project_overview_widgets.dart';
 
 class ProjectsScreen extends ConsumerWidget {
   const ProjectsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final strings = AppLocalizations.of(context);
     final projects = ref.watch(projectsProvider);
 
     return ScreenFrame(
-      title: strings.projectsTitle,
-      subtitle: strings.projectsSubtitle,
+      eyebrow: 'Atur perhatianmu',
+      title: 'Proyek',
+      subtitle:
+          'Satu fokus memimpin. Satu boleh tetap dijaga. Ide lain aman disimpan dulu.',
+      trailing: IconButton.filled(
+        onPressed: () => context.push('/projects/new'),
+        tooltip: 'Tambah proyek',
+        icon: const Icon(Icons.add_rounded),
+      ),
       child: projects.when(
-        loading: () =>
-            const Center(child: CircularProgressIndicator.adaptive()),
-        error: (error, stackTrace) => const _ProjectsError(),
-        data: (items) {
-          if (items.isEmpty) {
-            return EmptyStateCard(
-              icon: Icons.folder_copy_outlined,
-              title: strings.noProjectsTitle,
-              description: strings.noProjectsDescription,
-              actionLabel: strings.createProject,
-              onAction: () => context.push('/projects/new'),
-            );
-          }
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Align(
-                alignment: Alignment.centerRight,
-                child: FilledButton.tonalIcon(
-                  onPressed: () => context.push('/projects/new'),
-                  icon: const Icon(Icons.add_rounded),
-                  label: const Text('Tambah proyek'),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.section),
-              _ProjectSection(
-                title: 'Focus',
-                emptyLabel: 'Belum ada fokus utama.',
-                projects: _withStatus(items, ProjectStatus.focus),
-              ),
-              const SizedBox(height: AppSpacing.section),
-              _ProjectSection(
-                title: 'Maintenance',
-                emptyLabel: 'Tidak ada proyek maintenance.',
-                projects: _withStatus(items, ProjectStatus.maintenance),
-              ),
-              const SizedBox(height: AppSpacing.section),
-              _ProjectSection(
-                title: 'Parking Lot',
-                emptyLabel: 'Parking Lot masih kosong.',
-                projects: _withStatus(items, ProjectStatus.parkingLot),
-              ),
-            ],
-          );
-        },
+        loading: () => const ProjectsLoading(),
+        error: (error, stackTrace) =>
+            ProjectsError(onRetry: () => ref.invalidate(projectsProvider)),
+        data: (items) => items.isEmpty
+            ? EmptyStateCard(
+                icon: Icons.folder_copy_outlined,
+                title: 'Belum ada proyek',
+                description:
+                    'Buat satu fokus untuk 30 hari. Hari Ini akan membantumu bergerak dari sana.',
+                actionLabel: 'Buat fokus pertama',
+                onAction: () => context.push('/projects/new'),
+              )
+            : _ProjectsContent(items: items),
       ),
     );
   }
-
-  List<Project> _withStatus(List<Project> items, ProjectStatus status) => items
-      .where((project) => project.status == status)
-      .toList(growable: false);
 }
 
-class _ProjectSection extends StatelessWidget {
-  const _ProjectSection({
-    required this.title,
-    required this.emptyLabel,
-    required this.projects,
-  });
+class _ProjectsContent extends ConsumerWidget {
+  const _ProjectsContent({required this.items});
 
-  final String title;
-  final String emptyLabel;
-  final List<Project> projects;
+  final List<Project> items;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final focus = _withStatus(ProjectStatus.focus).firstOrNull;
+    final maintained = _withStatus(ProjectStatus.maintenance);
+    final parked = _withStatus(ProjectStatus.parkingLot);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(title, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: AppSpacing.innerCompact),
-        if (projects.isEmpty)
-          Text(
-            emptyLabel,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: AppColors.textTertiary),
-          )
+        if (focus == null)
+          NoFocusBanner(onChoose: () => _chooseFocus(context, ref))
         else
-          for (final project in projects) ...[
-            _ProjectCard(
-              project: project,
-              onTap: () => context.push('/projects/${project.id}'),
-            ),
-            if (project != projects.last)
-              const SizedBox(height: AppSpacing.innerCompact),
+          FocusProjectCard(project: focus),
+        const SizedBox(height: AppSpacing.major),
+        const AppSectionHeader(
+          title: 'Tetap dijaga',
+          description: 'Tidak mengambil alih Hari Ini. Maksimal satu proyek.',
+        ),
+        const SizedBox(height: AppSpacing.innerCompact),
+        if (maintained.isEmpty)
+          const QuietProjectEmpty(label: 'Belum ada proyek yang tetap dijaga.')
+        else
+          for (final project in maintained) ...[
+            ProjectOverviewRow(project: project),
+            if (project != maintained.last)
+              const SizedBox(height: AppSpacing.compact),
           ],
+        const SizedBox(height: AppSpacing.major),
+        AppSectionHeader(
+          title: 'Disimpan dulu',
+          description: 'Ide tetap aman tanpa memecah fokusmu sekarang.',
+          trailing: DecoratedBox(
+            decoration: BoxDecoration(
+              color: AppColors.surfaceSecondary,
+              borderRadius: BorderRadius.circular(AppRadius.small),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.compact,
+                vertical: AppSpacing.micro,
+              ),
+              child: Text(
+                '${parked.length}',
+                style: AppTextStyles.number.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.innerCompact),
+        if (parked.isEmpty)
+          const QuietProjectEmpty(label: 'Belum ada ide yang disimpan dulu.')
+        else
+          for (final project in parked) ...[
+            ProjectOverviewRow(project: project, quiet: true),
+            if (project != parked.last)
+              const SizedBox(height: AppSpacing.compact),
+          ],
+        const SizedBox(height: AppSpacing.section),
+        TextButton.icon(
+          onPressed: () => _showStatusGuide(context),
+          icon: const Icon(Icons.help_outline_rounded),
+          label: const Text('Apa bedanya tiga tempat ini?'),
+        ),
       ],
     );
   }
-}
 
-class _ProjectCard extends StatelessWidget {
-  const _ProjectCard({required this.project, required this.onTap});
+  List<Project> _withStatus(ProjectStatus status) => items
+      .where((project) => project.status == status)
+      .toList(growable: false);
 
-  final Project project;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final reviewDate = project.reviewDate?.toLocal();
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.card),
+  Future<void> _chooseFocus(BuildContext context, WidgetRef ref) async {
+    final candidates = items
+        .where((project) => project.status != ProjectStatus.archived)
+        .toList(growable: false);
+    final selected = await showModalBottomSheet<Project>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) => SafeArea(
+        top: false,
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.standard),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.generous,
+            0,
+            AppSpacing.generous,
+            AppSpacing.section,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                width: 4,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: _statusColor(project.status),
-                  borderRadius: BorderRadius.circular(999),
+              const AppEyebrow('Pilih satu saja'),
+              const SizedBox(height: AppSpacing.compact),
+              Text(
+                'Proyek mana yang memimpin sekarang?',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: AppSpacing.compact),
+              Text(
+                'Proyek ini akan muncul di Hari Ini. Kamu bisa menggantinya nanti.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondary,
                 ),
               ),
-              const SizedBox(width: AppSpacing.innerCompact),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      project.name,
-                      style: Theme.of(context).textTheme.titleLarge,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: AppSpacing.micro),
-                    Text(
-                      project.shortGoal,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
+              const SizedBox(height: AppSpacing.section),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.sizeOf(context).height * 0.48,
+                ),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: candidates.length,
+                  separatorBuilder: (_, _) => const Divider(),
+                  itemBuilder: (context, index) {
+                    final project = candidates[index];
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const AppIconBadge(
+                        icon: Icons.arrow_outward_rounded,
+                        size: 42,
                       ),
-                    ),
-                    if (reviewDate != null) ...[
-                      const SizedBox(height: AppSpacing.compact),
-                      Text(
-                        'Review ${DateFormat('d MMM y', 'id').format(reviewDate)}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textTertiary,
-                        ),
+                      title: Text(project.name),
+                      subtitle: Text(
+                        project.shortGoal,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ],
-                  ],
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => Navigator.pop(context, project),
+                    );
+                  },
                 ),
               ),
             ],
@@ -178,27 +192,74 @@ class _ProjectCard extends StatelessWidget {
         ),
       ),
     );
+    if (selected == null || !context.mounted) return;
+
+    try {
+      await ref
+          .read(trackerRepositoryProvider)
+          .updateProject(
+            selected.id,
+            UpdateProjectInput(
+              name: selected.name,
+              shortGoal: selected.shortGoal,
+              whyChosen: selected.whyChosen,
+              successDefinition: selected.successDefinition,
+              targetRevenueMinor: selected.targetRevenueMinor,
+              status: ProjectStatus.focus,
+            ),
+          );
+      ref.invalidate(projectsProvider);
+      ref.invalidate(todayProvider);
+      if (context.mounted) context.go('/today');
+    } on AppException catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.message)));
+      }
+    }
   }
 
-  Color _statusColor(ProjectStatus status) => switch (status) {
-    ProjectStatus.focus => AppColors.accent,
-    ProjectStatus.maintenance => AppColors.success,
-    ProjectStatus.parkingLot => AppColors.textTertiary,
-    ProjectStatus.archived => AppColors.border,
-  };
-}
-
-class _ProjectsError extends StatelessWidget {
-  const _ProjectsError();
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.standard),
-        child: Text(
-          'Proyek belum dapat dimuat. Coba buka ulang aplikasi.',
-          style: Theme.of(context).textTheme.bodyMedium,
+  void _showStatusGuide(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      builder: (context) => const SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.generous,
+            0,
+            AppSpacing.generous,
+            AppSpacing.section,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AppEyebrow('Tiga tempat, tiga tugas'),
+              SizedBox(height: AppSpacing.section),
+              AppStepRow(
+                number: 1,
+                title: 'Fokus utama',
+                description:
+                    'Satu proyek yang memimpin 30 hari dan muncul di Hari Ini.',
+                highlighted: true,
+              ),
+              AppStepRow(
+                number: 2,
+                title: 'Tetap dijaga',
+                description:
+                    'Satu proyek yang perlu tetap hidup, tetapi tidak menguasai perhatian.',
+              ),
+              AppStepRow(
+                number: 3,
+                title: 'Disimpan dulu',
+                description:
+                    'Semua ide lain. Aman untuk nanti dan tidak hilang.',
+                isLast: true,
+              ),
+            ],
+          ),
         ),
       ),
     );
