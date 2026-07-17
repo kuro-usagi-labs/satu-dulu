@@ -26,6 +26,57 @@ class Projects extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
+@DataClassName('IdeaRow')
+class Ideas extends Table {
+  TextColumn get id => text()();
+  TextColumn get title => text()();
+  TextColumn get note => text().nullable()();
+  TextColumn get source => text().nullable()();
+  TextColumn get disposition => text()();
+  TextColumn get convertedProjectId => text().nullable().references(
+    Projects,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
+  DateTimeColumn get capturedAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+@DataClassName('RestartCapsuleRow')
+class RestartCapsules extends Table {
+  TextColumn get id => text()();
+  TextColumn get projectId =>
+      text().unique().references(Projects, #id, onDelete: KeyAction.cascade)();
+  TextColumn get lastKnownState => text().nullable()();
+  TextColumn get lastOutput => text().nullable()();
+  TextColumn get whatWorked => text().nullable()();
+  TextColumn get blocker => text().nullable()();
+  TextColumn get nextAction => text().nullable()();
+  TextColumn get parkedReason => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+@DataClassName('DailyCheckInRow')
+class DailyCheckIns extends Table {
+  TextColumn get id => text()();
+  DateTimeColumn get checkInDate => dateTime().unique()();
+  TextColumn get energyLevel => text()();
+  IntColumn get availableMinutes => integer()();
+  TextColumn get note => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
 @DataClassName('SprintRow')
 class Sprints extends Table {
   TextColumn get id => text()();
@@ -208,6 +259,7 @@ class WeeklyReviews extends Table {
   TextColumn get wasteOrBlocker => text().nullable()();
   TextColumn get decision => text()();
   TextColumn get nextWeekFocus => text().nullable()();
+  DateTimeColumn get decisionAppliedAt => dateTime().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -244,6 +296,9 @@ class NotificationPreferences extends Table {
 @DriftDatabase(
   tables: [
     Projects,
+    Ideas,
+    RestartCapsules,
+    DailyCheckIns,
     Sprints,
     DailyPlans,
     DailyActions,
@@ -271,7 +326,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -280,6 +335,15 @@ class AppDatabase extends _$AppDatabase {
       if (from > to) {
         throw StateError(
           'Database downgrade from version $from to $to is not supported.',
+        );
+      }
+      if (from < 2) {
+        await migrator.createTable(ideas);
+        await migrator.createTable(restartCapsules);
+        await migrator.createTable(dailyCheckIns);
+        await migrator.addColumn(
+          weeklyReviews,
+          weeklyReviews.decisionAppliedAt,
         );
       }
     },
