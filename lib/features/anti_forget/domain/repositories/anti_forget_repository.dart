@@ -15,8 +15,6 @@ abstract interface class AntiForgetRepository {
 
   Future<void> saveRestartCapsule(RestartCapsuleInput input);
 
-  Future<void> applyRestartCapsuleToActivePlan(String projectId);
-
   Future<DailyCheckIn?> getDailyCheckIn(DateTime localDate);
 
   Future<void> saveDailyCheckIn(DailyCheckInInput input);
