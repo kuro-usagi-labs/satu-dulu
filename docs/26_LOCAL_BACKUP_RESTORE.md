@@ -35,7 +35,7 @@ pdfs/<document-uuid>.pdf
 `manifest.json` memiliki format identifier, format version, schema database,
 waktu UTC, checksum `data.json`, hitungan record, dan daftar PDF yang diurutkan
 berdasarkan path lengkap dengan ukuran serta SHA-256. `data.json` menyimpan 12
-tabel schema v2 dalam urutan deterministik. Dependency produksi `archive`
+tabel schema v3 dalam urutan deterministik. Dependency produksi `archive`
 ditambahkan langsung dan dipin pada versi yang sudah dipakai secara transitif;
 dependency ini dibutuhkan untuk ZIP offline lintas platform tanpa native SDK
 tambahan.
@@ -80,7 +80,7 @@ archive version.
 1. Tambahkan model, repository abstraction, archive codec, dan file service
    native/stub untuk backup.
 2. Implementasikan snapshot deterministik dan replacement transaction untuk
-   seluruh tabel schema v2.
+   seluruh tabel schema v3.
 3. Implementasikan coordinator create, inspect, cancel, dan restore dengan
    compensating file rollback.
 4. Tambahkan provider serta section compact pada Pengaturan dengan preview dan

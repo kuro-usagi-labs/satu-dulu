@@ -7,6 +7,9 @@ const maxLocalBackupEntries = 1002;
 
 const localBackupTableNames = <String>[
   'projects',
+  'ideas',
+  'restartCapsules',
+  'dailyCheckIns',
   'sprints',
   'dailyPlans',
   'dailyActions',

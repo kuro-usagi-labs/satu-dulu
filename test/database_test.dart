@@ -7,7 +7,7 @@ void main() {
     final database = AppDatabase.forTesting(NativeDatabase.memory());
     addTearDown(database.close);
 
-    expect(database.schemaVersion, 2);
+    expect(database.schemaVersion, 3);
     await database.customSelect('SELECT 1').getSingle();
   });
 }

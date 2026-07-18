@@ -18,6 +18,14 @@ class DriftLocalBackupRepository implements LocalBackupRepository {
     try {
       final projects = await _database.select(_database.projects).get()
         ..sort((a, b) => a.id.compareTo(b.id));
+      final ideas = await _database.select(_database.ideas).get()
+        ..sort((a, b) => a.id.compareTo(b.id));
+      final restartCapsules =
+          await _database.select(_database.restartCapsules).get()
+            ..sort((a, b) => a.id.compareTo(b.id));
+      final dailyCheckIns =
+          await _database.select(_database.dailyCheckIns).get()
+            ..sort((a, b) => a.id.compareTo(b.id));
       final sprints = await _database.select(_database.sprints).get()
         ..sort((a, b) => a.id.compareTo(b.id));
       final dailyPlans = await _database.select(_database.dailyPlans).get()
@@ -50,6 +58,9 @@ class DriftLocalBackupRepository implements LocalBackupRepository {
         databaseSchemaVersion: AppDatabase.currentSchemaVersion,
         tables: {
           'projects': [for (final row in projects) row.toJson()],
+          'ideas': [for (final row in ideas) row.toJson()],
+          'restartCapsules': [for (final row in restartCapsules) row.toJson()],
+          'dailyCheckIns': [for (final row in dailyCheckIns) row.toJson()],
           'sprints': [for (final row in sprints) row.toJson()],
           'dailyPlans': [for (final row in dailyPlans) row.toJson()],
           'dailyActions': [for (final row in dailyActions) row.toJson()],
@@ -95,9 +106,15 @@ class DriftLocalBackupRepository implements LocalBackupRepository {
           batch.deleteAll(_database.dailyActions);
           batch.deleteAll(_database.dailyPlans);
           batch.deleteAll(_database.sprints);
+          batch.deleteAll(_database.dailyCheckIns);
+          batch.deleteAll(_database.restartCapsules);
+          batch.deleteAll(_database.ideas);
           batch.deleteAll(_database.projects);
 
           batch.insertAll(_database.projects, rows.projects);
+          batch.insertAll(_database.ideas, rows.ideas);
+          batch.insertAll(_database.restartCapsules, rows.restartCapsules);
+          batch.insertAll(_database.dailyCheckIns, rows.dailyCheckIns);
           batch.insertAll(_database.sprints, rows.sprints);
           batch.insertAll(_database.dailyPlans, rows.dailyPlans);
           batch.insertAll(_database.dailyActions, rows.dailyActions);

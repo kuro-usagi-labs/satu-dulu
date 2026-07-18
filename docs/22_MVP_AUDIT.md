@@ -22,7 +22,7 @@ Tanggal audit lokal: 17 Juli 2026.
 | CI and IPA definitions | PR CI, unsigned macOS workflow, protected manual signed workflow |
 | Identity | Bundle ID `com.kurogi.satudulu`; repository remote configured |
 | Database migration | Drift schema v1 baseline plus migration/data-preservation verification |
-| Local backup/restore | ZIP v1 manifest/checksum, all schema v2 tables, full PDF staging, database transaction, and rollback tests |
+| Local backup/restore | ZIP v1 manifest/checksum, all schema v3 tables, full PDF staging, database transaction, and rollback tests |
 | Release assets | 19 opaque iOS icons, web icons, branded launch screen, and deterministic generator |
 | Privacy | Runner privacy manifest declares no tracking or off-device collection |
 

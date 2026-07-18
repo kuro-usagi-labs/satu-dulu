@@ -1,5 +1,37 @@
 # Changelog
 
+## 1.2.1 — Integrated local edition
+
+- Restored the warm editorial theme and complete local-first workflow that had
+  remained outside the GitHub main branch.
+- Integrated Idea Inbox, Daily Check-in, Recovery Mode, Restart Capsule, and
+  applied weekly-review decisions into the local Today experience.
+- Combined 30-day cycle closure and anti-forget storage in Drift schema v3,
+  with safe migration from either previously released schema-v2 variant.
+- Extended local backup and restore to every schema-v3 table, including all
+  anti-forget context.
+- Kept unsigned IPA distribution for sideloading without Apple certificates.
+
+## 1.2.0 — Anti-lupa
+
+- Added Idea Inbox to capture ideas without creating projects, sprints, or tasks.
+- Added Restart Capsule for project state, last output, blocker, and next action.
+- Added daily energy and available-time check-ins that guide plan sizing.
+- Added deterministic automatic Recovery Mode using local project, sprint, plan,
+  Ship, review, check-in, and capsule signals.
+- Weekly reviews now apply continue, pivot, or park decisions transactionally.
+- Added Drift schema v2 with additive migration for ideas, capsules, check-ins,
+  and review decision audit timestamps.
+- Added repository and domain tests for the integrated anti-forget loop.
+
+## 1.1.0 — Stability
+
+- Today refreshes across midnight and when the app resumes from background.
+- Project reactivation starts a fresh sprint while preserving useful context.
+- Replaced focus and archived projects no longer retain active sprints.
+- App version metadata is shown consistently in Settings.
+- Established an explicit Drift migration lifecycle.
+
 ## 1.0.1 — Focus Blue
 
 - Replaced the warm paper, terracotta, and green-ink palette with cool-white

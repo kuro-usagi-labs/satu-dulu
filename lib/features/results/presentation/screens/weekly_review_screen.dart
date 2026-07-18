@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:satu_dulu/app/theme/app_theme.dart';
 import 'package:satu_dulu/core/errors/app_exception.dart';
 import 'package:satu_dulu/core/widgets/app_primitives.dart';
+import 'package:satu_dulu/features/anti_forget/presentation/controllers/anti_forget_providers.dart';
 import 'package:satu_dulu/features/projects/presentation/controllers/tracker_providers.dart';
 import 'package:satu_dulu/features/results/domain/entities/result_models.dart';
 import 'package:satu_dulu/features/results/presentation/controllers/results_providers.dart';
@@ -92,9 +93,9 @@ class _WeeklyReviewScreenState extends ConsumerState<WeeklyReviewScreen> {
             const SizedBox(height: AppSpacing.section),
             const AppNotice(
               icon: Icons.balance_outlined,
-              title: 'Tidak ada jawaban yang harus terlihat bagus',
+              title: 'Keputusan ini akan benar-benar diterapkan',
               description:
-                  'Review ini membantu mengurangi tebakan. Tulis singkat dan jujur.',
+                  'Kamu tetap melihat ringkasan efeknya sebelum sprint atau status proyek berubah.',
             ),
             const SizedBox(height: AppSpacing.major),
             _ReviewPrompt(
@@ -125,13 +126,14 @@ class _WeeklyReviewScreenState extends ConsumerState<WeeklyReviewScreen> {
             const AppSectionHeader(
               title: 'Pilih arah berikutnya',
               description:
-                  'Keputusan ini tidak otomatis mengubah status proyek.',
+                  'Satu pilihan akan memperbarui sprint, status, dan Restart Capsule secara atomik.',
             ),
             const SizedBox(height: AppSpacing.standard),
             _DecisionOption(
               icon: Icons.arrow_forward_rounded,
               title: 'Lanjutkan arah ini',
-              description: 'Jaga fokus dan lanjutkan eksperimen minggu depan.',
+              description:
+                  'Jaga fokus. Sprint baru dibuat hanya bila putaran sekarang hampir selesai.',
               selected: _decision == ReviewDecision.continueFocus,
               onTap: () => _selectDecision(ReviewDecision.continueFocus),
             ),
@@ -139,7 +141,8 @@ class _WeeklyReviewScreenState extends ConsumerState<WeeklyReviewScreen> {
             _DecisionOption(
               icon: Icons.alt_route_rounded,
               title: 'Ubah pendekatan',
-              description: 'Tujuan tetap; cara mencapainya perlu disesuaikan.',
+              description:
+                  'Tutup sprint lama dan mulai eksperimen 30 hari dengan cara baru.',
               selected: _decision == ReviewDecision.pivot,
               onTap: () => _selectDecision(ReviewDecision.pivot),
             ),
@@ -148,15 +151,17 @@ class _WeeklyReviewScreenState extends ConsumerState<WeeklyReviewScreen> {
               icon: Icons.inventory_2_outlined,
               title: 'Simpan dulu',
               description:
-                  'Berhenti memberi ruang harian tanpa menyebutnya gagal.',
+                  'Pindahkan proyek ke Parking Lot dan simpan konteks untuk kembali.',
               selected: _decision == ReviewDecision.park,
               onTap: () => _selectDecision(ReviewDecision.park),
             ),
             const SizedBox(height: AppSpacing.major),
             AppSectionHeader(
               title: _decision == ReviewDecision.park
-                  ? 'Apa yang ingin kamu tutup dengan rapi?'
-                  : 'Apa satu fokus minggu depan?',
+                  ? 'Tindakan pertama saat dilanjutkan'
+                  : _decision == ReviewDecision.pivot
+                  ? 'Pendekatan baru yang akan diuji'
+                  : 'Satu fokus minggu depan',
               description: _nextDescription,
             ),
             const SizedBox(height: AppSpacing.standard),
@@ -165,8 +170,10 @@ class _WeeklyReviewScreenState extends ConsumerState<WeeklyReviewScreen> {
               minLines: 3,
               maxLines: 5,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Satu kalimat cukup',
+              decoration: InputDecoration(
+                labelText: _decision == ReviewDecision.park
+                    ? 'Wajib agar proyek mudah dilanjutkan'
+                    : 'Satu kalimat cukup',
                 alignLabelWithHint: true,
               ),
             ),
@@ -174,7 +181,7 @@ class _WeeklyReviewScreenState extends ConsumerState<WeeklyReviewScreen> {
               const SizedBox(height: AppSpacing.section),
               AppNotice(
                 icon: Icons.error_outline_rounded,
-                title: 'Review belum tersimpan',
+                title: 'Review belum diterapkan',
                 description: error,
                 background: AppColors.dangerSoft,
                 foreground: AppColors.danger,
@@ -184,9 +191,18 @@ class _WeeklyReviewScreenState extends ConsumerState<WeeklyReviewScreen> {
         ),
       ),
       bottomNavigationBar: AppBottomActionBar(
-        child: FilledButton(
+        child: FilledButton.icon(
           onPressed: _saving ? null : _save,
-          child: Text(_saving ? 'Menyimpan…' : 'Simpan review'),
+          icon: _saving
+              ? const SizedBox.square(
+                  dimension: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.textInverse,
+                  ),
+                )
+              : const Icon(Icons.check_rounded),
+          label: Text(_saving ? 'Menerapkan…' : 'Tinjau dan terapkan'),
         ),
       ),
     );
@@ -205,9 +221,9 @@ class _WeeklyReviewScreenState extends ConsumerState<WeeklyReviewScreen> {
     ReviewDecision.continueFocus =>
       'Pilih satu hasil yang paling layak dikejar, bukan daftar baru.',
     ReviewDecision.pivot =>
-      'Tulis pendekatan baru yang akan diuji tanpa mengubah tujuan utama.',
+      'Tujuan utama tetap, tetapi sprint lama ditutup dan cara baru dimulai.',
     ReviewDecision.park =>
-      'Simpan pelajaran penting agar proyek mudah dilanjutkan saat waktunya tepat.',
+      'Kalimat ini disimpan di Restart Capsule sebagai pintu masuk berikutnya.',
   };
 
   void _selectDecision(ReviewDecision decision) {
@@ -217,7 +233,48 @@ class _WeeklyReviewScreenState extends ConsumerState<WeeklyReviewScreen> {
     });
   }
 
+  WeeklyReviewInput get _input => WeeklyReviewInput(
+    projectId: widget.projectId,
+    weekStart: _weekStart,
+    weekEnd: _weekStart.add(const Duration(days: 6)),
+    shippedSummary: _shipped.text,
+    importantResult: _important.text,
+    workedWell: _worked.text,
+    wasteOrBlocker: _waste.text,
+    decision: _decision,
+    nextWeekFocus: _next.text,
+  );
+
   Future<void> _save() async {
+    FocusScope.of(context).unfocus();
+    if (_decision == ReviewDecision.park && _next.text.trim().isEmpty) {
+      setState(
+        () => _saveError =
+            'Tulis satu tindakan pertama sebelum proyek disimpan dulu.',
+      );
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: Icon(_decisionIcon),
+        title: Text(_confirmationTitle),
+        content: Text(_confirmationDescription),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Periksa lagi'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Terapkan keputusan'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
     setState(() {
       _saving = true;
       _saveError = null;
@@ -225,21 +282,18 @@ class _WeeklyReviewScreenState extends ConsumerState<WeeklyReviewScreen> {
     try {
       await ref
           .read(resultsRepositoryProvider)
-          .saveWeeklyReview(
-            WeeklyReviewInput(
-              projectId: widget.projectId,
-              weekStart: _weekStart,
-              weekEnd: _weekStart.add(const Duration(days: 6)),
-              shippedSummary: _shipped.text,
-              importantResult: _important.text,
-              workedWell: _worked.text,
-              wasteOrBlocker: _waste.text,
-              decision: _decision,
-              nextWeekFocus: _next.text,
-            ),
-          );
-      if (mounted) {
-        context.pop();
+          .saveAndApplyWeeklyReview(_input);
+      ref.invalidate(projectsProvider);
+      ref.invalidate(projectProvider(widget.projectId));
+      ref.invalidate(todayProvider);
+      ref.invalidate(weeklyReviewsProvider(widget.projectId));
+      ref.invalidate(restartCapsuleProvider(widget.projectId));
+      ref.invalidate(antiForgetTodaySupportProvider);
+      if (!mounted) return;
+      if (_decision == ReviewDecision.park) {
+        context.go('/projects');
+      } else {
+        context.go('/today');
       }
     } on AppException catch (error) {
       if (mounted) setState(() => _saveError = error.message);
@@ -247,13 +301,34 @@ class _WeeklyReviewScreenState extends ConsumerState<WeeklyReviewScreen> {
       if (mounted) {
         setState(
           () => _saveError =
-              'Review belum dapat disimpan. Jawabanmu tetap ada di layar ini.',
+              'Review belum dapat diterapkan. Jawabanmu tetap ada di layar ini.',
         );
       }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
   }
+
+  IconData get _decisionIcon => switch (_decision) {
+    ReviewDecision.continueFocus => Icons.arrow_forward_rounded,
+    ReviewDecision.pivot => Icons.alt_route_rounded,
+    ReviewDecision.park => Icons.inventory_2_outlined,
+  };
+
+  String get _confirmationTitle => switch (_decision) {
+    ReviewDecision.continueFocus => 'Lanjutkan fokus ini?',
+    ReviewDecision.pivot => 'Mulai pendekatan baru?',
+    ReviewDecision.park => 'Simpan proyek ini dulu?',
+  };
+
+  String get _confirmationDescription => switch (_decision) {
+    ReviewDecision.continueFocus =>
+      'Fokus tetap aktif. Bila sprint hampir selesai, Satu Dulu membuat putaran 30 hari baru dan memakai fokus minggu depan sebagai titik mulai.',
+    ReviewDecision.pivot =>
+      'Sprint aktif ditutup, pendekatan lama disimpan di Restart Capsule, lalu eksperimen 30 hari baru dimulai.',
+    ReviewDecision.park =>
+      'Sprint aktif dibatalkan, proyek dipindahkan ke Parking Lot, dan konteks terakhir disimpan agar mudah dilanjutkan.',
+  };
 }
 
 class _ReviewPrompt extends StatelessWidget {

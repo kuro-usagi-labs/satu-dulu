@@ -6,7 +6,7 @@ import 'generated_migrations/schema.dart';
 
 void main() {
   test(
-    'migration v1 to v2 preserves tracker evidence and adds closures',
+    'migration v1 to v3 preserves data and adds every merged feature',
     () async {
       final verifier = SchemaVerifier(GeneratedHelper());
       final schema = await verifier.schemaAt(1);
@@ -128,7 +128,7 @@ void main() {
 
       await verifier.migrateAndValidate(
         database,
-        2,
+        3,
         options: const ValidationOptions(validateDropped: true),
       );
 
@@ -143,6 +143,9 @@ void main() {
       expect(await database.select(database.shipRecords).get(), hasLength(1));
       expect(await database.select(database.metricEntries).get(), hasLength(1));
       expect(await database.select(database.weeklyReviews).get(), hasLength(1));
+      expect(await database.select(database.ideas).get(), isEmpty);
+      expect(await database.select(database.restartCapsules).get(), isEmpty);
+      expect(await database.select(database.dailyCheckIns).get(), isEmpty);
       expect(await database.select(database.sprintClosures).get(), isEmpty);
 
       final foreignKeys = await database
@@ -152,9 +155,9 @@ void main() {
     },
   );
 
-  test('schema v2 contains every released table', () async {
+  test('schema v3 contains every released table', () async {
     final verifier = SchemaVerifier(GeneratedHelper());
-    final connection = await verifier.startAt(2);
+    final connection = await verifier.startAt(3);
     final database = AppDatabase.forTesting(connection);
     addTearDown(database.close);
 
@@ -170,6 +173,9 @@ void main() {
       names,
       containsAll({
         'projects',
+        'ideas',
+        'restart_capsules',
+        'daily_check_ins',
         'sprints',
         'sprint_closures',
         'daily_plans',
@@ -185,9 +191,9 @@ void main() {
     );
   });
 
-  test('schema v2 rejects invalid and duplicate cycle decisions', () async {
+  test('schema v3 rejects invalid and duplicate cycle decisions', () async {
     final verifier = SchemaVerifier(GeneratedHelper());
-    final connection = await verifier.startAt(2);
+    final connection = await verifier.startAt(3);
     final database = AppDatabase.forTesting(connection);
     addTearDown(database.close);
 

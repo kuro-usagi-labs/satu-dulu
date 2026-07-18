@@ -147,9 +147,11 @@ void main() {
         child: const SatuDuluApp(),
       ),
     );
-    await _pumpUntilFound(tester, find.text('Ship Hari Ini'));
-
-    await tester.tap(find.widgetWithText(FilledButton, 'Ship Hari Ini'));
+    final shipButton = find.widgetWithText(FilledButton, 'Ship Hari Ini');
+    await _pumpUntilFound(tester, shipButton);
+    await tester.ensureVisible(shipButton);
+    await tester.pumpAndSettle();
+    await tester.tap(shipButton);
     await tester.pumpAndSettle();
 
     expect(find.text('Apa yang benar-benar kamu kirim?'), findsOneWidget);
@@ -320,6 +322,9 @@ class _FakeResultsRepository implements ResultsRepository {
 
   @override
   Future<void> saveWeeklyReview(WeeklyReviewInput input) async {}
+
+  @override
+  Future<void> saveAndApplyWeeklyReview(WeeklyReviewInput input) async {}
 
   @override
   Stream<ResultsSummary> watchSummary(

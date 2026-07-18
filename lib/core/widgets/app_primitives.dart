@@ -437,6 +437,7 @@ class AppNotice extends StatelessWidget {
     required this.description,
     this.background = AppColors.surfaceSecondary,
     this.foreground = AppColors.textPrimary,
+    this.action,
     super.key,
   });
 
@@ -445,6 +446,7 @@ class AppNotice extends StatelessWidget {
   final String description;
   final Color background;
   final Color foreground;
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
@@ -477,6 +479,10 @@ class AppNotice extends StatelessWidget {
                       context,
                     ).textTheme.bodyMedium?.copyWith(color: foreground),
                   ),
+                  if (action case final action?) ...[
+                    const SizedBox(height: AppSpacing.compact),
+                    action,
+                  ],
                 ],
               ),
             ),

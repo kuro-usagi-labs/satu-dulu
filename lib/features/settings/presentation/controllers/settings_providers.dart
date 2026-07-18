@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satu_dulu/core/database/app_database.dart'
     hide NotificationPreferences;
+import 'package:satu_dulu/features/anti_forget/presentation/controllers/anti_forget_providers.dart';
 import 'package:satu_dulu/features/guides/presentation/controllers/guide_providers.dart';
 import 'package:satu_dulu/features/projects/presentation/controllers/tracker_providers.dart';
 import 'package:satu_dulu/features/results/presentation/controllers/results_providers.dart';
@@ -59,6 +60,10 @@ final localBackupCoordinatorProvider = Provider<LocalBackupActions>((ref) {
       ref.invalidate(weeklyReviewsProvider);
       ref.read(selectedResultsProjectProvider.notifier).clear();
       ref.invalidate(notificationPreferencesProvider);
+      ref.invalidate(activeIdeasProvider);
+      ref.invalidate(dailyCheckInProvider);
+      ref.invalidate(restartCapsuleProvider);
+      ref.invalidate(antiForgetTodaySupportProvider);
 
       final preferences = await ref
           .read(notificationPreferencesRepositoryProvider)

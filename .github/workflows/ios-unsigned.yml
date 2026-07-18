@@ -2,20 +2,34 @@ name: Build Unsigned iOS IPA
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: Publish the IPA to a GitHub Release
+        required: false
+        type: boolean
+        default: false
   push:
     tags:
       - "v*"
+  create:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'create' &&
+       github.event.ref_type == 'branch' &&
+       startsWith(github.event.ref, 'release/')) ||
+      (github.event_name == 'push' && github.actor != 'github-actions[bot]')
     runs-on: macos-15
     timeout-minutes: 45
 
     steps:
       - uses: actions/checkout@v4
+
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -27,18 +41,90 @@ jobs:
       - run: flutter analyze
       - run: flutter test
 
+      - name: Resolve release metadata
+        id: release_meta
+        shell: bash
+        run: |
+          VERSION="$(awk '/^version:/{print $2; exit}' pubspec.yaml)"
+          VERSION_NAME="${VERSION%%+*}"
+          BUILD_NUMBER="${VERSION##*+}"
+          TAG_NAME="v${VERSION_NAME}"
+          if [[ "${GITHUB_REF_TYPE:-}" == "tag" ]]; then
+            TAG_NAME="${GITHUB_REF_NAME}"
+          fi
+          IPA_NAME="SatuDulu-${TAG_NAME}-build-${BUILD_NUMBER}-unsigned.ipa"
+          echo "version_name=${VERSION_NAME}" >> "$GITHUB_OUTPUT"
+          echo "build_number=${BUILD_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "tag_name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
+          echo "ipa_name=${IPA_NAME}" >> "$GITHUB_OUTPUT"
+
       - name: Build iOS app without codesign
         run: flutter build ios --release --no-codesign
 
       - name: Package unsigned IPA
+        env:
+          IPA_NAME: ${{ steps.release_meta.outputs.ipa_name }}
         run: |
+          rm -rf Payload
           mkdir -p Payload
           cp -R build/ios/iphoneos/Runner.app Payload/Runner.app
-          ditto -c -k --sequesterRsrc --keepParent Payload SatuDulu-unsigned.ipa
+          ditto -c -k --sequesterRsrc --keepParent Payload "$IPA_NAME"
 
       - uses: actions/upload-artifact@v4
         with:
           name: satu-dulu-unsigned-ipa
-          path: SatuDulu-unsigned.ipa
+          path: ${{ steps.release_meta.outputs.ipa_name }}
           if-no-files-found: error
           retention-days: 14
+
+      - name: Prepare release notes
+        if: >-
+          github.event_name == 'push' ||
+          (github.event_name == 'create' && startsWith(github.event.ref, 'release/')) ||
+          inputs.publish_release == true
+        env:
+          TAG_NAME: ${{ steps.release_meta.outputs.tag_name }}
+          VERSION_NAME: ${{ steps.release_meta.outputs.version_name }}
+          BUILD_NUMBER: ${{ steps.release_meta.outputs.build_number }}
+        run: |
+          cat > release-notes.md <<EOF
+          ## Satu Dulu ${TAG_NAME}
+
+          Versi ${VERSION_NAME} menyatukan pengalaman lokal terbaik dengan sistem **Anti-lupa**:
+
+          - Tema warm editorial dan alur 30 hari lengkap dari versi lokal.
+          - Idea Inbox untuk menangkap ide tanpa mengganggu fokus aktif.
+          - Restart Capsule untuk menyimpan konteks dan tindakan pertama.
+          - Daily check-in energi dan waktu.
+          - Recovery Mode otomatis saat ritme kerja mulai terputus.
+          - Review mingguan yang benar-benar menerapkan keputusan lanjut, pivot, atau park.
+          - Backup/restore lokal lengkap untuk seluruh data dan PDF panduan.
+
+          Build iOS: **${BUILD_NUMBER}**
+
+          > IPA ini belum ditandatangani Apple. File perlu di-sign ulang menggunakan AltStore, Sideloadly, atau metode signing lain sebelum dipasang ke iPhone.
+          EOF
+
+      - name: Publish GitHub Release
+        if: >-
+          github.event_name == 'push' ||
+          (github.event_name == 'create' && startsWith(github.event.ref, 'release/')) ||
+          inputs.publish_release == true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ steps.release_meta.outputs.tag_name }}
+          IPA_NAME: ${{ steps.release_meta.outputs.ipa_name }}
+        run: |
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            gh release upload "$TAG_NAME" "$IPA_NAME" --clobber
+            gh release edit "$TAG_NAME" \
+              --title "Satu Dulu ${TAG_NAME}" \
+              --notes-file release-notes.md \
+              --latest
+          else
+            gh release create "$TAG_NAME" "$IPA_NAME" \
+              --target "$GITHUB_SHA" \
+              --title "Satu Dulu ${TAG_NAME}" \
+              --notes-file release-notes.md \
+              --latest
+          fi

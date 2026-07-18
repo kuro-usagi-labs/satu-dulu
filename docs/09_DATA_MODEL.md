@@ -67,7 +67,7 @@ updated_at INTEGER NOT NULL
 UNIQUE(sprint_id, plan_date)
 ```
 
-### sprint_closures — schema v2
+### sprint_closures — digabungkan ke schema v3
 
 ```text
 id TEXT PRIMARY KEY
@@ -221,7 +221,7 @@ updated_at INTEGER NOT NULL
 ## Migration policy
 
 - schema version starts at 1;
-- schema v2 menambah `sprint_closures` secara add-only;
+- schema v3 menyatukan `sprint_closures` dengan tabel anti-lupa secara add-only;
 - every schema change adds migration and migration test;
 - never edit released migration history;
 - backup data before destructive migration;

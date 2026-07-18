@@ -1,5 +1,6 @@
 import 'package:satu_dulu/core/database/app_database.dart';
 import 'package:satu_dulu/core/errors/app_exception.dart';
+import 'package:satu_dulu/features/anti_forget/domain/entities/anti_forget_models.dart';
 import 'package:satu_dulu/features/projects/domain/entities/tracker_models.dart';
 import 'package:satu_dulu/features/results/domain/entities/result_models.dart';
 import 'package:satu_dulu/features/settings/domain/local_backup_models.dart';
@@ -16,6 +17,17 @@ class LocalBackupTableCodec {
     try {
       final parsed = ParsedBackupTables(
         projects: _rows(snapshot, 'projects', ProjectRow.fromJson),
+        ideas: _rows(snapshot, 'ideas', IdeaRow.fromJson),
+        restartCapsules: _rows(
+          snapshot,
+          'restartCapsules',
+          RestartCapsuleRow.fromJson,
+        ),
+        dailyCheckIns: _rows(
+          snapshot,
+          'dailyCheckIns',
+          DailyCheckInRow.fromJson,
+        ),
         sprints: _rows(snapshot, 'sprints', SprintRow.fromJson),
         dailyPlans: _rows(snapshot, 'dailyPlans', DailyPlanRow.fromJson),
         dailyActions: _rows(snapshot, 'dailyActions', DailyActionRow.fromJson),
@@ -70,6 +82,9 @@ class LocalBackupTableCodec {
 
   void _validate(ParsedBackupTables value) {
     _requireUnique(value.projects.map((row) => row.id), 'proyek');
+    _requireUnique(value.ideas.map((row) => row.id), 'ide');
+    _requireUnique(value.restartCapsules.map((row) => row.id), 'kapsul');
+    _requireUnique(value.dailyCheckIns.map((row) => row.id), 'check-in');
     _requireUnique(value.sprints.map((row) => row.id), 'putaran');
     _requireUnique(value.dailyPlans.map((row) => row.id), 'rencana harian');
     _requireUnique(value.dailyActions.map((row) => row.id), 'tindakan');
@@ -99,6 +114,31 @@ class LocalBackupTableCodec {
       throw const BackupException(
         'Aturan satu fokus atau status proyek pada backup tidak valid.',
       );
+    }
+
+    final ideaDispositions = IdeaDisposition.values
+        .map((item) => item.name)
+        .toSet();
+    if (value.ideas.any(
+      (row) =>
+          !ideaDispositions.contains(row.disposition) ||
+          (row.convertedProjectId != null &&
+              !projectIds.contains(row.convertedProjectId)),
+    )) {
+      throw const BackupException('Idea Inbox pada backup tidak valid.');
+    }
+    if (value.restartCapsules.any(
+          (row) => !projectIds.contains(row.projectId),
+        ) ||
+        value.dailyCheckIns.any(
+          (row) =>
+              !EnergyLevel.values.any(
+                (level) => level.name == row.energyLevel,
+              ) ||
+              row.availableMinutes < 0 ||
+              row.availableMinutes > 1440,
+        )) {
+      throw const BackupException('Data anti-lupa pada backup tidak valid.');
     }
 
     final sprintIds = value.sprints.map((row) => row.id).toSet();
@@ -261,6 +301,9 @@ class LocalBackupTableCodec {
 class ParsedBackupTables {
   const ParsedBackupTables({
     required this.projects,
+    required this.ideas,
+    required this.restartCapsules,
+    required this.dailyCheckIns,
     required this.sprints,
     required this.dailyPlans,
     required this.dailyActions,
@@ -275,6 +318,9 @@ class ParsedBackupTables {
   });
 
   final List<ProjectRow> projects;
+  final List<IdeaRow> ideas;
+  final List<RestartCapsuleRow> restartCapsules;
+  final List<DailyCheckInRow> dailyCheckIns;
   final List<SprintRow> sprints;
   final List<DailyPlanRow> dailyPlans;
   final List<DailyActionRow> dailyActions;

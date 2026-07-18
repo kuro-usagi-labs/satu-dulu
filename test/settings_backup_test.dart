@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:satu_dulu/app/theme/app_theme.dart';
+import 'package:satu_dulu/core/database/app_database.dart';
 import 'package:satu_dulu/core/errors/app_exception.dart';
 import 'package:satu_dulu/features/settings/application/local_backup_coordinator.dart';
 import 'package:satu_dulu/features/settings/domain/local_backup_models.dart';
@@ -167,7 +168,7 @@ LocalBackupManifest _manifest() {
   final checksum = List.filled(64, '0').join();
   return LocalBackupManifest(
     createdAt: DateTime.utc(2026, 7, 17, 9, 30),
-    databaseSchemaVersion: 2,
+    databaseSchemaVersion: AppDatabase.currentSchemaVersion,
     dataSha256: checksum,
     counts: counts,
     pdfs: [
@@ -179,7 +180,7 @@ LocalBackupManifest _manifest() {
 
 BackupDataSnapshot _snapshot() {
   return BackupDataSnapshot(
-    databaseSchemaVersion: 2,
+    databaseSchemaVersion: AppDatabase.currentSchemaVersion,
     tables: {
       for (final name in localBackupTableNames) name: <Map<String, dynamic>>[],
     },

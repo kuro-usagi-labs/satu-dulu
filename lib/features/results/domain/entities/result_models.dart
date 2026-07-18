@@ -102,6 +102,7 @@ class WeeklyReview {
     this.workedWell,
     this.wasteOrBlocker,
     this.nextWeekFocus,
+    this.decisionAppliedAt,
   });
 
   final String id;
@@ -115,8 +116,11 @@ class WeeklyReview {
   final String? wasteOrBlocker;
   final ReviewDecision decision;
   final String? nextWeekFocus;
+  final DateTime? decisionAppliedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  bool get isApplied => decisionAppliedAt != null;
 }
 
 class WeeklyReviewInput {

@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:satu_dulu/app/theme/app_theme.dart';
 import 'package:satu_dulu/core/errors/app_exception.dart';
 import 'package:satu_dulu/core/widgets/app_primitives.dart';
+import 'package:satu_dulu/features/anti_forget/domain/entities/anti_forget_models.dart';
+import 'package:satu_dulu/features/anti_forget/presentation/controllers/anti_forget_providers.dart';
 import 'package:satu_dulu/features/projects/domain/entities/tracker_models.dart';
 import 'package:satu_dulu/features/projects/presentation/controllers/tracker_providers.dart';
 
@@ -20,6 +22,7 @@ class _CreateDailyPlanScreenState extends ConsumerState<CreateDailyPlanScreen> {
   final _outcomeController = TextEditingController();
   final _lowEnergyController = TextEditingController();
   final _actionControllers = List.generate(3, (_) => TextEditingController());
+  bool _suggestionsLoaded = false;
   bool _saving = false;
 
   @override
@@ -34,6 +37,9 @@ class _CreateDailyPlanScreenState extends ConsumerState<CreateDailyPlanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final support = ref.watch(antiForgetTodaySupportProvider(DateTime.now()));
+    support.whenData(_loadSuggestions);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Hasil untuk hari ini'),
@@ -67,6 +73,35 @@ class _CreateDailyPlanScreenState extends ConsumerState<CreateDailyPlanScreen> {
                 context,
               ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
             ),
+            if (support.value?.checkIn case final checkIn?) ...[
+              const SizedBox(height: AppSpacing.section),
+              AppNotice(
+                icon: checkIn.energyLevel == EnergyLevel.low
+                    ? Icons.battery_1_bar_rounded
+                    : Icons.schedule_rounded,
+                title:
+                    '${_energyLabel(checkIn.energyLevel)} · ${checkIn.capacityLabel}',
+                description: _capacityGuidance(checkIn),
+                background: checkIn.energyLevel == EnergyLevel.low
+                    ? AppColors.warningSoft
+                    : AppColors.accentSoft,
+                foreground: checkIn.energyLevel == EnergyLevel.low
+                    ? AppColors.warning
+                    : AppColors.accentDeep,
+              ),
+            ] else ...[
+              const SizedBox(height: AppSpacing.section),
+              AppNotice(
+                icon: Icons.battery_unknown_rounded,
+                title: 'Kapasitas hari ini belum dicatat',
+                description:
+                    'Kamu tetap dapat membuat rencana, atau check-in dulu agar ukurannya lebih realistis.',
+                action: TextButton(
+                  onPressed: () => context.push('/check-in'),
+                  child: const Text('Check-in'),
+                ),
+              ),
+            ],
             const SizedBox(height: AppSpacing.section),
             TextFormField(
               controller: _outcomeController,
@@ -203,6 +238,36 @@ class _CreateDailyPlanScreenState extends ConsumerState<CreateDailyPlanScreen> {
     );
   }
 
+  void _loadSuggestions(AntiForgetTodaySupport support) {
+    if (_suggestionsLoaded) return;
+    _suggestionsLoaded = true;
+    final nextAction = support.capsule?.nextAction?.trim();
+    if (nextAction?.isNotEmpty == true) {
+      _actionControllers.first.text = nextAction!;
+      if (support.checkIn?.energyLevel == EnergyLevel.low) {
+        _lowEnergyController.text = nextAction;
+      }
+    }
+  }
+
+  String _energyLabel(EnergyLevel level) => switch (level) {
+    EnergyLevel.low => 'Energi rendah',
+    EnergyLevel.normal => 'Energi normal',
+    EnergyLevel.high => 'Energi tinggi',
+  };
+
+  String _capacityGuidance(DailyCheckIn checkIn) {
+    if (checkIn.energyLevel == EnergyLevel.low ||
+        checkIn.availableMinutes <= 10) {
+      return 'Buat outcome sekecil mungkin dan gunakan hanya satu langkah utama.';
+    }
+    if (checkIn.energyLevel == EnergyLevel.high &&
+        checkIn.availableMinutes >= 60) {
+      return 'Kapasitas cukup untuk outcome penuh, tetapi tetap batasi maksimal tiga langkah.';
+    }
+    return 'Pilih satu output kecil yang dapat selesai dalam satu sesi fokus.';
+  }
+
   String? _required(String? value) {
     return value == null || value.trim().isEmpty ? 'Wajib diisi.' : null;
   }
@@ -226,6 +291,7 @@ class _CreateDailyPlanScreenState extends ConsumerState<CreateDailyPlanScreen> {
             ),
           );
       ref.invalidate(todayProvider);
+      ref.invalidate(antiForgetTodaySupportProvider);
       if (mounted) context.go('/today');
     } on AppException catch (error) {
       if (mounted) {

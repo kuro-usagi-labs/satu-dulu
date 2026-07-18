@@ -7,7 +7,7 @@ import 'package:satu_dulu/features/settings/data/drift_local_backup_repository.d
 import 'package:satu_dulu/features/settings/domain/local_backup_models.dart';
 
 void main() {
-  test('backup round-trip preserves every schema v2 table', () async {
+  test('backup round-trip preserves every schema v3 table', () async {
     final source = AppDatabase.forTesting(NativeDatabase.memory());
     final target = AppDatabase.forTesting(NativeDatabase.memory());
     addTearDown(source.close);
@@ -80,6 +80,40 @@ Future<void> _seedCompleteDatabase(AppDatabase database) async {
         startDate: Value(startedAt),
         reviewDate: Value(nextAt.add(const Duration(days: 29))),
         createdAt: startedAt,
+        updatedAt: nextAt,
+      ),
+    );
+    batch.insert(
+      database.ideas,
+      IdeasCompanion.insert(
+        id: 'idea-one',
+        title: 'Coba format carousel',
+        note: const Value('Uji setelah putaran aktif selesai'),
+        disposition: 'inbox',
+        capturedAt: startedAt,
+        updatedAt: nextAt,
+      ),
+    );
+    batch.insert(
+      database.restartCapsules,
+      RestartCapsulesCompanion.insert(
+        id: 'capsule-one',
+        projectId: 'project-focus',
+        lastKnownState: const Value('Riset topik sudah selesai'),
+        nextAction: const Value('Tulis outline video pertama'),
+        createdAt: startedAt,
+        updatedAt: nextAt,
+      ),
+    );
+    batch.insert(
+      database.dailyCheckIns,
+      DailyCheckInsCompanion.insert(
+        id: 'check-in-one',
+        checkInDate: nextAt,
+        energyLevel: 'normal',
+        availableMinutes: 45,
+        note: const Value('Fokus setelah makan siang'),
+        createdAt: nextAt,
         updatedAt: nextAt,
       ),
     );

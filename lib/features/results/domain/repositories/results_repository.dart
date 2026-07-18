@@ -17,4 +17,6 @@ abstract interface class ResultsRepository {
   Stream<List<WeeklyReview>> watchWeeklyReviews(String projectId);
 
   Future<void> saveWeeklyReview(WeeklyReviewInput input);
+
+  Future<void> saveAndApplyWeeklyReview(WeeklyReviewInput input);
 }

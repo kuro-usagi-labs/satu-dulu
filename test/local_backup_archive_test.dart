@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:satu_dulu/core/database/app_database.dart';
 import 'package:satu_dulu/core/errors/app_exception.dart';
 import 'package:satu_dulu/features/settings/data/local_backup_archive_codec.dart';
 import 'package:satu_dulu/features/settings/domain/local_backup_models.dart';
@@ -92,7 +93,7 @@ void main() {
 
 BackupDataSnapshot _snapshotWithGuide() {
   return BackupDataSnapshot(
-    databaseSchemaVersion: 2,
+    databaseSchemaVersion: AppDatabase.currentSchemaVersion,
     tables: {
       for (final name in localBackupTableNames)
         name: name == 'guideDocuments'

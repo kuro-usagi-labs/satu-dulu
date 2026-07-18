@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:satu_dulu/core/database/app_database.dart';
 import 'package:satu_dulu/core/errors/app_exception.dart';
 import 'package:satu_dulu/features/settings/application/local_backup_coordinator.dart';
 import 'package:satu_dulu/features/settings/domain/local_backup_file_service.dart';
@@ -62,7 +63,7 @@ void main() {
 
 BackupDataSnapshot _emptySnapshot() {
   return BackupDataSnapshot(
-    databaseSchemaVersion: 2,
+    databaseSchemaVersion: AppDatabase.currentSchemaVersion,
     tables: {
       for (final name in localBackupTableNames) name: <Map<String, dynamic>>[],
     },
@@ -75,7 +76,7 @@ PreparedLocalBackup _preparedBackup() {
     sourceName: 'backup.zip',
     manifest: LocalBackupManifest(
       createdAt: DateTime.utc(2026, 7, 17),
-      databaseSchemaVersion: 2,
+      databaseSchemaVersion: AppDatabase.currentSchemaVersion,
       dataSha256: List.filled(64, '0').join(),
       counts: snapshot.counts,
       pdfs: const [],

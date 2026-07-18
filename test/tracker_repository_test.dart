@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:satu_dulu/core/database/app_database.dart';
@@ -20,7 +21,9 @@ void main() {
   test(
     'creating a second focus moves the previous focus to parking lot',
     () async {
-      await repository.createProject(_input(name: 'Focus A', day: day));
+      final firstId = await repository.createProject(
+        _input(name: 'Focus A', day: day),
+      );
       await repository.createProject(_input(name: 'Focus B', day: day));
 
       final projects = await repository.watchProjects().first;
@@ -35,6 +38,16 @@ void main() {
       expect(
         projects.singleWhere((project) => project.name == 'Focus A').status,
         ProjectStatus.parkingLot,
+      );
+
+      final firstSprints = await (database.select(
+        database.sprints,
+      )..where((table) => table.projectId.equals(firstId))).get();
+      expect(
+        firstSprints.where(
+          (sprint) => sprint.status == SprintStatus.active.name,
+        ),
+        isEmpty,
       );
     },
   );
@@ -66,6 +79,21 @@ void main() {
       );
     },
   );
+
+  test('non-focus project keeps its prepared sprint inactive', () async {
+    final projectId = await repository.createProject(
+      _input(
+        name: 'Parked project',
+        day: day,
+        status: ProjectStatus.parkingLot,
+      ),
+    );
+
+    final sprint = await (database.select(
+      database.sprints,
+    )..where((table) => table.projectId.equals(projectId))).getSingle();
+    expect(sprint.status, SprintStatus.cancelled.name);
+  });
 
   test('daily plan has at most three actions', () async {
     expect(
@@ -454,11 +482,71 @@ void main() {
     },
   );
 
+  test(
+    'reactivating a parked project starts a fresh sprint and plan',
+    () async {
+      final oldFocusId = await repository.createProject(
+        _input(name: 'Old focus', day: day),
+      );
+      final parkedId = await repository.createProject(
+        _input(
+          name: 'Parked project',
+          day: day.subtract(const Duration(days: 60)),
+          status: ProjectStatus.parkingLot,
+          actions: const ['Riset', 'Terbitkan'],
+        ),
+      );
+
+      await repository.updateProject(
+        parkedId,
+        const UpdateProjectInput(
+          name: 'Parked project',
+          shortGoal: 'Mulai lagi dengan konteks lama',
+          status: ProjectStatus.focus,
+        ),
+      );
+
+      final activeSprint =
+          await (database.select(database.sprints)..where(
+                (table) =>
+                    table.projectId.equals(parkedId) &
+                    table.status.equals(SprintStatus.active.name),
+              ))
+              .getSingle();
+      final today = await repository.loadToday(activeSprint.startDate);
+
+      expect(today, isNotNull);
+      expect(today!.requiredOutcome, 'Terbitkan hasil pertama');
+      expect(today.actions.map((action) => action.label), [
+        'Riset',
+        'Terbitkan',
+      ]);
+      expect(today.actions.every((action) => !action.isCompleted), isTrue);
+
+      final oldFocusActive =
+          await (database.select(database.sprints)..where(
+                (table) =>
+                    table.projectId.equals(oldFocusId) &
+                    table.status.equals(SprintStatus.active.name),
+              ))
+              .get();
+      expect(oldFocusActive, isEmpty);
+    },
+  );
+
   test('archived project is removed from the main project stream', () async {
     final id = await repository.createProject(_input(name: 'Focus', day: day));
     await repository.archiveProject(id);
 
     expect(await repository.watchProjects().first, isEmpty);
+    final activeSprints =
+        await (database.select(database.sprints)..where(
+              (table) =>
+                  table.projectId.equals(id) &
+                  table.status.equals(SprintStatus.active.name),
+            ))
+            .get();
+    expect(activeSprints, isEmpty);
   });
 }
 

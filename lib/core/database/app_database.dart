@@ -26,6 +26,57 @@ class Projects extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
+@DataClassName('IdeaRow')
+class Ideas extends Table {
+  TextColumn get id => text()();
+  TextColumn get title => text()();
+  TextColumn get note => text().nullable()();
+  TextColumn get source => text().nullable()();
+  TextColumn get disposition => text()();
+  TextColumn get convertedProjectId => text().nullable().references(
+    Projects,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
+  DateTimeColumn get capturedAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+@DataClassName('RestartCapsuleRow')
+class RestartCapsules extends Table {
+  TextColumn get id => text()();
+  TextColumn get projectId =>
+      text().unique().references(Projects, #id, onDelete: KeyAction.cascade)();
+  TextColumn get lastKnownState => text().nullable()();
+  TextColumn get lastOutput => text().nullable()();
+  TextColumn get whatWorked => text().nullable()();
+  TextColumn get blocker => text().nullable()();
+  TextColumn get nextAction => text().nullable()();
+  TextColumn get parkedReason => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+@DataClassName('DailyCheckInRow')
+class DailyCheckIns extends Table {
+  TextColumn get id => text()();
+  DateTimeColumn get checkInDate => dateTime().unique()();
+  TextColumn get energyLevel => text()();
+  IntColumn get availableMinutes => integer()();
+  TextColumn get note => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
 @DataClassName('SprintRow')
 class Sprints extends Table {
   TextColumn get id => text()();
@@ -208,6 +259,7 @@ class WeeklyReviews extends Table {
   TextColumn get wasteOrBlocker => text().nullable()();
   TextColumn get decision => text()();
   TextColumn get nextWeekFocus => text().nullable()();
+  DateTimeColumn get decisionAppliedAt => dateTime().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -276,6 +328,9 @@ class SprintClosures extends Table {
 @DriftDatabase(
   tables: [
     Projects,
+    Ideas,
+    RestartCapsules,
+    DailyCheckIns,
     Sprints,
     DailyPlans,
     DailyActions,
@@ -290,7 +345,7 @@ class SprintClosures extends Table {
   ],
 )
 class AppDatabase extends _$AppDatabase {
-  static const currentSchemaVersion = 2;
+  static const currentSchemaVersion = 3;
 
   AppDatabase()
     : super(
@@ -310,15 +365,58 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (migrator) => migrator.createAll(),
     onUpgrade: (migrator, from, to) async {
-      if (from < 2) {
-        await migrator.createTable(sprintClosures);
+      if (from > to) {
+        throw StateError(
+          'Database downgrade from version $from to $to is not supported.',
+        );
+      }
+      if (from < 3) {
+        await _createTableIfMissing(migrator, 'ideas', ideas);
+        await _createTableIfMissing(
+          migrator,
+          'restart_capsules',
+          restartCapsules,
+        );
+        await _createTableIfMissing(migrator, 'daily_check_ins', dailyCheckIns);
+        await _createTableIfMissing(
+          migrator,
+          'sprint_closures',
+          sprintClosures,
+        );
+        if (!await _columnExists('weekly_reviews', 'decision_applied_at')) {
+          await migrator.addColumn(
+            weeklyReviews,
+            weeklyReviews.decisionAppliedAt,
+          );
+        }
       }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },
   );
+
+  Future<void> _createTableIfMissing<T extends Table, D>(
+    Migrator migrator,
+    String tableName,
+    TableInfo<T, D> table,
+  ) async {
+    final exists = await customSelect(
+      'SELECT 1 FROM sqlite_master WHERE type = ? AND name = ? LIMIT 1',
+      variables: [Variable.withString('table'), Variable.withString(tableName)],
+    ).getSingleOrNull();
+    if (exists == null) await migrator.createTable(table);
+  }
+
+  Future<bool> _columnExists(String tableName, String columnName) async {
+    if (tableName != 'weekly_reviews') return false;
+    final columns = await customSelect(
+      'PRAGMA table_info(weekly_reviews)',
+    ).get();
+    return columns.any((row) => row.read<String>('name') == columnName);
+  }
 }
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {

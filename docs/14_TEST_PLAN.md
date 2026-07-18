@@ -48,7 +48,7 @@
 
 ### Local backup
 
-- round-trip menjaga seluruh 12 tabel schema v2;
+- round-trip menjaga seluruh 15 tabel schema v3;
 - manifest, hitungan record, dan checksum konsisten;
 - PDF hilang/rusak, entry asing, dan traversal ditolak;
 - constraint failure me-rollback seluruh replacement database;
