@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.2.2 — Stability and orange palette
+
 - Menyatukan seluruh aksen Panduan, recovery, splash, web, dan ikon aplikasi ke
   palet oranye; tidak ada lagi token visual biru pada aplikasi.
 
