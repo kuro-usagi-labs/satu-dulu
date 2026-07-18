@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+- Menyatukan seluruh aksen Panduan, recovery, splash, web, dan ikon aplikasi ke
+  palet oranye; tidak ada lagi token visual biru pada aplikasi.
+
+- Prevented project reactivation from carrying old plans into a new cycle.
+- Kept archived projects discoverable in Projects and Results without returning
+  users to onboarding.
+- Separated weekly reflection from transactional 30-day cycle closure and
+  prevented non-focus reviews from replacing the active focus.
+- Made project archive and PDF deletion ordering safer and surfaced reader
+  persistence, bookmark, and note failures.
+- Scheduled reminders using the device IANA timezone with a stored fallback.
+
 ## 1.2.1 — Integrated local edition
 
 - Restored the warm editorial theme and complete local-first workflow that had

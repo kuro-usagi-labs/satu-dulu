@@ -21,7 +21,7 @@ void main() {
   tearDown(() => database.close());
 
   test(
-    'park review updates status, sprint, capsule, and audit field',
+    'park review records direction without changing project lifecycle',
     () async {
       final projectId = await tracker.createProject(_projectInput('TikTok'));
       final input = _reviewInput(
@@ -43,15 +43,15 @@ void main() {
       )..where((table) => table.projectId.equals(projectId))).getSingle();
       final review = await database.select(database.weeklyReviews).getSingle();
 
-      expect(project.status, ProjectStatus.parkingLot.name);
-      expect(sprint.status, SprintStatus.cancelled.name);
+      expect(project.status, ProjectStatus.focus.name);
+      expect(sprint.status, SprintStatus.active.name);
       expect(capsule.nextAction, 'Tulis tiga hook saat proyek dilanjutkan');
       expect(review.decisionAppliedAt, isNotNull);
     },
   );
 
   test(
-    'pivot closes old sprint and creates a new active sprint with plan',
+    'pivot review preserves the active sprint and updates capsule',
     () async {
       final projectId = await tracker.createProject(_projectInput('YouTube'));
 
@@ -66,21 +66,12 @@ void main() {
       final sprints = await (database.select(
         database.sprints,
       )..where((table) => table.projectId.equals(projectId))).get();
-      final active = sprints.where(
-        (sprint) => sprint.status == SprintStatus.active.name,
-      );
-      final completed = sprints.where(
-        (sprint) => sprint.status == SprintStatus.completed.name,
-      );
-
-      expect(active, hasLength(1));
-      expect(completed, hasLength(1));
-      final activeSprint = active.single;
-      expect(activeSprint.hypothesis, contains('hook konflik'));
-      final plan = await (database.select(
-        database.dailyPlans,
-      )..where((table) => table.sprintId.equals(activeSprint.id))).getSingle();
-      expect(plan.requiredOutcome, contains('hook konflik'));
+      expect(sprints, hasLength(1));
+      expect(sprints.single.status, SprintStatus.active.name);
+      final capsule = await database
+          .select(database.restartCapsules)
+          .getSingle();
+      expect(capsule.nextAction, contains('hook konflik'));
     },
   );
 
@@ -99,6 +90,35 @@ void main() {
       throwsA(isA<ValidationException>()),
     );
   });
+
+  test(
+    'reviewing a non-focus project cannot replace the current focus',
+    () async {
+      final focusId = await tracker.createProject(_projectInput('Focus'));
+      final parkedId = await tracker.createProject(
+        CreateProjectInput(
+          name: 'Parked',
+          shortGoal: 'Tetap tersimpan',
+          status: ProjectStatus.parkingLot,
+          startDate: DateTime.now(),
+          requiredOutcome: 'Tidak aktif',
+          actions: const [],
+        ),
+      );
+
+      expect(
+        () => results.saveAndApplyWeeklyReview(
+          _reviewInput(
+            parkedId,
+            decision: ReviewDecision.continueFocus,
+            next: 'Jangan ambil fokus diam-diam',
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+      expect((await tracker.getFocusProject())?.id, focusId);
+    },
+  );
 }
 
 CreateProjectInput _projectInput(String name) {

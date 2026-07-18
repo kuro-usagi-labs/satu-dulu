@@ -37,7 +37,8 @@ Idea Inbox
 - Today tetap sederhana: satu hasil, maksimal tiga tindakan.
 - Recovery menggunakan bukti perilaku lokal, bukan rasa bersalah atau streak.
 - Restart Capsule menyimpan konteks untuk kembali, bukan backlog panjang.
-- Review hanya menerapkan keputusan setelah konfirmasi eksplisit.
+- Review mingguan menyimpan refleksi dan Restart Capsule setelah konfirmasi;
+  perubahan lifecycle proyek hanya dilakukan oleh review siklus 30 hari.
 - Semua perubahan status, sprint, review, dan capsule dilakukan secara transaksional.
 - Tidak ada chatbot, OCR, cloud sync, login, atau analytics pihak ketiga.
 
@@ -225,35 +226,15 @@ Recovery Mode hanya menawarkan maksimal tiga actions:
 
 Tidak ada copy yang menghukum, streak merah, atau backlog kemarin.
 
-### 5. Weekly review menerapkan keputusan
+### 5. Weekly review menyimpan arah tanpa menutup siklus
 
-Setelah form review, tampilkan confirmation sheet berisi efek nyata.
+Setelah form review, tampilkan confirmation sheet yang menegaskan bahwa pilihan
+menjadi catatan arah dan konteks Restart Capsule. Sprint dan status proyek tidak
+berubah dari review mingguan.
 
-#### Continue
-
-- simpan review;
-- tandai keputusan applied;
-- jika sprint berakhir dalam tujuh hari, buat sprint baru;
-- gunakan `nextWeekFocus` untuk outcome/template awal;
-- status project tetap focus.
-
-#### Pivot
-
-- simpan review;
-- simpan pendekatan lama ke Restart Capsule;
-- tutup sprint aktif sebagai completed;
-- buat sprint 30 hari baru;
-- gunakan `nextWeekFocus` sebagai hypothesis dan template outcome;
-- status project tetap focus.
-
-#### Park
-
-- wajib isi satu konteks penutup/next action;
-- simpan review;
-- perbarui Restart Capsule;
-- batalkan sprint aktif;
-- pindahkan project ke parkingLot;
-- Today kembali ke empty state untuk memilih fokus berikutnya.
+Semua pilihan menyimpan review, menandai record sudah diterapkan ke konteks, dan
+memperbarui Restart Capsule. Continue, Pivot, dan Park baru mengubah sprint atau
+status ketika pengguna menutup putaran melalui dedicated cycle review.
 
 Operasi harus idempotent: review yang sudah memiliki `decisionAppliedAt` tidak boleh diterapkan lagi.
 

@@ -83,6 +83,9 @@ class _GuideReaderState extends ConsumerState<_GuideReader>
   Timer? _saveTimer;
   late int _currentPage;
   int? _lastSavedPage;
+  bool _savingPage = false;
+  bool _bookmarking = false;
+  bool _savingNote = false;
 
   @override
   void initState() {
@@ -138,7 +141,7 @@ class _GuideReaderState extends ConsumerState<_GuideReader>
             icon: const Icon(Icons.grid_view_rounded),
           ),
           IconButton(
-            onPressed: _toggleBookmark,
+            onPressed: _bookmarking ? null : _toggleBookmark,
             tooltip: bookmarked ? 'Hapus bookmark' : 'Simpan bookmark',
             icon: Icon(
               bookmarked
@@ -147,7 +150,7 @@ class _GuideReaderState extends ConsumerState<_GuideReader>
             ),
           ),
           IconButton(
-            onPressed: _addNote,
+            onPressed: _savingNote ? null : _addNote,
             tooltip: 'Tambah catatan',
             icon: const Icon(Icons.note_add_outlined),
           ),
@@ -209,19 +212,40 @@ class _GuideReaderState extends ConsumerState<_GuideReader>
   }
 
   void _flushPage() {
-    if (_lastSavedPage == _currentPage) return;
-    _lastSavedPage = _currentPage;
-    unawaited(
-      ref
+    if (_lastSavedPage == _currentPage || _savingPage) return;
+    unawaited(_persistCurrentPage());
+  }
+
+  Future<void> _persistCurrentPage() async {
+    final page = _currentPage;
+    _savingPage = true;
+    try {
+      await ref
           .read(guideRepositoryProvider)
-          .updateLastPage(widget.document.id, _currentPage),
-    );
+          .updateLastPage(widget.document.id, page);
+      _lastSavedPage = page;
+    } catch (_) {
+      _showReaderError(
+        'Posisi membaca belum tersimpan. Satu Dulu akan mencoba lagi saat halaman berubah.',
+      );
+    } finally {
+      _savingPage = false;
+      if (_lastSavedPage != _currentPage && mounted) _flushPage();
+    }
   }
 
   Future<void> _toggleBookmark() async {
-    await ref
-        .read(guideRepositoryProvider)
-        .toggleBookmark(widget.document.id, _currentPage);
+    if (_bookmarking) return;
+    setState(() => _bookmarking = true);
+    try {
+      await ref
+          .read(guideRepositoryProvider)
+          .toggleBookmark(widget.document.id, _currentPage);
+    } catch (_) {
+      _showReaderError('Bookmark belum dapat diperbarui. Coba lagi.');
+    } finally {
+      if (mounted) setState(() => _bookmarking = false);
+    }
   }
 
   Future<void> _showThumbnails() async {
@@ -307,6 +331,7 @@ class _GuideReaderState extends ConsumerState<_GuideReader>
   }
 
   Future<void> _addNote() async {
+    if (_savingNote) return;
     final controller = TextEditingController();
     final content = await showModalBottomSheet<String>(
       context: context,
@@ -350,13 +375,26 @@ class _GuideReaderState extends ConsumerState<_GuideReader>
     );
     controller.dispose();
     if (content == null || !mounted) return;
-    await ref
-        .read(guideRepositoryProvider)
-        .saveNote(widget.document.id, _currentPage, content);
-    if (mounted) {
+    setState(() => _savingNote = true);
+    try {
+      await ref
+          .read(guideRepositoryProvider)
+          .saveNote(widget.document.id, _currentPage, content);
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Catatan disimpan.')));
+    } catch (_) {
+      _showReaderError('Catatan belum dapat disimpan. Coba lagi.');
+    } finally {
+      if (mounted) setState(() => _savingNote = false);
     }
+  }
+
+  void _showReaderError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

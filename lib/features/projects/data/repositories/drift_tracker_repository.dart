@@ -18,7 +18,6 @@ class DriftTrackerRepository implements TrackerRepository {
   @override
   Stream<List<Project>> watchProjects() {
     final query = _database.select(_database.projects)
-      ..where((table) => table.status.isNotValue(ProjectStatus.archived.name))
       ..orderBy([
         (table) => OrderingTerm.asc(table.status),
         (table) => OrderingTerm.desc(table.updatedAt),
@@ -465,20 +464,28 @@ class DriftTrackerRepository implements TrackerRepository {
   @override
   Future<void> archiveProject(String projectId) async {
     final now = DateTime.now().toUtc();
-    final affected =
-        await (_database.update(
-          _database.projects,
-        )..where((table) => table.id.equals(projectId))).write(
-          ProjectsCompanion(
-            status: Value(ProjectStatus.archived.name),
-            archivedAt: Value(now),
-            updatedAt: Value(now),
-          ),
-        );
-    if (affected != 1) {
-      throw const DatabaseException('Proyek tidak ditemukan.');
+    try {
+      await _database.transaction(() async {
+        final affected =
+            await (_database.update(
+              _database.projects,
+            )..where((table) => table.id.equals(projectId))).write(
+              ProjectsCompanion(
+                status: Value(ProjectStatus.archived.name),
+                archivedAt: Value(now),
+                updatedAt: Value(now),
+              ),
+            );
+        if (affected != 1) {
+          throw const DatabaseException('Proyek tidak ditemukan.');
+        }
+        await _cancelActiveSprints([projectId], now);
+      });
+    } on AppException {
+      rethrow;
+    } catch (error) {
+      throw DatabaseException('Proyek belum dapat diarsipkan.', error);
     }
-    await _cancelActiveSprints([projectId], now);
   }
 
   Future<void> _parkProjects(
@@ -522,31 +529,6 @@ class DriftTrackerRepository implements TrackerRepository {
     required DateTime now,
     required String? successCriteria,
   }) async {
-    final latestSprint =
-        await (_database.select(_database.sprints)
-              ..where((table) => table.projectId.equals(projectId))
-              ..orderBy([(table) => OrderingTerm.desc(table.updatedAt)])
-              ..limit(1))
-            .getSingleOrNull();
-
-    DailyPlanRow? templatePlan;
-    List<DailyActionRow> templateActions = const [];
-    if (latestSprint != null) {
-      templatePlan =
-          await (_database.select(_database.dailyPlans)
-                ..where((table) => table.sprintId.equals(latestSprint.id))
-                ..orderBy([(table) => OrderingTerm.desc(table.updatedAt)])
-                ..limit(1))
-              .getSingleOrNull();
-      if (templatePlan != null) {
-        templateActions =
-            await (_database.select(_database.dailyActions)
-                  ..where((table) => table.dailyPlanId.equals(templatePlan!.id))
-                  ..orderBy([(table) => OrderingTerm.asc(table.position)]))
-                .get();
-      }
-    }
-
     await _cancelActiveSprints([projectId], now);
 
     final sprintId = _uuid.v4();
@@ -568,40 +550,5 @@ class DriftTrackerRepository implements TrackerRepository {
             updatedAt: now,
           ),
         );
-
-    if (templatePlan == null) return;
-
-    final planId = _uuid.v4();
-    await _database
-        .into(_database.dailyPlans)
-        .insert(
-          DailyPlansCompanion.insert(
-            id: planId,
-            sprintId: sprintId,
-            planDate: startDate,
-            requiredOutcome: templatePlan.requiredOutcome,
-            lowEnergyAction: Value(templatePlan.lowEnergyAction),
-            linkedGuideDocumentId: Value(templatePlan.linkedGuideDocumentId),
-            linkedGuidePage: Value(templatePlan.linkedGuidePage),
-            note: Value(templatePlan.note),
-            createdAt: now,
-            updatedAt: now,
-          ),
-        );
-
-    for (final action in templateActions) {
-      await _database
-          .into(_database.dailyActions)
-          .insert(
-            DailyActionsCompanion.insert(
-              id: _uuid.v4(),
-              dailyPlanId: planId,
-              position: action.position,
-              label: action.label,
-              createdAt: now,
-              updatedAt: now,
-            ),
-          );
-    }
   }
 }

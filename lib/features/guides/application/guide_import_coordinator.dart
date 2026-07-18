@@ -55,16 +55,13 @@ class GuideImportCoordinator {
     return _files.delete(staged.storedRelativePath);
   }
 
-  Future<void> deleteDocument(GuideDocument document) async {
+  Future<String?> deleteDocument(GuideDocument document) async {
+    await _repository.deleteMetadata(document.id);
     try {
       await _files.delete(document.storedRelativePath);
     } catch (error) {
-      await _repository.markCleanupNeeded(document.id);
-      throw FileImportException(
-        'Metadata dipertahankan karena file lokal belum dapat dihapus.',
-        error,
-      );
+      return 'Panduan sudah dihapus dari pustaka. Sisa file lokal akan dibersihkan pada kesempatan berikutnya.';
     }
-    await _repository.deleteMetadata(document.id);
+    return null;
   }
 }

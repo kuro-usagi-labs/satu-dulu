@@ -84,6 +84,31 @@ void main() {
 
     expect(files.deletedPaths, ['pdfs/guide-1.pdf']);
   });
+
+  test('delete removes metadata before touching the physical file', () async {
+    final events = <String>[];
+    final files = _RecordingFileService(events: events);
+    final coordinator = GuideImportCoordinator(
+      files,
+      _DeletionRepository(events),
+    );
+    final document = GuideDocument(
+      id: 'guide-1',
+      originalFileName: 'asli.pdf',
+      displayTitle: 'Panduan fokus',
+      storedRelativePath: 'pdfs/guide-1.pdf',
+      fileSizeBytes: 1024,
+      category: 'Strategi',
+      isPinned: false,
+      pageCount: 12,
+      lastReadPage: 1,
+      importedAt: DateTime.utc(2026),
+      updatedAt: DateTime.utc(2026),
+    );
+
+    expect(await coordinator.deleteDocument(document), isNull);
+    expect(events, ['metadata', 'file']);
+  });
 }
 
 StagedGuideFile _file({int pageCount = 12}) {
@@ -123,11 +148,29 @@ class _FailingRepository implements GuideRepository {
 }
 
 class _RecordingFileService implements GuideFileService {
+  _RecordingFileService({this.events});
+
   final deletedPaths = <String>[];
+  final List<String>? events;
 
   @override
   Future<void> delete(String storedRelativePath) async {
+    events?.add('file');
     deletedPaths.add(storedRelativePath);
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _DeletionRepository implements GuideRepository {
+  _DeletionRepository(this.events);
+
+  final List<String> events;
+
+  @override
+  Future<void> deleteMetadata(String documentId) async {
+    events.add('metadata');
   }
 
   @override

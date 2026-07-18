@@ -1,14 +1,22 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:satu_dulu/features/settings/domain/notification_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
+typedef DeviceTimeZoneResolver = Future<String> Function();
+
 class LocalNotificationService {
-  LocalNotificationService([FlutterLocalNotificationsPlugin? plugin])
-    : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
+  LocalNotificationService([
+    FlutterLocalNotificationsPlugin? plugin,
+    DeviceTimeZoneResolver? deviceTimeZoneResolver,
+  ]) : _plugin = plugin ?? FlutterLocalNotificationsPlugin(),
+       _deviceTimeZoneResolver =
+           deviceTimeZoneResolver ?? _resolveDeviceTimeZone;
 
   final FlutterLocalNotificationsPlugin _plugin;
+  final DeviceTimeZoneResolver _deviceTimeZoneResolver;
   bool _initialized = false;
 
   Future<void> initialize() async {
@@ -38,7 +46,7 @@ class LocalNotificationService {
     if (kIsWeb) return;
     await initialize();
     await _plugin.cancelAll();
-    tz.setLocalLocation(tz.getLocation(preferences.timeZoneId));
+    tz.setLocalLocation(await _locationFor(preferences.timeZoneId));
     if (preferences.morningEnabled) {
       await _schedule(
         101,
@@ -63,6 +71,24 @@ class LocalNotificationService {
         'Catat hasil penuh atau parsial tanpa menghakimi harimu.',
       );
     }
+  }
+
+  Future<tz.Location> _locationFor(String fallbackId) async {
+    try {
+      final deviceId = await _deviceTimeZoneResolver();
+      return tz.getLocation(deviceId);
+    } catch (_) {
+      try {
+        return tz.getLocation(fallbackId);
+      } catch (_) {
+        return tz.UTC;
+      }
+    }
+  }
+
+  static Future<String> _resolveDeviceTimeZone() async {
+    final zone = await FlutterTimezone.getLocalTimezone();
+    return zone.identifier;
   }
 
   Future<void> _schedule(int id, int minutes, String title, String body) {

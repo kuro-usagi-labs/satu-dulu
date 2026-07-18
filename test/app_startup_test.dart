@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:satu_dulu/app/app.dart';
+import 'package:satu_dulu/features/anti_forget/presentation/controllers/anti_forget_providers.dart';
 import 'package:satu_dulu/features/projects/domain/entities/tracker_models.dart';
 import 'package:satu_dulu/features/projects/presentation/controllers/tracker_providers.dart';
 
+import 'fakes/fake_anti_forget_repository.dart';
 import 'fakes/fake_tracker_repository.dart';
 
 void main() {
@@ -88,6 +90,28 @@ void main() {
     expect(find.text('1 dari 3'), findsNothing);
   });
 
+  testWidgets(
+    'a user with only archived projects never sees onboarding again',
+    (tester) async {
+      final now = DateTime.now().toUtc();
+      final archived = Project(
+        id: 'project-archived',
+        name: 'Eksperimen selesai',
+        shortGoal: 'Riwayat tetap aman',
+        status: ProjectStatus.archived,
+        createdAt: now,
+        updatedAt: now,
+        archivedAt: now,
+      );
+
+      await _pumpApp(tester, FakeTrackerRepository(projects: [archived]));
+      await _pumpUntilFound(tester, find.text('Hari Ini'));
+
+      expect(find.text('Hari Ini'), findsWidgets);
+      expect(find.text('1 dari 3'), findsNothing);
+    },
+  );
+
   testWidgets('onboarding has no overflow at 320px with larger text', (
     tester,
   ) async {
@@ -150,7 +174,12 @@ void main() {
 Future<void> _pumpApp(WidgetTester tester, FakeTrackerRepository repository) {
   return tester.pumpWidget(
     ProviderScope(
-      overrides: [trackerRepositoryProvider.overrideWithValue(repository)],
+      overrides: [
+        antiForgetRepositoryProvider.overrideWithValue(
+          const FakeAntiForgetRepository(),
+        ),
+        trackerRepositoryProvider.overrideWithValue(repository),
+      ],
       child: const SatuDuluApp(),
     ),
   );

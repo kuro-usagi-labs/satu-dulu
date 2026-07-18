@@ -40,7 +40,7 @@ dikunci oleh `test/design_system_test.dart`.
 3. **Act** — Today, Ship, partial Ship, success, low energy, dan recovery.
 4. **Organize** — hierarchy Fokus utama, Tetap dijaga, dan Disimpan dulu.
 5. **Learn** — evidence card near-black, angka tabular, sparkline orange,
-   review editorial, serta Panduan yang tetap white/blue.
+   review editorial, serta Panduan yang tetap white/orange.
 6. **Understand** — onboarding dan empty state dengan satu bahasa stiker vektor.
 7. **Prove** — Dynamic Type, Reduce Motion, contrast, touch target, full tests,
    web build, dan screenshot alur nyata.
