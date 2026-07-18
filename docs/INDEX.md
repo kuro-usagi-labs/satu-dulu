@@ -28,4 +28,5 @@
 | `24_WARM_EDITORIAL_REDESIGN.md` | Iterasi orange–ink: semantic roles, motion, implementasi, dan QA |
 | `25_CLOSE_30_DAY_CYCLE.md` | ExecPlan penutupan putaran 30 hari, migration v2, transaksi keputusan, dan QA |
 | `26_LOCAL_BACKUP_RESTORE.md` | ExecPlan backup ZIP lokal, restore transaksional, file staging, dan QA |
+| `27_STABILITY_AND_INTEGRATION_FIXES.md` | ExecPlan perbaikan lifecycle, arsip, review, PDF, dan timezone |
 | `REFERENCES.md` | Referensi teknis resmi |

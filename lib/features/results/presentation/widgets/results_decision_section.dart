@@ -9,11 +9,13 @@ class ResultsDecisionSection extends StatelessWidget {
   const ResultsDecisionSection({
     required this.projectId,
     required this.reviews,
+    required this.canReview,
     super.key,
   });
 
   final String projectId;
   final AsyncValue<List<WeeklyReview>> reviews;
+  final bool canReview;
 
   @override
   Widget build(BuildContext context) {
@@ -42,15 +44,23 @@ class ResultsDecisionSection extends StatelessWidget {
               : _ReviewCard(review: items.first),
         ),
         const SizedBox(height: AppSpacing.standard),
-        OutlinedButton.icon(
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.actionDeep,
-            side: const BorderSide(color: AppColors.actionDeep),
+        if (canReview)
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.actionDeep,
+              side: const BorderSide(color: AppColors.actionDeep),
+            ),
+            onPressed: () => context.push('/results/review?project=$projectId'),
+            icon: const Icon(Icons.rate_review_outlined),
+            label: const Text('Buka review mingguan'),
+          )
+        else
+          const AppNotice(
+            icon: Icons.visibility_outlined,
+            title: 'Riwayat hanya-baca',
+            description:
+                'Aktifkan proyek sebagai fokus sebelum membuat review mingguan baru.',
           ),
-          onPressed: () => context.push('/results/review?project=$projectId'),
-          icon: const Icon(Icons.rate_review_outlined),
-          label: const Text('Buka review mingguan'),
-        ),
       ],
     );
   }

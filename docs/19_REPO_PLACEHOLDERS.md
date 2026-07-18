@@ -42,7 +42,7 @@ EXPORT_OPTIONS_PLIST_BASE64
 
 - minimum iOS version: iOS 16+;
 - app icon: cobalt focus mark di atas cool-white;
-- primary accent: `#1D5BD8`;
+- primary accent: `#F25926`;
 - reminder defaults: tersimpan lokal dan dapat diubah pengguna;
 - distribusi `v1.0.1`: IPA unsigned untuk ditandatangani ulang oleh tooling sideload;
 - signed GitHub workflow dan App Store distribution tidak digunakan untuk rilis ini;

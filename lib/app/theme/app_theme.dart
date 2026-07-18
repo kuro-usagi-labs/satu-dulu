@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// Warm semantic color system for a calm, single-focus experience.
 ///
 /// Color communicates role rather than decoration: orange moves work forward,
-/// near-black holds evidence and decisions, blue restores direction, green
+/// near-black holds evidence and decisions, orange restores direction, green
 /// marks maintenance or success, and gray keeps parked work quiet.
 abstract final class AppColors {
   static const canvas = Color(0xFFF7F5F2);
@@ -50,9 +50,9 @@ abstract final class AppColors {
   static const danger = Color(0xFFB42318);
   static const dangerSoft = Color(0xFFFDECEA);
 
-  static const guide = Color(0xFF1D5BD8);
-  static const guideDeep = Color(0xFF1747A6);
-  static const guideSoft = Color(0xFFE8F0FF);
+  static const guide = actionDeep;
+  static const guideDeep = actionDeep;
+  static const guideSoft = actionSoft;
 }
 
 abstract final class AppSpacing {

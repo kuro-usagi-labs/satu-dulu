@@ -264,9 +264,17 @@ class _GuideDetailState extends ConsumerState<_GuideDetail> {
     if (confirmed != true || !mounted) return;
     setState(() => _deleting = true);
     try {
-      await ref.read(guideImportCoordinatorProvider).deleteDocument(document);
+      final warning = await ref
+          .read(guideImportCoordinatorProvider)
+          .deleteDocument(document);
       ref.invalidate(guideDocumentsProvider);
-      if (mounted) context.go('/guides');
+      if (mounted) {
+        final messenger = ScaffoldMessenger.of(context);
+        context.go('/guides');
+        if (warning != null) {
+          messenger.showSnackBar(SnackBar(content: Text(warning)));
+        }
+      }
     } on AppException catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(

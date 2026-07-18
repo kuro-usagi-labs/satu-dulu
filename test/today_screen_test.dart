@@ -2,12 +2,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:satu_dulu/app/app.dart';
+import 'package:satu_dulu/features/anti_forget/presentation/controllers/anti_forget_providers.dart';
 import 'package:satu_dulu/features/projects/domain/entities/tracker_models.dart';
 import 'package:satu_dulu/features/projects/presentation/controllers/tracker_providers.dart';
 import 'package:satu_dulu/features/results/domain/entities/result_models.dart';
 import 'package:satu_dulu/features/results/domain/repositories/results_repository.dart';
 import 'package:satu_dulu/features/results/presentation/controllers/results_providers.dart';
 
+import 'fakes/fake_anti_forget_repository.dart';
 import 'fakes/fake_tracker_repository.dart';
 
 void main() {
@@ -18,6 +20,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          antiForgetRepositoryProvider.overrideWithValue(
+            const FakeAntiForgetRepository(),
+          ),
           trackerRepositoryProvider.overrideWithValue(
             FakeTrackerRepository(projects: [fixture.project], today: fixture),
           ),
@@ -66,6 +71,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          antiForgetRepositoryProvider.overrideWithValue(
+            const FakeAntiForgetRepository(),
+          ),
           trackerRepositoryProvider.overrideWithValue(
             FakeTrackerRepository(projects: [fixture.project], today: fixture),
           ),
@@ -108,6 +116,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          antiForgetRepositoryProvider.overrideWithValue(
+            const FakeAntiForgetRepository(),
+          ),
           trackerRepositoryProvider.overrideWithValue(
             FakeTrackerRepository(
               projects: [fixture.project],
@@ -141,6 +152,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          antiForgetRepositoryProvider.overrideWithValue(
+            const FakeAntiForgetRepository(),
+          ),
           trackerRepositoryProvider.overrideWithValue(trackerRepository),
           resultsRepositoryProvider.overrideWithValue(_FakeResultsRepository()),
         ],
@@ -204,6 +218,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          antiForgetRepositoryProvider.overrideWithValue(
+            const FakeAntiForgetRepository(),
+          ),
           trackerRepositoryProvider.overrideWithValue(trackerRepository),
         ],
         child: const SatuDuluApp(),

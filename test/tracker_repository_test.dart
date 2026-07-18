@@ -483,7 +483,7 @@ void main() {
   );
 
   test(
-    'reactivating a parked project starts a fresh sprint and plan',
+    'reactivating a parked project starts a fresh sprint without old plan debt',
     () async {
       final oldFocusId = await repository.createProject(
         _input(name: 'Old focus', day: day),
@@ -515,13 +515,11 @@ void main() {
               .getSingle();
       final today = await repository.loadToday(activeSprint.startDate);
 
-      expect(today, isNotNull);
-      expect(today!.requiredOutcome, 'Terbitkan hasil pertama');
-      expect(today.actions.map((action) => action.label), [
-        'Riset',
-        'Terbitkan',
-      ]);
-      expect(today.actions.every((action) => !action.isCompleted), isTrue);
+      expect(today, isNull);
+      final newPlans = await (database.select(
+        database.dailyPlans,
+      )..where((table) => table.sprintId.equals(activeSprint.id))).get();
+      expect(newPlans, isEmpty);
 
       final oldFocusActive =
           await (database.select(database.sprints)..where(
@@ -534,20 +532,27 @@ void main() {
     },
   );
 
-  test('archived project is removed from the main project stream', () async {
-    final id = await repository.createProject(_input(name: 'Focus', day: day));
-    await repository.archiveProject(id);
+  test(
+    'archived project remains discoverable and has no active sprint',
+    () async {
+      final id = await repository.createProject(
+        _input(name: 'Focus', day: day),
+      );
+      await repository.archiveProject(id);
 
-    expect(await repository.watchProjects().first, isEmpty);
-    final activeSprints =
-        await (database.select(database.sprints)..where(
-              (table) =>
-                  table.projectId.equals(id) &
-                  table.status.equals(SprintStatus.active.name),
-            ))
-            .get();
-    expect(activeSprints, isEmpty);
-  });
+      final projects = await repository.watchProjects().first;
+      expect(projects, hasLength(1));
+      expect(projects.single.status, ProjectStatus.archived);
+      final activeSprints =
+          await (database.select(database.sprints)..where(
+                (table) =>
+                    table.projectId.equals(id) &
+                    table.status.equals(SprintStatus.active.name),
+              ))
+              .get();
+      expect(activeSprints, isEmpty);
+    },
+  );
 }
 
 CreateProjectInput _input({

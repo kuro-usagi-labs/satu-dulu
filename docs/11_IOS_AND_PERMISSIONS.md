@@ -78,7 +78,7 @@ MVP tidak memerlukan background processing kompleks. Local notifications dijadwa
 Release candidate menggunakan:
 
 - app icon lengkap untuk seluruh ukuran iPhone, iPad, dan App Store;
-- background launch screen cool-white `#F6F8FC`;
+- background launch screen off-white `#F7F5F2`;
 - centered minimal mark tanpa copy marketing;
 - generator deterministik di `tool/generate_app_icons.ps1`.
 

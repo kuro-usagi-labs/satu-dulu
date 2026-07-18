@@ -119,38 +119,14 @@ class _NotificationSettingsState extends ConsumerState<NotificationSettings> {
             const SizedBox(height: AppSpacing.major),
             const AppSectionHeader(
               title: 'Waktu lokal',
-              description: 'Digunakan agar pengingat tidak bergeser jam.',
+              description: 'Pengingat mengikuti lokasi waktu perangkatmu.',
             ),
             const SizedBox(height: AppSpacing.standard),
-            DropdownButtonFormField<String>(
-              initialValue: _value.timeZoneId,
-              isExpanded: true,
-              decoration: const InputDecoration(
-                labelText: 'Zona waktu',
-                prefixIcon: Icon(Icons.public_rounded),
-              ),
-              items: const [
-                DropdownMenuItem(
-                  value: 'Asia/Jakarta',
-                  child: Text('WIB · Jakarta'),
-                ),
-                DropdownMenuItem(
-                  value: 'Asia/Makassar',
-                  child: Text('WITA · Makassar'),
-                ),
-                DropdownMenuItem(
-                  value: 'Asia/Jayapura',
-                  child: Text('WIT · Jayapura'),
-                ),
-              ],
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _value = _value.copyWith(timeZoneId: value);
-                    _saveError = null;
-                  });
-                }
-              },
+            const AppNotice(
+              icon: Icons.public_rounded,
+              title: 'Zona waktu otomatis',
+              description:
+                  'Saat kamu bepergian, jadwal berikutnya memakai zona waktu perangkat. Zona tersimpan hanya digunakan sebagai cadangan.',
             ),
             const SizedBox(height: AppSpacing.screen),
             const AppSectionHeader(title: 'Data dan privasi'),

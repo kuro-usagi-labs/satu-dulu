@@ -322,7 +322,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       case RecoveryReason.missingSprint:
         context.push('/projects/${project.id}');
       case RecoveryReason.reviewDue:
-        context.push('/results/review?project=${project.id}');
+        context.push('/projects/${project.id}/cycle-review');
       case RecoveryReason.noPlanAfterNoon:
         context.push('/today/plan');
       case RecoveryReason.noShipTwoDays:

@@ -47,9 +47,9 @@ Action Soft              #F8DCCF
 Evidence                 #171717
 On Evidence              #FFFFFF
 Evidence Muted           #C9C2BC
-Guide Blue               #1D5BD8
-Guide Deep               #1747A6
-Guide Soft               #E8F0FF
+Guide Orange             #B63812
+Guide Deep               #B63812
+Guide Soft               #F8DCCF
 Success                  #087A55
 Success Soft             #E6F6EF
 Parking                  #625D59
@@ -64,7 +64,7 @@ Peran warna wajib konsisten:
 
 - orange = tindakan, fokus aktif, Ship, pinned, dan data mark;
 - near-black = bukti serta keputusan, bukan dashboard penuh;
-- blue = Panduan, reader, dan recovery;
+- orange = aksi utama, Panduan, reader, dan recovery;
 - green = berhasil dan proyek Tetap dijaga;
 - gray = Disimpan dulu;
 - amber/red = warning dan destructive state.

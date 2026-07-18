@@ -93,6 +93,6 @@ abstract final class RecoveryEvaluator {
     final local = reviewDate.toLocal();
     final reviewDay = DateTime(local.year, local.month, local.day);
     final today = DateTime(now.year, now.month, now.day);
-    return !reviewDay.isAfter(today);
+    return today.isAfter(reviewDay);
   }
 }

@@ -48,7 +48,7 @@ void main() {
       status: project.status,
       createdAt: project.createdAt,
       updatedAt: project.updatedAt,
-      reviewDate: now,
+      reviewDate: now.subtract(const Duration(days: 1)),
     );
     final result = RecoveryEvaluator.evaluate(
       _snapshot(now: now, project: due, hasTodayPlan: false),
@@ -56,6 +56,23 @@ void main() {
 
     expect(result.reason, RecoveryReason.reviewDue);
     expect(result.severity, RecoverySeverity.urgent);
+  });
+
+  test('last sprint day stays available for shipping', () {
+    final dueToday = Project(
+      id: project.id,
+      name: project.name,
+      shortGoal: project.shortGoal,
+      status: project.status,
+      createdAt: project.createdAt,
+      updatedAt: project.updatedAt,
+      reviewDate: now,
+    );
+    final result = RecoveryEvaluator.evaluate(
+      _snapshot(now: now, project: dueToday),
+    );
+
+    expect(result.reason, isNot(RecoveryReason.reviewDue));
   });
 
   test('missing plan after noon creates gentle recovery', () {

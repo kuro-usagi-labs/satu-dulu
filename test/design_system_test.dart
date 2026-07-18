@@ -53,6 +53,16 @@ void main() {
     );
   });
 
+  test('guide and recovery accents stay on the orange palette', () {
+    expect(AppColors.guide, AppColors.actionDeep);
+    expect(AppColors.guideDeep, AppColors.actionDeep);
+    expect(AppColors.guideSoft, AppColors.actionSoft);
+
+    final scheme = AppTheme.light().colorScheme;
+    expect(scheme.secondary, AppColors.actionDeep);
+    expect(scheme.secondaryContainer, AppColors.actionSoft);
+  });
+
   test('motion and core controls stay inside product guardrails', () {
     expect(AppDuration.tap.inMilliseconds, inInclusiveRange(120, 200));
     expect(AppDuration.card.inMilliseconds, inInclusiveRange(200, 300));
@@ -132,6 +142,7 @@ void main() {
                 summary: summary,
                 reviews: const AsyncData<List<WeeklyReview>>([]),
                 projects: [project],
+                canReview: true,
               ),
             ),
           ),
@@ -316,6 +327,7 @@ void main() {
           body: ResultsDecisionSection(
             projectId: 'project-1',
             reviews: AsyncValue.data([review]),
+            canReview: true,
           ),
         ),
       ),

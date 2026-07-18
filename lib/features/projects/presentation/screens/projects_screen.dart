@@ -70,6 +70,7 @@ class _ProjectsContent extends ConsumerWidget {
     final focus = _withStatus(ProjectStatus.focus).firstOrNull;
     final maintained = _withStatus(ProjectStatus.maintenance);
     final parked = _withStatus(ProjectStatus.parkingLot);
+    final archived = _withStatus(ProjectStatus.archived);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -133,6 +134,25 @@ class _ProjectsContent extends ConsumerWidget {
           icon: const Icon(Icons.help_outline_rounded),
           label: const Text('Apa bedanya tiga tempat ini?'),
         ),
+        if (archived.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.major),
+          ExpansionTile(
+            tilePadding: EdgeInsets.zero,
+            childrenPadding: const EdgeInsets.only(top: AppSpacing.compact),
+            leading: const Icon(Icons.archive_outlined),
+            title: Text('Arsip (${archived.length})'),
+            subtitle: const Text(
+              'Riwayat proyek dan hasil yang tetap tersimpan.',
+            ),
+            children: [
+              for (final project in archived) ...[
+                ProjectOverviewRow(project: project, quiet: true),
+                if (project != archived.last)
+                  const SizedBox(height: AppSpacing.compact),
+              ],
+            ],
+          ),
+        ],
       ],
     );
   }

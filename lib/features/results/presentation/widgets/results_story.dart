@@ -17,6 +17,7 @@ class ResultsStory extends StatelessWidget {
     required this.summary,
     required this.reviews,
     required this.projects,
+    required this.canReview,
     super.key,
   });
 
@@ -24,6 +25,7 @@ class ResultsStory extends StatelessWidget {
   final ResultsSummary summary;
   final AsyncValue<List<WeeklyReview>> reviews;
   final List<Project> projects;
+  final bool canReview;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +40,11 @@ class ResultsStory extends StatelessWidget {
                 'Catat angka yang kamu tahu. Tidak perlu menunggu hasil besar.',
           ),
           const SizedBox(height: AppSpacing.section),
-          ResultsDecisionSection(projectId: projectId, reviews: reviews),
+          ResultsDecisionSection(
+            projectId: projectId,
+            reviews: reviews,
+            canReview: canReview,
+          ),
         ],
       );
     }
@@ -54,7 +60,11 @@ class ResultsStory extends StatelessWidget {
           _ProjectComparison(projects: projects),
         ],
         const SizedBox(height: AppSpacing.screen),
-        ResultsDecisionSection(projectId: projectId, reviews: reviews),
+        ResultsDecisionSection(
+          projectId: projectId,
+          reviews: reviews,
+          canReview: canReview,
+        ),
       ],
     );
   }

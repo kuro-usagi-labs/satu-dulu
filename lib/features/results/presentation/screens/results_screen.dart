@@ -150,6 +150,7 @@ class ResultsScreen extends ConsumerWidget {
               summary: value,
               reviews: reviews,
               projects: projects,
+              canReview: selected.status == ProjectStatus.focus,
             ),
           ),
         ],
